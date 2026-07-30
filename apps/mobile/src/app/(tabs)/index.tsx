@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { NetWorthChart } from '@/components/net-worth-chart';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 
 export default function HomeScreen() {
@@ -27,6 +28,10 @@ export default function HomeScreen() {
             <View style={styles.periodPill}>
               <Text style={styles.periodText}>6 months</Text>
             </View>
+          </View>
+
+          <View style={styles.netWorthChart}>
+            <NetWorthChart />
           </View>
         </View>
       </ScrollView>
@@ -101,6 +106,10 @@ const styles = StyleSheet.create({
     color: colors.success,
     marginTop: spacing.xs,
     ...typography.caption,
+  },
+  netWorthChart: {
+    height: 76,
+    marginTop: spacing.md,
   },
   periodPill: {
     justifyContent: 'center',
