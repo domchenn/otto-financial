@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { NeedsAttentionSection } from '@/components/needs-attention-section';
 import { NetWorthChart } from '@/components/net-worth-chart';
+import { RecentActivitySection } from '@/components/recent-activity-section';
 import { SuggestionsSection } from '@/components/suggestions-section';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 
@@ -39,6 +40,7 @@ export default function HomeScreen() {
 
         <NeedsAttentionSection />
         <SuggestionsSection />
+        <RecentActivitySection />
       </ScrollView>
     </SafeAreaView>
   );
