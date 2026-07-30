@@ -15,6 +15,20 @@ export default function HomeScreen() {
             <Text style={styles.askPillText}>Ask</Text>
           </View>
         </View>
+
+        <View style={styles.netWorthSection}>
+          <View style={styles.netWorthHeader}>
+            <View>
+              <Text style={styles.netWorthLabel}>Net worth</Text>
+              <Text style={styles.netWorthValue}>$128,406</Text>
+              <Text style={styles.netWorthDelta}>+$3,182 this month</Text>
+            </View>
+
+            <View style={styles.periodPill}>
+              <Text style={styles.periodText}>6 months</Text>
+            </View>
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -59,6 +73,43 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.sm,
   },
   askPillText: {
+    color: colors.textPrimary,
+    ...typography.caption,
+  },
+  netWorthSection: {
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  netWorthHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
+  netWorthLabel: {
+    color: colors.textSecondary,
+    marginBottom: spacing.xxs,
+    ...typography.label,
+  },
+  netWorthValue: {
+    color: colors.textPrimary,
+    ...typography.display,
+  },
+  netWorthDelta: {
+    color: colors.success,
+    marginTop: spacing.xs,
+    ...typography.caption,
+  },
+  periodPill: {
+    justifyContent: 'center',
+    minHeight: 32,
+    backgroundColor: colors.surface,
+    borderRadius: radii.pill,
+    paddingHorizontal: spacing.sm,
+  },
+  periodText: {
     color: colors.textPrimary,
     ...typography.caption,
   },
