@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { NeedsAttentionSection } from '@/components/needs-attention-section';
 import { NetWorthChart } from '@/components/net-worth-chart';
 import { colors, radii, spacing, typography } from '@/constants/theme';
 
@@ -34,6 +35,8 @@ export default function HomeScreen() {
             <NetWorthChart />
           </View>
         </View>
+
+        <NeedsAttentionSection />
       </ScrollView>
     </SafeAreaView>
   );
