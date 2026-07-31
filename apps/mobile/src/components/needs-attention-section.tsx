@@ -1,35 +1,23 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, spacing, typography } from '@/constants/theme';
+import type { AttentionItem } from '@/data/home-data';
 
-const attentionItems = [
-  {
-    title: 'Use your remaining Uber Cash',
-    description: '$9 is still available and expires in 3 days.',
-    status: '$9 left',
-  },
-  {
-    title: 'Put your next eligible meal on Gold',
-    description: 'Your Resy dining credit is still unused for this period.',
-    status: '$50',
-  },
-  {
-    title: 'Decide whether Platinum is worth renewing',
-    description: 'Verified value is near break-even and the annual fee posts in 19 days.',
-    status: '19d',
-  },
-] as const;
+type NeedsAttentionSectionProps = {
+  count: string;
+  items: readonly AttentionItem[];
+};
 
-export function NeedsAttentionSection() {
+export function NeedsAttentionSection({ count, items }: NeedsAttentionSectionProps) {
   return (
     <View style={styles.section}>
       <View style={styles.header}>
         <Text style={styles.title}>Needs attention</Text>
-        <Text style={styles.count}>3 items this week</Text>
+        <Text style={styles.count}>{count}</Text>
       </View>
 
       <View style={styles.list}>
-        {attentionItems.map((item) => (
+        {items.map((item) => (
           <View key={item.title} style={styles.item}>
             <View style={styles.rail} />
             <View style={styles.itemContent}>

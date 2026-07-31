@@ -1,35 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, spacing, typography } from '@/constants/theme';
+import type { RecentTransaction } from '@/data/home-data';
 
-const transactions = [
-  {
-    initials: 'DL',
-    merchant: 'Delta Air Lines',
-    details: 'Travel · Amex Platinum',
-    amount: '$241.30',
-    status: '5x eligible',
-    positive: false,
-  },
-  {
-    initials: 'RS',
-    merchant: 'Raku Sake',
-    details: 'Dining · Sapphire Preferred',
-    amount: '$68.40',
-    status: 'better card available',
-    positive: false,
-  },
-  {
-    initials: 'UB',
-    merchant: 'Uber statement credit',
-    details: 'Benefit posted',
-    amount: '+$6.00',
-    status: 'matched',
-    positive: true,
-  },
-] as const;
+type RecentActivitySectionProps = {
+  transactions: readonly RecentTransaction[];
+};
 
-export function RecentActivitySection() {
+export function RecentActivitySection({ transactions }: RecentActivitySectionProps) {
   return (
     <View style={styles.section}>
       <View style={styles.header}>

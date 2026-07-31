@@ -1,39 +1,13 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors, spacing, typography } from '@/constants/theme';
+import type { Suggestion } from '@/data/home-data';
 
-const suggestions = [
-  {
-    category: 'Benefit',
-    title: 'Use Uber Cash before month-end',
-    description: 'Amex Platinum · One qualifying ride or Uber Eats purchase.',
-    value: '$9 left',
-    tone: 'default',
-  },
-  {
-    category: 'Dining',
-    title: 'Put your next eligible meal on Gold',
-    description: 'Resy credit is still untouched for this period.',
-    value: '$50 left',
-    tone: 'default',
-  },
-  {
-    category: 'Optimization',
-    title: 'Switch dining spend to the better card',
-    description: 'Recent meals were posted to a lower-earning card.',
-    value: '+782 pts',
-    tone: 'success',
-  },
-  {
-    category: 'Annual fee',
-    title: 'Decide whether Platinum is worth renewing',
-    description: 'Compare realized value, remaining credits, and travel perks.',
-    value: '19 days',
-    tone: 'danger',
-  },
-] as const;
+type SuggestionsSectionProps = {
+  suggestions: readonly Suggestion[];
+};
 
-export function SuggestionsSection() {
+export function SuggestionsSection({ suggestions }: SuggestionsSectionProps) {
   return (
     <View style={styles.section}>
       <View style={styles.header}>

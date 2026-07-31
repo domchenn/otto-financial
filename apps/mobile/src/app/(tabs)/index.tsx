@@ -6,15 +6,16 @@ import { NetWorthChart } from '@/components/net-worth-chart';
 import { RecentActivitySection } from '@/components/recent-activity-section';
 import { SuggestionsSection } from '@/components/suggestions-section';
 import { colors, radii, spacing, typography } from '@/constants/theme';
+import { homeData } from '@/data/home-data';
 
 export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.greeting}>Good evening, Dominic</Text>
+        <Text style={styles.greeting}>{homeData.greeting}</Text>
 
         <View style={styles.askEntry}>
-          <Text style={styles.askPrompt}>Ask about your money</Text>
+          <Text style={styles.askPrompt}>{homeData.askPrompt}</Text>
           <View style={styles.askPill}>
             <Text style={styles.askPillText}>Ask</Text>
           </View>
@@ -23,13 +24,13 @@ export default function HomeScreen() {
         <View style={styles.netWorthSection}>
           <View style={styles.netWorthHeader}>
             <View>
-              <Text style={styles.netWorthLabel}>Net worth</Text>
-              <Text style={styles.netWorthValue}>$128,406</Text>
-              <Text style={styles.netWorthDelta}>+$3,182 this month</Text>
+              <Text style={styles.netWorthLabel}>{homeData.netWorth.label}</Text>
+              <Text style={styles.netWorthValue}>{homeData.netWorth.value}</Text>
+              <Text style={styles.netWorthDelta}>{homeData.netWorth.delta}</Text>
             </View>
 
             <View style={styles.periodPill}>
-              <Text style={styles.periodText}>6 months</Text>
+              <Text style={styles.periodText}>{homeData.netWorth.period}</Text>
             </View>
           </View>
 
@@ -38,9 +39,12 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <NeedsAttentionSection />
-        <SuggestionsSection />
-        <RecentActivitySection />
+        <NeedsAttentionSection
+          count={homeData.attentionCount}
+          items={homeData.attentionItems}
+        />
+        <SuggestionsSection suggestions={homeData.suggestions} />
+        <RecentActivitySection transactions={homeData.recentActivity} />
       </ScrollView>
     </SafeAreaView>
   );
