@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 
-import { fetchHomeSummary } from '@/api/home-api';
-import { homeSummaryFixture, type HomeSummary } from '@/data/home-data';
+import { fetchHomeData } from '@/api/home-api';
+import { homeData, type HomeData } from '@/data/home-data';
 
-type HomeSummaryState = {
-  data: HomeSummary;
+type HomeDataState = {
+  data: HomeData;
   isLoading: boolean;
   error: string | null;
 };
 
-export function useHomeSummary() {
-  const [state, setState] = useState<HomeSummaryState>({
-    data: homeSummaryFixture,
+export function useHomeData() {
+  const [state, setState] = useState<HomeDataState>({
+    data: homeData,
     isLoading: true,
     error: null,
   });
@@ -19,9 +19,9 @@ export function useHomeSummary() {
   useEffect(() => {
     const controller = new AbortController();
 
-    async function loadHomeSummary() {
+    async function loadHomeData() {
       try {
-        const data = await fetchHomeSummary(homeSummaryFixture, controller.signal);
+        const data = await fetchHomeData(homeData, controller.signal);
         setState({ data, isLoading: false, error: null });
       } catch (error) {
         if (error instanceof Error && error.name === 'AbortError') {
@@ -31,12 +31,12 @@ export function useHomeSummary() {
         setState((current) => ({
           ...current,
           isLoading: false,
-          error: error instanceof Error ? error.message : 'Unable to load Home summary',
+          error: error instanceof Error ? error.message : 'Unable to load Home data',
         }));
       }
     }
 
-    void loadHomeSummary();
+    void loadHomeData();
 
     return () => controller.abort();
   }, []);

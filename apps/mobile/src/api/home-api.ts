@@ -1,5 +1,5 @@
 import { environment } from '@/config/environment';
-import type { HomeSummary } from '@/data/home-data';
+import type { HomeData } from '@/data/home-data';
 
 type HomeApiResponse = {
   user: {
@@ -13,13 +13,46 @@ type HomeApiResponse = {
       period: 'MONTH_TO_DATE';
     };
   };
+  attentionItems: {
+    id: string;
+    type: 'BENEFIT_EXPIRING';
+    title: string;
+    description: string;
+    amount: string;
+    currency: string;
+    dueAt: string;
+  }[];
+  suggestions: {
+    id: string;
+    type: 'CARD_OPTIMIZATION';
+    category: 'OPTIMIZATION';
+    title: string;
+    description: string;
+    pointsOpportunity: number;
+  }[];
+  recentActivity: {
+    id: string;
+    merchantName: string;
+    category: 'TRAVEL';
+    accountName: string;
+    postedAt: string;
+    amount: string;
+    currency: string;
+    direction: 'DEBIT' | 'CREDIT';
+    status: 'POSTED';
+    insight: {
+      type: 'REWARD_MULTIPLIER';
+      multiplier: number;
+    } | null;
+  }[];
 };
 
-function formatCurrency(amount: string, currency: string) {
+function formatCurrency(amount: string, currency: string, maximumFractionDigits = 0) {
   return new Intl.NumberFormat(undefined, {
     style: 'currency',
     currency,
-    maximumFractionDigits: 0,
+    maximumFractionDigits,
+    minimumFractionDigits: maximumFractionDigits,
   }).format(Number(amount));
 }
 
@@ -32,7 +65,24 @@ function formatChange(amount: string, currency: string, period: 'MONTH_TO_DATE')
   return `${sign}${formattedAmount} ${periodLabel}`;
 }
 
-export async function fetchHomeSummary(fallback: HomeSummary, signal?: AbortSignal): Promise<HomeSummary> {
+function formatEnum(value: string) {
+  return value
+    .toLowerCase()
+    .replaceAll('_', ' ')
+    .replace(/^./, (character) => character.toUpperCase());
+}
+
+function getInitials(value: string) {
+  return value
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase();
+}
+
+export async function fetchHomeData(fallback: HomeData, signal?: AbortSignal): Promise<HomeData> {
   const response = await fetch(`${environment.apiUrl}/api/v1/home`, { signal });
 
   if (!response.ok) {
@@ -42,6 +92,7 @@ export async function fetchHomeSummary(fallback: HomeSummary, signal?: AbortSign
   const data = (await response.json()) as HomeApiResponse;
 
   return {
+    ...fallback,
     greeting: `Good evening, ${data.user.firstName}`,
     netWorth: {
       ...fallback.netWorth,
@@ -52,5 +103,33 @@ export async function fetchHomeSummary(fallback: HomeSummary, signal?: AbortSign
         data.netWorth.change.period
       ),
     },
+    attentionCount: `${data.attentionItems.length} ${data.attentionItems.length === 1 ? 'item' : 'items'} this week`,
+    attentionItems: data.attentionItems.map((item) => ({
+      title: item.title,
+      description: item.description,
+      status: `${formatCurrency(item.amount, item.currency)} left`,
+    })),
+    suggestions: data.suggestions.map((suggestion) => ({
+      category: formatEnum(suggestion.category),
+      title: suggestion.title,
+      description: suggestion.description,
+      value: `+${suggestion.pointsOpportunity.toLocaleString()} pts`,
+      tone: 'success' as const,
+    })),
+    recentActivity: data.recentActivity.map((transaction) => {
+      const positive = transaction.direction === 'CREDIT';
+      const amount = formatCurrency(transaction.amount, transaction.currency, 2);
+
+      return {
+        initials: getInitials(transaction.merchantName),
+        merchant: transaction.merchantName,
+        details: `${formatEnum(transaction.category)} · ${transaction.accountName}`,
+        amount: positive ? `+${amount}` : amount,
+        status: transaction.insight
+          ? `${transaction.insight.multiplier}x eligible`
+          : formatEnum(transaction.status),
+        positive,
+      };
+    }),
   };
 }

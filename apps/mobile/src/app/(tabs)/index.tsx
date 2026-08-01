@@ -6,16 +6,15 @@ import { NetWorthChart } from '@/components/net-worth-chart';
 import { RecentActivitySection } from '@/components/recent-activity-section';
 import { SuggestionsSection } from '@/components/suggestions-section';
 import { colors, radii, spacing, typography } from '@/constants/theme';
-import { homeData } from '@/data/home-data';
-import { useHomeSummary } from '@/hooks/use-home-summary';
+import { useHomeData } from '@/hooks/use-home-data';
 
 export default function HomeScreen() {
-  const { data: homeSummary } = useHomeSummary();
+  const { data: homeData } = useHomeData();
 
   return (
     <SafeAreaView style={styles.screen}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.greeting}>{homeSummary.greeting}</Text>
+        <Text style={styles.greeting}>{homeData.greeting}</Text>
 
         <View style={styles.askEntry}>
           <Text style={styles.askPrompt}>{homeData.askPrompt}</Text>
@@ -27,13 +26,13 @@ export default function HomeScreen() {
         <View style={styles.netWorthSection}>
           <View style={styles.netWorthHeader}>
             <View>
-              <Text style={styles.netWorthLabel}>{homeSummary.netWorth.label}</Text>
-              <Text style={styles.netWorthValue}>{homeSummary.netWorth.value}</Text>
-              <Text style={styles.netWorthDelta}>{homeSummary.netWorth.delta}</Text>
+              <Text style={styles.netWorthLabel}>{homeData.netWorth.label}</Text>
+              <Text style={styles.netWorthValue}>{homeData.netWorth.value}</Text>
+              <Text style={styles.netWorthDelta}>{homeData.netWorth.delta}</Text>
             </View>
 
             <View style={styles.periodPill}>
-              <Text style={styles.periodText}>{homeSummary.netWorth.period}</Text>
+              <Text style={styles.periodText}>{homeData.netWorth.period}</Text>
             </View>
           </View>
 
