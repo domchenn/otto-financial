@@ -36,6 +36,8 @@ export type HomeData = {
   recentActivity: readonly RecentTransaction[];
 };
 
+export type HomeSummary = Pick<HomeData, 'greeting' | 'netWorth'>;
+
 export const homeData = {
   greeting: 'Good evening, Dominic',
   askPrompt: 'Ask about your money',
@@ -120,3 +122,8 @@ export const homeData = {
     },
   ],
 } satisfies HomeData;
+
+export const homeSummaryFixture: HomeSummary = {
+  greeting: homeData.greeting,
+  netWorth: homeData.netWorth,
+};
