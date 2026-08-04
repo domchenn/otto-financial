@@ -21,6 +21,11 @@ export type RecentTransaction = {
   positive: boolean;
 };
 
+export type NetWorthHistoryPoint = {
+  date: string,
+  amount: number,
+};
+
 export type HomeData = {
   greeting: string;
   askPrompt: string;
@@ -29,6 +34,7 @@ export type HomeData = {
     value: string;
     delta: string;
     period: string;
+    history: readonly NetWorthHistoryPoint[];
   };
   attentionCount: string;
   attentionItems: readonly AttentionItem[];
@@ -44,6 +50,15 @@ export const homeData = {
     value: '$128,406',
     delta: '+$3,182 this month',
     period: '6 months',
+    history: [
+      { date: '2026-02-01', amount: 115840 },
+      { date: '2026-03-01', amount: 116920 },
+      { date: '2026-04-01', amount: 119460 },
+      { date: '2026-05-01', amount: 120110 },
+      { date: '2026-06-01', amount: 123280 },
+      { date: '2026-07-01', amount: 125224 },
+      { date: '2026-07-31', amount: 128406 },
+    ],
   },
   attentionCount: '3 items this week',
   attentionItems: [

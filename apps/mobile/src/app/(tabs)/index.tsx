@@ -37,7 +37,7 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.netWorthChart}>
-            <NetWorthChart />
+            <NetWorthChart history={homeData.netWorth.history} />
           </View>
         </View>
 

@@ -1,20 +1,52 @@
 import Svg, { Path } from 'react-native-svg';
 
 import { colors } from '@/constants/theme';
+import type { NetWorthHistoryPoint } from '@/data/home-data';
 
-const trendPath =
-  'M0 66 C36 66 50 60 79 59 C112 58 124 49 154 49 C186 49 198 38 230 37 C266 36 291 23 340 18';
+const chartWidth = 340;
+const chartHeight = 80;
+const verticalPadding = 10;
 
-export function NetWorthChart() {
+type NetWorthChartProps = {
+  history: readonly NetWorthHistoryPoint[];
+};
+
+function createTrendPath(history: readonly NetWorthHistoryPoint[]) {
+  if (history.length === 0) {
+    return `M0 ${chartHeight / 2} L${chartWidth} ${chartHeight / 2}`;
+  }
+
+  const amounts = history.map((point) => point.amount);
+  const minimum = Math.min(...amounts);
+  const maximum = Math.max(...amounts);
+  const range = maximum - minimum;
+
+  return history
+    .map((point, index) => {
+      const x = history.length === 1 ? chartWidth / 2 : (index / (history.length - 1)) * chartWidth;
+      const normalizedAmount = range === 0 ? 0.5 : (point.amount - minimum) / range;
+      const y = chartHeight - verticalPadding - normalizedAmount * (chartHeight - verticalPadding * 2);
+
+      return `${index === 0 ? 'M' : 'L'}${x} ${y}`;
+    })
+    .join(' ');
+}
+
+export function NetWorthChart({ history }: NetWorthChartProps) {
+  const trendPath = createTrendPath(history);
+
   return (
     <Svg
       accessibilityLabel="Net worth trend over six months"
       accessibilityRole="image"
       height="100%"
       preserveAspectRatio="none"
-      viewBox="0 0 340 80"
+      viewBox={`0 0 ${chartWidth} ${chartHeight}`}
       width="100%">
-      <Path d={`${trendPath} L340 80 L0 80 Z`} fill={colors.surfaceMuted} />
+      <Path
+        d={`${trendPath} L${chartWidth} ${chartHeight} L0 ${chartHeight} Z`}
+        fill={colors.surfaceMuted}
+      />
       <Path
         d={trendPath}
         fill="none"

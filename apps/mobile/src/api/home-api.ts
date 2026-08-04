@@ -12,6 +12,10 @@ type HomeApiResponse = {
       amount: string;
       period: 'MONTH_TO_DATE';
     };
+    history: {
+      date: string;
+      amount: string;
+    }[];
   };
   attentionItems: {
     id: string;
@@ -102,6 +106,10 @@ export async function fetchHomeData(fallback: HomeData, signal?: AbortSignal): P
         data.netWorth.currency,
         data.netWorth.change.period
       ),
+      history: data.netWorth.history.map((point) => ({
+        date: point.date,
+        amount: Number(point.amount),
+      })),
     },
     attentionCount: `${data.attentionItems.length} ${data.attentionItems.length === 1 ? 'item' : 'items'} this week`,
     attentionItems: data.attentionItems.map((item) => ({
