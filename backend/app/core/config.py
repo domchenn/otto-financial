@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="OTTO_", env_file=".env", extra="ignore")
 
     environment: Literal["local", "test", "staging", "prod"] = "local"
-    database_url: str = "postgresql+psycopg://porter:porter@localhost:5432/porter"
+    database_url: str = "postgresql+psycopg://otto:otto@localhost:5432/otto"
     db_pool_size: int = 2
 
     # Clerk: the Frontend API URL (JWT issuer), e.g. https://clerk.example.com

@@ -1,1 +1,1 @@
-CREATE DATABASE porter_test OWNER porter;
+CREATE DATABASE otto_test OWNER otto;
