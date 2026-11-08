@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Porter MVP PRD</title>
-<meta name="description" content="Product requirements for Porter, a personal, mobile-first finance app: net worth, cards, points, benefits, real-time budgets, offers, and an AI layer.">
+<title>Otto MVP PRD</title>
+<meta name="description" content="Product requirements for Otto, a personal, mobile-first finance app: net worth, cards, points, benefits, real-time budgets, offers, and an AI layer.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -413,9 +413,9 @@
 
 <header class="top">
   <div class="wrap">
-    <div class="eyebrow">Porter · Product requirements</div>
+    <div class="eyebrow">Otto · Product requirements</div>
     <h1>A quiet, personal command center for my money.</h1>
-    <p class="lede">The MVP of Porter: one iPhone app that knows my net worth, my seven credit cards and their points, the credits I'm about to lose, and how much I have left to spend, right when I tap Apple Pay.</p>
+    <p class="lede">The MVP of Otto: one iPhone app that knows my net worth, my seven credit cards and their points, the credits I'm about to lose, and how much I have left to spend, right when I tap Apple Pay.</p>
     <div class="meta">
       <div>Version <b>0.3 · Draft</b></div>
       <div>Date <b>October 31, 2026</b></div>
@@ -457,7 +457,7 @@
 
     <h3>Product statement</h3>
     <div class="callout accent">
-      <span class="k">Porter is</span>
+      <span class="k">Otto is</span>
       <p>A private, iPhone-first finance app for one person. It brings every account into a single calm view, warns me before card value expires, and reflects each purchase back to me in real time. Later it becomes a financial assistant I can talk to.</p>
     </div>
 
@@ -472,7 +472,7 @@
     <h3>Non-goals for the MVP</h3>
     <ul>
       <li>Multi-user accounts, sharing, or onboarding for anyone else. The data model stays user-scoped so this could change later.</li>
-      <li>Moving money: no payments, transfers, or card actions. Porter is read-only against institutions.</li>
+      <li>Moving money: no payments, transfers, or card actions. Otto is read-only against institutions.</li>
       <li>Android or web. Expo keeps both possible later.</li>
       <li>Scraping issuer websites or storing bank credentials.</li>
       <li>Crypto and brokerages other than Schwab.</li>
@@ -508,11 +508,11 @@
   <!-- 03 -->
   <section id="portfolio">
     <h2><span class="num">03</span>Card portfolio</h2>
-    <p class="section-sub">The seven cards Porter has to understand on day one, and how each one gets its data.</p>
+    <p class="section-sub">The seven cards Otto has to understand on day one, and how each one gets its data.</p>
 
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Card</th><th>Rewards</th><th>What Porter tracks</th><th>Data source</th></tr></thead>
+        <thead><tr><th>Card</th><th>Rewards</th><th>What Otto tracks</th><th>Data source</th></tr></thead>
         <tbody>
           <tr>
             <td class="nowrap"><b>Amex Platinum</b><span class="sub">Charge card</span></td>
@@ -616,7 +616,7 @@
     <!-- F3 -->
     <div class="feature">
       <div class="feature-head"><span class="fid">F3</span><h3>Points tracking</h3><span class="tag mvp">MVP</span></div>
-      <p>No official API exposes points balances, so Porter combines <b>confirmed</b> balances (entered manually or parsed from emails) with an <b>estimate</b> computed from transactions since the last confirmation.</p>
+      <p>No official API exposes points balances, so Otto combines <b>confirmed</b> balances (entered manually or parsed from emails) with an <b>estimate</b> computed from transactions since the last confirmation.</p>
       <ul class="req">
         <li><span class="tag p0">P0</span><span>Quick manual update for each program (two taps plus number entry), with a "last confirmed" timestamp.</span></li>
         <li><span class="tag p0">P0</span><span>Estimated balance = last confirmed + points earned since, using the catalog's earn rules applied to posted transactions. Clearly labeled as an estimate.</span></li>
@@ -629,7 +629,7 @@
     <!-- F4 -->
     <div class="feature">
       <div class="feature-head"><span class="fid">F4</span><h3>Benefits &amp; expiring credits</h3><span class="tag mvp">MVP</span></div>
-      <p>The feature that pays for the app. Every credit becomes a <b>benefit period</b> (for example "Gold dining credit, October 2026: $10, $0 used, resets Nov 1"), and Porter detects usage automatically.</p>
+      <p>The feature that pays for the app. Every credit becomes a <b>benefit period</b> (for example "Gold dining credit, October 2026: $10, $0 used, resets Nov 1"), and Otto detects usage automatically.</p>
       <ul class="req">
         <li><span class="tag p0">P0</span><span>Catalog of benefit definitions per card: amount, cadence (monthly, quarterly, semi-annual, calendar-year, or cardmember-year), and whether it needs enrollment or activation.</span></li>
         <li><span class="tag p0">P0</span><span>Generate benefit periods automatically; cardmember-year benefits use each card's anniversary date.</span></li>
@@ -670,7 +670,7 @@
     <!-- F7 -->
     <div class="feature">
       <div class="feature-head"><span class="fid">F7</span><h3>Personalized offers &amp; deals</h3><span class="tag p2">Phase 2</span></div>
-      <p>Amex Offers, Chase Offers, and Rakuten have no public consumer APIs. Porter ingests offer emails from Gmail, normalizes them, and ranks them against what I actually buy.</p>
+      <p>Amex Offers, Chase Offers, and Rakuten have no public consumer APIs. Otto ingests offer emails from Gmail, normalizes them, and ranks them against what I actually buy.</p>
       <ul class="req">
         <li><span class="tag p1">P1</span><span>Offer ingestion: parse offer and "offer added" emails into a normalized record (merchant, reward, minimum spend, expiry, card), with an LLM fallback for formats no parser handles yet.</span></li>
         <li><span class="tag p1">P1</span><span>Quick add: paste or share-sheet an offer from the Amex/Chase app (screenshot → structured offer through vision extraction).</span></li>
@@ -690,253 +690,97 @@
   <!-- 05 -->
   <section id="experience">
     <h2><span class="num">05</span>Experience &amp; design</h2>
-    <p class="section-sub">Premium means atmosphere, materials, and editorial confidence: a private bank's app, not a spreadsheet. Calm, but never plain.</p>
+    <p class="section-sub">Calm, warm and plain-spoken. Otto explains money in sentences, not dashboards. Every screen is built only from the pieces below; tokens live in <code>apps/mobile/src/theme/tokens.ts</code>.</p>
 
-    <h3>Design direction: "Midnight &amp; metal"</h3>
-    <p>Dark is the default. Deep obsidian surfaces are lit by soft, diffuse light from above, like a room at night. Frosted glass panels sit on top. Display type is an editorial serif; numbers are thin sans. The cards themselves appear as rendered metal objects. The light theme mirrors this with warm paper and pale botanical washes. References: Albert (editorial serif plus washes), Awe (dark glass and glowing charts), LAIN (restraint and photographic mood), and Nova (precious-metal materials).</p>
-
-    <div class="grid2">
-      <div class="card"><div class="k">Light, not gradients</div><p>Backgrounds are lit by large, blurred radial light sources at low opacity, so they feel like a surface catching light. Buttons and text stay flat. No linear rainbow fills, ever.</p></div>
-      <div class="card"><div class="k">Glass &amp; depth</div><p>Three layers: an atmospheric base, frosted glass panels (blur, 1px inner light edge), and solid controls on top. Depth comes from translucency and blur, not drop shadows.</p></div>
-      <div class="card"><div class="k">Editorial type</div><p>Serif display for greetings, screen titles, and moments ("This week", "Benefits"). Thin sans for numbers; cents set as a muted superscript. Small caps tracked out for labels.</p></div>
-      <div class="card"><div class="k">Precious materials</div><p>Card art is rendered as metal (brushed platinum, warm gold) with a slow light sweep driven by the gyroscope. Champagne is the one warm accent and marks value: points, credits, rewards.</p></div>
-      <div class="card"><div class="k">Data that glows</div><p>Charts use thin lines with a soft fill that fades to nothing, one highlighted mark, and a floating tooltip pill. Unhighlighted marks fall back into the surface.</p></div>
-      <div class="card"><div class="k">Choreographed motion</div><p>Numbers roll, cards lift with spring physics, glass panels blur in. Haptics confirm every meaningful change. Nothing loops or bounces just to decorate.</p></div>
-    </div>
-
-    <h3>Key surfaces</h3>
-    <div class="mocks" aria-label="Illustrative app mockups">
-
-      <!-- Home -->
-      <div class="mock-col">
-        <div class="ph">
-          <div class="isl"></div>
-          <div class="ph-bar"><span>9:41</span><i></i></div>
-          <div class="ph-in">
-            <div class="hdr">
-              <div class="who"><div class="avatar">D</div><div><small>Good evening,</small><span class="serif">Dominic</span></div></div>
-              <div class="icon-btn glass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg></div>
-            </div>
-            <div class="nw-label"><span>Net worth</span><span>Updated 2m ago</span></div>
-            <div class="nw">$148,920<span class="cents">.42</span></div>
-            <div class="delta">↗ $1,240 <span class="mu">this week</span></div>
-            <svg class="area" viewBox="0 0 280 84" preserveAspectRatio="none" aria-hidden="true">
-              <defs>
-                <linearGradient id="af" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9db4d3" stop-opacity=".32"/><stop offset="1" stop-color="#9db4d3" stop-opacity="0"/></linearGradient>
-                <linearGradient id="al" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9db4d3" stop-opacity=".2"/><stop offset=".55" stop-color="#9db4d3" stop-opacity=".9"/><stop offset="1" stop-color="#e9eef6"/></linearGradient>
-                <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
-              </defs>
-              <path d="M0,66 C18,64 26,58 40,60 S66,68 82,56 S108,44 124,50 S150,58 166,44 S192,30 208,36 S236,30 250,20 S268,14 280,10 L280,84 L0,84 Z" fill="url(#af)"/>
-              <path d="M0,66 C18,64 26,58 40,60 S66,68 82,56 S108,44 124,50 S150,58 166,44 S192,30 208,36 S236,30 250,20 S268,14 280,10" fill="none" stroke="url(#al)" stroke-width="1.8" stroke-linecap="round"/>
-              <circle cx="262" cy="14" r="9" fill="#9db4d3" opacity=".35" filter="url(#glow)"/>
-              <circle cx="262" cy="14" r="3.6" fill="#f2f1ee" stroke="#07090c" stroke-width="2"/>
-            </svg>
-            <div class="ranges"><span>1W</span><span class="on">1M</span><span>3M</span><span>1Y</span><span>All</span></div>
-            <div class="tiles">
-              <div class="tile glass"><div class="k"><span>Left this week</span></div><div><div class="v">$186<span class="cents">.75</span></div><div class="meter"><i style="width:53%"></i></div></div></div>
-              <div class="tile glass"><div class="k"><span>Points</span><span style="color:var(--champ)">✦</span></div><div><div class="v">284,310</div><div class="s">≈ $4,690 at 1.65¢</div></div></div>
-              <div class="tile glass"><div class="k"><span>Credits to use</span></div><div><div class="v">$165</div><div class="meter gold"><i style="width:38%"></i></div></div></div>
-              <div class="tile glass"><div class="k"><span>Next payment</span></div><div><div class="v">$1,382</div><div class="s">Sapphire · Nov 4</div></div></div>
-            </div>
-            <div class="insight glass">
-              <div class="spark"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z"/></svg></div>
-              <p><span class="mu">Porter noticed</span>$15 of Uber Cash expires Sunday. You usually ride Friday nights.</p>
-            </div>
-          </div>
-          <div class="tabbar glass">
-            <span class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 10.5L12 4l8 6.5V20h-5v-6H9v6H4z"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 20V12M12 20V5M18 20v-9"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 9h16v11H4zM2.5 6h19v3h-19zM12 6v14M12 6c-2-3-6-3-6 0M12 6c2-3 6-3 6 0"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span>
-          </div>
-          <div class="homebar"></div>
-        </div>
-        <div class="mock-caption"><b>Home</b>One hero number, a lit chart, four glass tiles, and one sentence from Porter.</div>
-      </div>
-
-      <!-- Spending (light) -->
-      <div class="mock-col">
-        <div class="ph light">
-          <div class="isl"></div>
-          <div class="ph-bar"><span>9:41</span><i></i></div>
-          <div class="ph-in">
-            <div class="hdr"><span class="mu" style="font-size:11px">Spending</span><div class="icon-btn glass"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg></div></div>
-            <div class="serif title-xl">This week</div>
-            <div class="mu" style="font-size:11.5px"><span style="color:var(--tx);font-weight:500">$186.75 left</span> of $400 · on pace</div>
-            <div class="seg glass"><span class="on">Week</span><span>Month</span><span>Year</span></div>
-            <div class="bars">
-              <span class="budget-line" style="bottom:62%"><span>daily pace $57</span></span>
-              <div><b style="height:38%"></b><small>S</small></div>
-              <div><b style="height:22%"></b><small>M</small></div>
-              <div><b style="height:56%"></b><small>T</small></div>
-              <div><b style="height:30%"></b><small>W</small></div>
-              <div class="on"><span class="bar-tip">$64.20</span><b style="height:72%"></b><small>T</small></div>
-              <div class="fut"><b style="height:62%"></b><small>F</small></div>
-              <div class="fut"><b style="height:62%"></b><small>S</small></div>
-            </div>
-            <div class="cats glass">
-              <div class="cat"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M7 3v8a2 2 0 0 0 4 0V3M9 11v10M16 3c-2 2-2 6 0 8v10"/></svg></div><div class="t">Dining<small>9 purchases · Gold 4×</small></div><div class="a">$118.40</div></div>
-              <div class="cat"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 8h14l-1.2 12H6.2zM9 8a3 3 0 0 1 6 0"/></svg></div><div class="t">Shopping<small>2 purchases</small></div><div class="a">$64.85</div></div>
-              <div class="cat"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M5 16l1.5-6h11L19 16M4 16h16v3H4zM7 19v2M17 19v2"/></svg></div><div class="t">Transport<small>Uber · credit applied</small></div><div class="a">$30.00</div></div>
-            </div>
-          </div>
-          <div class="tabbar glass">
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 10.5L12 4l8 6.5V20h-5v-6H9v6H4z"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18"/></svg></span>
-            <span class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 20V12M12 20V5M18 20v-9"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 9h16v11H4zM2.5 6h19v3h-19zM12 6v14M12 6c-2-3-6-3-6 0M12 6c2-3 6-3 6 0"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span>
-          </div>
-          <div class="homebar"></div>
-        </div>
-        <div class="mock-caption"><b>Spending · light theme</b>Serif headline, pale botanical wash, one dark highlighted bar, and hatched bars for the days left in the week.</div>
-      </div>
-
-      <!-- Cards & benefits -->
-      <div class="mock-col">
-        <div class="ph">
-          <div class="isl"></div>
-          <div class="ph-bar"><span>9:41</span><i></i></div>
-          <div class="ph-in">
-            <div class="hdr"><div><span class="mu" style="font-size:11px">Cards</span><div class="serif" style="font-size:26px;line-height:1.05">Benefits</div></div><span class="pill-cta">$1,284 left</span></div>
-            <div class="stack">
-              <div class="cc gold"><div class="row"><span class="nm">Gold</span></div></div>
-              <div class="cc plat">
-                <div class="row"><span class="nm">Platinum</span><span style="font-size:9px;opacity:.7">Charge</span></div>
-                <div class="row"><span class="chipm"></span></div>
-                <div class="row"><span class="num">•••• 1007</span><span class="pts">Membership Rewards<b>212,480</b></span></div>
-              </div>
-            </div>
-            <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            <div class="sec-h"><span class="serif">Expiring soon</span><small>Sorted by value × urgency</small></div>
-            <div class="ben glass"><div class="ring" style="--p:0;--c:var(--ember)"><span>0%</span></div><div class="t">Uber Cash<small class="urgent">Expires in 2 days</small></div><div class="a">$15<small class="mu">of $15</small></div></div>
-            <div class="ben glass"><div class="ring" style="--p:60;--c:var(--champ)"><span>60%</span></div><div class="t">Resy dining<small>Ends Dec 31 · quarterly</small></div><div class="a">$40<small class="mu">of $100</small></div></div>
-            <div class="ben glass"><div class="ring" style="--p:0;--c:var(--steel)"><span>0%</span></div><div class="t">Digital entertainment<small>Resets Dec 1 · monthly</small></div><div class="a">$25<small class="mu">of $25</small></div></div>
-          </div>
-          <div class="tabbar glass">
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 10.5L12 4l8 6.5V20h-5v-6H9v6H4z"/></svg></span>
-            <span class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10h18"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M6 20V12M12 20V5M18 20v-9"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M4 9h16v11H4zM2.5 6h19v3h-19zM12 6v14M12 6c-2-3-6-3-6 0M12 6c2-3 6-3 6 0"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/></svg></span>
-          </div>
-          <div class="homebar"></div>
-        </div>
-        <div class="mock-caption"><b>Cards &amp; benefits</b>Metal card art you swipe through. Credits shown as rings, with the urgent ones first.</div>
-      </div>
-
-      <!-- Dynamic Island -->
-      <div class="mock-col">
-        <div class="ph lock">
-          <div class="di">
-            <div class="row">
-              <div class="m"><span class="mini-card"></span><div><b>Blue Bottle Coffee</b><small>Amex Gold · Apple Pay</small></div></div>
-              <div class="amt">−$6.75</div>
-            </div>
-            <div class="bud">
-              <div class="ring" style="--p:55"><span>55%</span></div>
-              <div class="txt"><b>$179.25 left</b>this week · $1,133 this month</div>
-            </div>
-            <div class="tipline"><span>✦ +27 MR · 4× dining</span><span>Best card used</span></div>
-          </div>
-          <div class="lk-time serif">9:41</div>
-          <div class="lk-date">Saturday, October 31</div>
-          <div class="la">
-            <div class="row"><span class="brand"><i></i>PORTER</span><span style="font-size:10px;color:rgba(242,241,238,.6)">now</span></div>
-            <div class="row"><span class="big">$1,133<span class="cents">.25</span></span><span style="font-size:10.5px;color:rgba(242,241,238,.7)">left in October</span></div>
-            <div class="seg2"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i><i></i></div>
-          </div>
-          <div class="lk-bottom"><i></i><i></i></div>
-          <div class="homebar"></div>
-        </div>
-        <div class="mock-caption"><b>Apple Pay → Dynamic Island</b>The expanded Island appears on tap, then condenses into a Lock Screen Live Activity.</div>
-      </div>
-    </div>
-    <p style="text-align:center;color:var(--muted);font-size:12.5px">Mockups are illustrative. All numbers are fake. Card art is generic metal, not issuer artwork.</p>
-
-    <h3>Design tokens</h3>
-    <h4>Color: dark (default)</h4>
-    <div class="swatches">
-      <div class="sw"><i style="background:#07090c"></i><div><b>Obsidian</b><code>#07090C</code> base</div></div>
-      <div class="sw"><i style="background:radial-gradient(120% 90% at 30% 0%, #4a6287, #07090c 70%)"></i><div><b>Night light</b><code>#4A6287 @ 55%</code> radial</div></div>
-      <div class="sw"><i style="background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)), #0f1319"></i><div><b>Glass</b><code>white 5.5% + blur 24</code></div></div>
-      <div class="sw"><i style="background:#f2f1ee"></i><div><b>Ivory ink</b><code>#F2F1EE</code> text</div></div>
-      <div class="sw"><i style="background:#8b93a1"></i><div><b>Mist</b><code>#8B93A1</code> secondary</div></div>
-      <div class="sw"><i style="background:#d6b97c"></i><div><b>Champagne</b><code>#D6B97C</code> value</div></div>
-      <div class="sw"><i style="background:#9db4d3"></i><div><b>Steel</b><code>#9DB4D3</code> data</div></div>
-      <div class="sw"><i style="background:#7fd1a8"></i><div><b>Sage</b><code>#7FD1A8</code> positive</div></div>
-      <div class="sw"><i style="background:#e59a78"></i><div><b>Ember</b><code>#E59A78</code> urgent</div></div>
-    </div>
-    <h4>Color: light</h4>
-    <div class="swatches">
-      <div class="sw"><i style="background:#fbfbf8"></i><div><b>Paper</b><code>#FBFBF8</code> base</div></div>
-      <div class="sw"><i style="background:radial-gradient(120% 90% at 10% 0%, #eaf1d8, #fbfbf8 70%)"></i><div><b>Botanical wash</b><code>#EAF1D8</code> radial</div></div>
-      <div class="sw"><i style="background:radial-gradient(120% 90% at 90% 0%, #dfe8f5, #fbfbf8 70%)"></i><div><b>Sky wash</b><code>#DFE8F5</code> radial</div></div>
-      <div class="sw"><i style="background:#121316"></i><div><b>Ink</b><code>#121316</code> text, active</div></div>
-    </div>
-
-    <h4>Type</h4>
-    <div class="type-spec">
-      <div class="type-row"><div class="k">Display<small>Instrument Serif (prototype); Tiempos or GT Super if licensed</small></div><div class="ex-display">Good evening, Dominic</div></div>
-      <div class="type-row"><div class="k">Hero numbers<small>Inter / SF Pro Display Light, tabular, −4.5% tracking</small></div><div class="ex-num">$148,920<span class="cents">.42</span></div></div>
-      <div class="type-row"><div class="k">Interface<small>Inter / SF Pro Text, 400–500</small></div><div class="ex-ui">Uber Cash expires in 2 days</div></div>
-      <div class="type-row"><div class="k">Labels<small>Small caps, +14% tracking</small></div><div class="ex-label">Membership Rewards</div></div>
-    </div>
+    <h3>Design language: Otto</h3>
+    <p>A warm off-white ground, white cards, one indigo for "do this", and four pastels that each always mean the same thing. Type is Plus Jakarta Sans throughout: heavy, tightly tracked headlines and friendly sentence-case copy. Light is the default; dark mode maps every token to one partner.</p>
 
     <div class="grid2">
-      <div class="card"><div class="k">Always</div>
-        <ul class="do" style="margin:6px 0 0;font-size:14px;color:var(--ink-2)">
-          <li>One hero number per screen</li>
-          <li>Cents as muted superscript</li>
-          <li>Light that comes from above the content</li>
-          <li>A 1px inner light edge on glass</li>
-          <li>Champagne only for points, credits, and rewards</li>
-        </ul></div>
-      <div class="card"><div class="k">Never</div>
-        <ul class="dont" style="margin:6px 0 0;font-size:14px">
-          <li>Gradient-filled buttons or text</li>
-          <li>Saturated brand blues or purples</li>
-          <li>Drop shadows to create depth</li>
-          <li>Emoji or stock icons with fills</li>
-          <li>More than one accent color on a screen</li>
-        </ul></div>
+      <div class="card"><div class="k">Indigo = do this</div><p>One primary button per screen, always indigo. Black (white in dark mode) is reserved for Sign in with Apple, per Apple's rules. Solid fills only, never gradients.</p></div>
+      <div class="card"><div class="k">Pastels carry meaning</div><p>Mint is budget, lilac is points, butter is credits, sky is payments. Pastels are for categories and illustration only, and text on a pastel uses its paired dark shade, never black or grey.</p></div>
+      <div class="card"><div class="k">Depth</div><p>White cards on the off-white ground. Shadows only on floating things: the nav bar, sheets and notification previews. In dark mode depth comes from lighter surfaces, not shadows.</p></div>
+      <div class="card"><div class="k">Talk in sentences</div><p>"You have $312 left this week," not "Weekly discretionary balance: $312.00". "That code didn't match. Try again," not "Error 401".</p></div>
     </div>
 
-    <h3>Implementation notes</h3>
+    <h4>Color: light → dark</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Role</th><th>Light</th><th>Dark</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td><b>Ground</b></td><td><code>#F6F5F2</code></td><td><code>#121318</code></td><td>Screen background. Warm near-black in dark mode, never pure black.</td></tr>
+          <tr><td><b>Surface</b></td><td><code>#FFFFFF</code></td><td><code>#1C1D23</code></td><td>Cards, sheets, nav bar</td></tr>
+          <tr><td><b>Raised</b></td><td><code>#F1F0EC</code></td><td><code>#2A2B33</code></td><td>Secondary buttons, monograms, tracks</td></tr>
+          <tr><td><b>Hairline</b></td><td><code>#E4E2DC</code></td><td><code>#34353E</code></td><td>Dividers, outlines</td></tr>
+          <tr><td><b>Ink / muted</b></td><td><code>#17181C</code> / <code>#6B6D75</code></td><td><code>#F2F1EE</code> / <code>#9C9DA6</code></td><td>Text</td></tr>
+          <tr><td><b>Indigo action</b></td><td><code>#3D4FD6</code></td><td><code>#5161E8</code></td><td>Primary buttons with white text</td></tr>
+          <tr><td><b>Indigo text</b></td><td><code>#3D4FD6</code></td><td><code>#9CA8FF</code></td><td>Links and indigo text (lighter in dark mode to stay readable)</td></tr>
+          <tr><td><b>Indigo tint</b></td><td><code>#E4E7FB</code></td><td><code>#252A4D</code></td><td>Avatar, insight banners</td></tr>
+          <tr><td><b>Mint · budget</b></td><td><code>#E3F2E9</code></td><td><code>#16302A</code></td><td>Budget tiles and bars</td></tr>
+          <tr><td><b>Lilac · points</b></td><td><code>#ECE8FB</code></td><td><code>#2A2550</code></td><td>Points, sign-up bonus, trip goal</td></tr>
+          <tr><td><b>Butter · credits</b></td><td><code>#FBF1D6</code></td><td><code>#3A2F14</code></td><td>Card credits</td></tr>
+          <tr><td><b>Sky · payments</b></td><td><code>#E3ECFA</code></td><td><code>#1B2B45</code></td><td>Due dates, payments</td></tr>
+          <tr><td><b>Alert</b></td><td><code>#C2410C</code> on <code>#FDE8DC</code></td><td><code>#FF9F73</code> on <code>#3D2016</code></td><td>Errors, urgent resets, destructive actions</td></tr>
+          <tr><td><b>Money in</b></td><td><code>#2F8A57</code></td><td><code>#4FC384</code></td><td>Positive amounts, "on pace", success</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>Type: Plus Jakarta Sans</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Style</th><th>Size / weight</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td><b>Hero number</b></td><td>44 / 800</td><td>The one big amount on a screen</td></tr>
+          <tr><td><b>Screen title</b></td><td>30–36 / 800, tight tracking</td><td>Titles and question headings</td></tr>
+          <tr><td><b>Section heading</b></td><td>22 / 700</td><td>Section headers inside a screen</td></tr>
+          <tr><td><b>Row label, button</b></td><td>16–17 / 600</td><td>List rows, buttons</td></tr>
+          <tr><td><b>Body</b></td><td>15 / 500</td><td>Supporting text</td></tr>
+          <tr><td><b>Caption</b></td><td>13 / 600</td><td>Labels, small print</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Sentence case everywhere, no all-caps labels. Amounts use tabular numbers so columns line up. The wordmark is <b>otto</b> in Plus Jakarta Sans ExtraBold, always lowercase, −6% tracking, in ink or on indigo.</p>
+
+    <h4>Shape, spacing &amp; components</h4>
     <ul>
-      <li><b>Atmosphere:</b> <code>@shopify/react-native-skia</code> draws the radial light fields and the chart glow on the GPU. <code>expo-blur</code> provides the glass panels.</li>
-      <li><b>Card art:</b> Skia shaders for brushed metal, with a specular highlight driven by <code>expo-sensors</code> device motion.</li>
-      <li><b>Motion:</b> Reanimated 3 springs; number rolls with a tabular-figure ticker; <code>expo-haptics</code> on confirm, refresh, and purchase.</li>
-      <li><b>Tab bar:</b> a floating glass pill, matching the iOS 26 Liquid Glass style, so the app feels native rather than ported.</li>
-      <li><b>Live Activity:</b> built in SwiftUI with the same tokens, so the Island and the app look like one product.</li>
+      <li><b>Radii:</b> 12 icon tiles · 16 inputs · 20 cards · pill buttons · 32 sheets.</li>
+      <li><b>Spacing:</b> 4 · 8 · 12 · 16 · 24 · 32. Screen padding 24 at the sides, 60 at the top, 40 at the bottom.</li>
+      <li><b>Touch targets:</b> 44px minimum; primary buttons are 54px.</li>
+      <li><b>Icons:</b> 1.8–2px rounded stroke line icons, never emoji.</li>
+      <li><b>Components:</b> buttons (primary, secondary, outline, Apple, small, text link), option rows (radio or checkbox, indigo outline when selected), chips, toggles, step header with indigo progress, stat tiles, list rows, the "Otto noticed" card and the Otto reaction bubble (one friendly line after an answer).</li>
+      <li><b>Illustration kit:</b> coin, card, points bubble, check tile, sparkle and dots, scattered and slightly rotated. Card art keeps its real colors in both themes.</li>
     </ul>
+
+    <div class="grid2">
+      <div class="card"><div class="k">Template A · Moment</div><p>Illustration on top (usually on indigo), with a white sheet with 32px rounded corners sliding over it. For welcome, sign-in, big reveals and success screens.</p></div>
+      <div class="card"><div class="k">Template B · Step</div><p>Off-white ground, step header, a title plus one line of help, the content, and one primary button pinned to the bottom. For questions, forms, details and settings.</p></div>
+    </div>
 
     <h3>Information architecture</h3>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Tab</th><th>Purpose</th></tr></thead>
         <tbody>
-          <tr><td><b>Home</b></td><td>Net worth and trend, glass tiles (budget, points, credits, next payment), one Porter insight, recent activity.</td></tr>
-          <tr><td><b>Cards</b></td><td>Metal card carousel: balance, due date, points, credits as rings, annual fee scorecard.</td></tr>
-          <tr><td><b>Spending</b></td><td>Week / month / year budgets, category breakdown, transactions, search.</td></tr>
-          <tr><td><b>Benefits</b></td><td>Every credit grouped by expiry; activation checklist.</td></tr>
-          <tr><td><b>Ask</b> <span class="tag p2">Phase 3</span></td><td>AI assistant. In the MVP the sparkle tab opens insight history.</td></tr>
+          <tr><td><b>Home</b></td><td>"You have $X left to spend this week", one "Otto noticed" nudge, tiles for budget, points, credits and next payment, recent activity.</td></tr>
+          <tr><td><b>Wallet</b></td><td>Total card balances and utilization, every card with its balance and due date. Card detail: best-for categories, sign-up bonus progress, credits, and "worth the fee?". Credits (grouped by expiry, by card, used) open from here and from Home.</td></tr>
+          <tr><td><b>Spending</b></td><td>Week / month budget, daily bars, an insight, categories; category and transaction detail with "right card" feedback.</td></tr>
+          <tr><td><b>Ask</b> <span class="tag p2">Phase 3</span></td><td>Ask Otto: suggested questions plus free text. Until M6 it answers a few canned topics from sample data. The tab stays indigo so Otto is always one tap away.</td></tr>
         </tbody>
       </table>
     </div>
+    <p>Outside the tabs: Settings (opened from the avatar), connected accounts, notifications, delete account, and onboarding: 5 questions (goals, trip, sign-up bonus, budget style, check-in cadence), connect cards, Plaid, analysis, reveal, the notification prompt and the Face ID prompt.</p>
   </section>
 
   <!-- 06 -->
   <section id="realtime">
     <h2><span class="num">06</span>Real-time spend pipeline</h2>
-    <p class="section-sub">The technically hardest MVP feature. Three sources report the same purchase at different speeds, and Porter merges them into one spend event.</p>
+    <p class="section-sub">The technically hardest MVP feature. Three sources report the same purchase at different speeds, and Otto merges them into one spend event.</p>
 
     <div class="table-wrap">
       <table>
         <thead><tr><th>Source</th><th>Covers</th><th>Typical latency</th><th>Mechanism</th></tr></thead>
         <tbody>
-          <tr><td><b>Wallet automation</b></td><td>Any Apple Pay purchase, any card</td><td>~1–5 s</td><td>Shortcuts "Transaction" automation → Porter App Intent → Live Activity + API call</td></tr>
+          <tr><td><b>Wallet automation</b></td><td>Any Apple Pay purchase, any card</td><td>~1–5 s</td><td>Shortcuts "Transaction" automation → Otto App Intent → Live Activity + API call</td></tr>
           <tr><td><b>Issuer alert email</b></td><td>Amex, Chase, C1, Bilt purchase alerts (threshold set to $0)</td><td>~1–3 min</td><td>Gmail filter → forward → SES inbound → parser → push</td></tr>
           <tr><td><b>Plaid webhook</b></td><td>Everything linked</td><td>Minutes to hours</td><td><code>SYNC_UPDATES_AVAILABLE</code> → <code>/transactions/sync</code></td></tr>
           <tr><td><b>FinanceKit</b></td><td>Apple Card</td><td>Near real time, on device</td><td>Native module reads new transactions, posts them to the API</td></tr>
@@ -946,8 +790,8 @@
 
     <h3>Apple Pay → Dynamic Island</h3>
     <ol class="steps">
-      <li><b>One-time setup.</b> I create a Shortcuts personal automation: <em>When I tap any Wallet card → Run "Log Purchase" (Porter)</em>, set to <em>Run Immediately</em>. iOS doesn't allow an app to create this automation itself, so Porter ships a guided setup screen and a shared Shortcut.</li>
-      <li><b>App Intent runs.</b> Porter exposes a Swift <code>LiveActivityIntent</code> that receives card, merchant, and amount. It runs in the background without opening the app.</li>
+      <li><b>One-time setup.</b> I create a Shortcuts personal automation: <em>When I tap any Wallet card → Run "Log Purchase" (Otto)</em>, set to <em>Run Immediately</em>. iOS doesn't allow an app to create this automation itself, so Otto ships a guided setup screen and a shared Shortcut.</li>
+      <li><b>App Intent runs.</b> Otto exposes a Swift <code>LiveActivityIntent</code> that receives card, merchant, and amount. It runs in the background without opening the app.</li>
       <li><b>Instant local math.</b> The intent reads the cached budget state (App Group storage), subtracts the amount, and starts or updates the Live Activity. This step doesn't wait on the network.</li>
       <li><b>Durable record.</b> The intent POSTs a <code>spend_event</code> (idempotency key = hash of card, amount, and timestamp) to the API, which recomputes authoritative budgets and sends a Live Activity push-update if the result differs.</li>
       <li><b>Reconcile.</b> When the email alert or Plaid transaction arrives, the matcher links it to the existing spend event instead of counting it twice.</li>
@@ -962,7 +806,7 @@
 
     <div class="callout warn">
       <span class="k">Native code required</span>
-      <p>Live Activities, App Intents, and FinanceKit need Swift targets. Porter uses Expo <b>dev builds</b> (not Expo Go) with a widget extension (for example via <code>@bacons/apple-targets</code>) and a local Expo module for the intent and FinanceKit. Live Activity push updates go to APNs directly, because Expo's push service doesn't support the <code>liveactivity</code> push type.</p>
+      <p>Live Activities, App Intents, and FinanceKit need Swift targets. Otto uses Expo <b>dev builds</b> (not Expo Go) with a widget extension (for example via <code>@bacons/apple-targets</code>) and a local Expo module for the intent and FinanceKit. Live Activity push updates go to APNs directly, because Expo's push service doesn't support the <code>liveactivity</code> push type.</p>
     </div>
   </section>
 
@@ -1012,7 +856,7 @@
     <h3>Why serverless + Neon</h3>
     <div class="callout accent">
       <span class="k">Avoid the NAT trap</span>
-      <p>The obvious all-AWS design (Lambda in a private network talking to RDS) needs a NAT Gateway so Lambda can reach Plaid, APNs, and Claude. That alone costs about $32/mo, more than everything else combined. Porter's Lambdas stay outside a VPC and reach Neon over TLS, so there's no NAT, no idle database, and no idle servers. Aurora Serverless v2 with the Data API is the all-AWS alternative if Neon's limits are ever reached.</p>
+      <p>The obvious all-AWS design (Lambda in a private network talking to RDS) needs a NAT Gateway so Lambda can reach Plaid, APNs, and Claude. That alone costs about $32/mo, more than everything else combined. Otto's Lambdas stay outside a VPC and reach Neon over TLS, so there's no NAT, no idle database, and no idle servers. Aurora Serverless v2 with the Data API is the all-AWS alternative if Neon's limits are ever reached.</p>
     </div>
     <ul>
       <li><b>Latency:</b> Lambda cold starts (about 1 s for a container image) don't affect the Dynamic Island, which is computed on the device. Plaid webhooks only need a response within seconds.</li>
@@ -1106,7 +950,7 @@
         <tbody>
           <tr><td>App access</td><td>Clerk sign-in restricted to my user ID on the server; Face ID on launch and after 5 minutes in the background; screen blurred in the app switcher.</td></tr>
           <tr><td>Plaid tokens</td><td>Envelope-encrypted with KMS at the application level, in addition to RDS encryption. Never returned to the client or written to logs.</td></tr>
-          <tr><td>Bank credentials</td><td>Never seen by Porter. Plaid Link and OAuth handle them.</td></tr>
+          <tr><td>Bank credentials</td><td>Never seen by Otto. Plaid Link and OAuth handle them.</td></tr>
           <tr><td>Webhooks</td><td>Plaid webhook JWT verification; SES inbound limited to the forwarding address and SPF/DKIM-verified senders.</td></tr>
           <tr><td>Network</td><td>Lambdas run outside a VPC; Neon requires TLS and rotated credentials stored in SSM SecureString; API Gateway throttling; least-privilege IAM per function.</td></tr>
           <tr><td>Data retention</td><td>Raw emails deleted after 30 days; extracted fields kept. One-tap "disconnect and purge" per institution.</td></tr>
@@ -1246,7 +1090,7 @@
 </div>
 
 <footer>
-  <div class="wrap">Porter · MVP PRD v0.1 · A working document: update it when the build proves something different.</div>
+  <div class="wrap">Otto · MVP PRD v0.1 · A working document: update it when the build proves something different.</div>
 </footer>
 
 <script>
