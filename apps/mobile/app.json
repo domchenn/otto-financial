@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "Porter",
+    "name": "Otto",
     "slug": "porter",
     "scheme": "porter",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "backgroundColor": "#07090C",
+    "backgroundColor": "#F6F5F2",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.dominicchen.porter",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "Porter uses Face ID to keep your financial data private."
+        "NSFaceIDUsageDescription": "Otto uses Face ID to keep your balances private."
       }
     },
     "android": {
@@ -27,7 +27,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#07090C",
+          "backgroundColor": "#F6F5F2",
           "image": "./assets/splash-icon.png",
           "imageWidth": 120
         }
@@ -35,7 +35,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Porter uses Face ID to keep your financial data private."
+          "faceIDPermission": "Otto uses Face ID to keep your balances private."
         }
       ]
     ],
