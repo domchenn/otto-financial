@@ -48,7 +48,7 @@ npx expo run:ios --device
 
 ```bash
 cd backend && uv run ruff check . && uv run mypy app tests && uv run pytest
-cd apps/mobile && npx eslint . && npx tsc --noEmit
+cd apps/mobile && npx eslint . && npx tsc --noEmit && npx jest
 ```
 
 CI runs all of these plus `terraform validate` on every pull request.
