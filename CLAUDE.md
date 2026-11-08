@@ -23,6 +23,7 @@ User-facing text says Otto. Code identifiers still say `porter` (repo, bundle ID
 - Never push, open PRs or comment on GitHub unless explicitly asked.
 - Always work on a feature branch, never directly on `main`. `main` is protected: changes land only through a PR with green CI.
 - One PR per feature or fix. Stack a PR on its parent branch when it depends on unmerged work.
+- Commit early and often: one commit per logical step (a component, a screen, a fix, a test suite) as soon as it works and its checks pass, not one large commit at the end. Each commit message says what changed and why.
 - PR descriptions say what changed, how it was tested (checks run, what was and wasn't verified on a device) and anything left for later.
 
 ## Checks before finishing a change
