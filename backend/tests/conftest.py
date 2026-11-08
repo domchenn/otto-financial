@@ -12,7 +12,7 @@ TEST_USER = "user_allowed123"
 
 os.environ["OTTO_ENVIRONMENT"] = "test"
 os.environ["OTTO_DATABASE_URL"] = os.environ.get(
-    "OTTO_TEST_DATABASE_URL", "postgresql+psycopg://porter:porter@localhost:5432/porter_test"
+    "OTTO_TEST_DATABASE_URL", "postgresql+psycopg://otto:otto@localhost:5432/otto_test"
 )
 os.environ["OTTO_CLERK_ISSUER"] = TEST_ISSUER
 os.environ["OTTO_ALLOWED_USER_IDS"] = TEST_USER
