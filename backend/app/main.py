@@ -10,7 +10,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     configure_logging(settings.log_level)
     app = FastAPI(
-        title="Porter API",
+        title="Otto API",
         version="0.1.0",
         docs_url="/docs" if settings.environment in ("local", "test") else None,
         redoc_url=None,

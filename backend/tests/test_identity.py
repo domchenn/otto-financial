@@ -69,6 +69,6 @@ def test_me_is_unavailable_when_auth_is_not_configured(
 
 
 def test_allowed_user_ids_parse_from_comma_separated_env(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("PORTER_ALLOWED_USER_IDS", " user_a, user_b ,,")
+    monkeypatch.setenv("OTTO_ALLOWED_USER_IDS", " user_a, user_b ,,")
 
     assert Settings().allowed_user_ids == ["user_a", "user_b"]

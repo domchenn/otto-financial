@@ -7,15 +7,15 @@ import jwt
 import pytest
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-TEST_ISSUER = "https://clerk.porter.test"
+TEST_ISSUER = "https://clerk.otto.test"
 TEST_USER = "user_allowed123"
 
-os.environ["PORTER_ENVIRONMENT"] = "test"
-os.environ["PORTER_DATABASE_URL"] = os.environ.get(
-    "PORTER_TEST_DATABASE_URL", "postgresql+psycopg://porter:porter@localhost:5432/porter_test"
+os.environ["OTTO_ENVIRONMENT"] = "test"
+os.environ["OTTO_DATABASE_URL"] = os.environ.get(
+    "OTTO_TEST_DATABASE_URL", "postgresql+psycopg://porter:porter@localhost:5432/porter_test"
 )
-os.environ["PORTER_CLERK_ISSUER"] = TEST_ISSUER
-os.environ["PORTER_ALLOWED_USER_IDS"] = TEST_USER
+os.environ["OTTO_CLERK_ISSUER"] = TEST_ISSUER
+os.environ["OTTO_ALLOWED_USER_IDS"] = TEST_USER
 
 from alembic import command  # noqa: E402
 from alembic.config import Config  # noqa: E402
