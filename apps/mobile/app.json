@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "Otto",
-    "slug": "porter",
-    "scheme": "porter",
+    "slug": "otto",
+    "scheme": "otto",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,13 +10,13 @@
     "backgroundColor": "#F6F5F2",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.dominicchen.porter",
+      "bundleIdentifier": "com.dominicchen.otto",
       "infoPlist": {
         "NSFaceIDUsageDescription": "Otto uses Face ID to keep your balances private."
       }
     },
     "android": {
-      "package": "com.dominicchen.porter"
+      "package": "com.dominicchen.otto"
     },
     "plugins": [
       "expo-router",
