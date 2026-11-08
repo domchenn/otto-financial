@@ -269,7 +269,7 @@ export const week = {
   limitCents: 50000,
   underPaceCents: 8800,
   /** Mon..Sun spend in cents; null = a day that hasn't happened yet. */
-  days: [5480, 1520, 3790, 2850, 4970, 2030, null] as (number | null)[],
+  days: [5120, 1480, 3410, 2650, 4150, 2030, null] as (number | null)[],
   todayIndex: 5,
   pointsEarned: 640,
   creditsUsedCents: 1500,

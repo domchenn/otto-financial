@@ -12,5 +12,5 @@ export const ASK_QUESTIONS: Record<AskTopic, string> = {
 };
 
 export function isAskTopic(value: unknown): value is AskTopic {
-  return typeof value === 'string' && value in ASK_QUESTIONS;
+  return typeof value === 'string' && Object.hasOwn(ASK_QUESTIONS, value);
 }

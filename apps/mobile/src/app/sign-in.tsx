@@ -8,25 +8,12 @@ import { AlertIcon, MailIcon } from '@/components/icons';
 import { Footer, StepScreen } from '@/components/layouts';
 import { Card } from '@/components/Surface';
 import { Text } from '@/components/Text';
+import { friendly } from '@/lib/authErrors';
 import { radius, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 const CODE_LENGTH = 6;
 const RESEND_SECONDS = 30;
-
-/** Turn a Clerk error into a plain sentence. Never show raw codes. */
-function friendly(error: unknown): string {
-  const e = error as { code?: string; errors?: { code?: string }[] } | null;
-  const code = e?.errors?.[0]?.code ?? e?.code ?? '';
-  if (code.includes('code_incorrect'))
-    return "That code didn't match. Double-check the email or send a new one.";
-  if (code.includes('expired')) return 'That code expired. Send a new one.';
-  if (code.includes('identifier_not_found'))
-    return "We couldn't find an Otto account for that email.";
-  if (code.includes('too_many') || code.includes('rate'))
-    return 'Too many tries. Wait a minute, then send a new code.';
-  return 'Something went wrong. Try again in a moment.';
-}
 
 /**
  * Email-code sign-in. Sign-ups are disabled in the Clerk dashboard (restricted mode),
