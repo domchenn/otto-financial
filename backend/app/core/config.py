@@ -1,6 +1,6 @@
-"""Application settings, loaded from environment variables prefixed with PORTER_.
+"""Application settings, loaded from environment variables prefixed with OTTO_.
 
-On Lambda, secrets live in SSM Parameter Store. When PORTER_SSM_PARAMETER_PATH is set,
+On Lambda, secrets live in SSM Parameter Store. When OTTO_SSM_PARAMETER_PATH is set,
 every parameter under that path is loaded into the environment before settings are read,
 so secrets never pass through Terraform state or plain Lambda environment variables.
 """
@@ -14,7 +14,7 @@ from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="PORTER_", env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="OTTO_", env_file=".env", extra="ignore")
 
     environment: Literal["local", "test", "staging", "prod"] = "local"
     database_url: str = "postgresql+psycopg://porter:porter@localhost:5432/porter"
@@ -49,12 +49,12 @@ def load_ssm_parameters(path: str) -> None:
     for page in paginator.paginate(Path=prefix, Recursive=True, WithDecryption=True):
         for param in page["Parameters"]:
             name = param["Name"].removeprefix(prefix).replace("/", "_").upper()
-            os.environ.setdefault(f"PORTER_{name}", param["Value"])
+            os.environ.setdefault(f"OTTO_{name}", param["Value"])
 
 
 @lru_cache
 def get_settings() -> Settings:
-    ssm_path = os.environ.get("PORTER_SSM_PARAMETER_PATH")
+    ssm_path = os.environ.get("OTTO_SSM_PARAMETER_PATH")
     if ssm_path:
         load_ssm_parameters(ssm_path)
     return Settings()
