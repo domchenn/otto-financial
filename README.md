@@ -1,7 +1,9 @@
-# Porter
+# Otto
 
-A private, iPhone-first personal finance app: net worth, credit cards, points, expiring card
-benefits, and real-time budgets. Product requirements: [`docs/prd.html`](docs/prd.html).
+A private, iPhone-first personal finance app: credit cards, points, expiring card credits,
+weekly budgets and an assistant that explains it all in plain sentences. Otto was called
+Porter; code identifiers (repo, bundle ID, URL scheme, backend package, database, infra)
+still use `porter`. Product requirements: [`docs/prd.html`](docs/prd.html).
 
 ## Repository
 
