@@ -8,8 +8,8 @@ terraform {
 }
 
 locals {
-  name     = "porter-${var.environment}"
-  ssm_path = "/porter/${var.environment}"
+  name     = "otto-${var.environment}"
+  ssm_path = "/otto/${var.environment}"
 }
 
 data "aws_caller_identity" "current" {}
@@ -17,7 +17,7 @@ data "aws_region" "current" {}
 
 # ---------------------------------------------------------------------------
 # Secrets. Terraform creates the parameters; real values are set out of band:
-#   aws ssm put-parameter --name /porter/staging/database_url --type SecureString \
+#   aws ssm put-parameter --name /otto/staging/database_url --type SecureString \
 #     --overwrite --value 'postgresql+psycopg://...'
 # so secrets never land in Terraform state.
 # ---------------------------------------------------------------------------
@@ -188,7 +188,7 @@ resource "aws_apigatewayv2_route" "default" {
 }
 
 resource "aws_cloudwatch_log_group" "api_access" {
-  name              = "/porter/${var.environment}/api-access"
+  name              = "/otto/${var.environment}/api-access"
   retention_in_days = var.log_retention_days
 }
 

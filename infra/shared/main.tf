@@ -19,7 +19,7 @@ terraform {
 provider "aws" {
   region = var.region
   default_tags {
-    tags = { project = "porter", managed_by = "terraform" }
+    tags = { project = "otto", managed_by = "terraform" }
   }
 }
 
@@ -47,7 +47,7 @@ variable "github_repository" {
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket" "tf_state" {
-  bucket = "porter-tf-state-${data.aws_caller_identity.current.account_id}"
+  bucket = "otto-tf-state-${data.aws_caller_identity.current.account_id}"
 }
 
 resource "aws_s3_bucket_versioning" "tf_state" {
@@ -66,7 +66,7 @@ resource "aws_s3_bucket_public_access_block" "tf_state" {
 }
 
 resource "aws_ecr_repository" "api" {
-  name                 = "porter-api"
+  name                 = "otto-api"
   image_tag_mutability = "IMMUTABLE"
   image_scanning_configuration {
     scan_on_push = true
@@ -96,7 +96,7 @@ resource "aws_iam_openid_connect_provider" "github" {
 }
 
 resource "aws_iam_role" "github_deploy" {
-  name = "porter-github-deploy"
+  name = "otto-github-deploy"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -118,9 +118,9 @@ resource "aws_iam_role_policy_attachment" "github_deploy" {
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
-# Account-wide guardrail: the whole Porter AWS bill should stay in single digits.
+# Account-wide guardrail: the whole Otto AWS bill should stay in single digits.
 resource "aws_budgets_budget" "monthly" {
-  name         = "porter-monthly"
+  name         = "otto-monthly"
   budget_type  = "COST"
   limit_amount = tostring(var.monthly_budget_usd)
   limit_unit   = "USD"
