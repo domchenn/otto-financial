@@ -2,7 +2,7 @@
 
 Otto (formerly Porter) is a personal, iPhone-first finance app. Dominic is the only user and the only contributor.
 
-User-facing text says Otto. Code identifiers still say `porter` (repo, bundle ID `com.dominicchen.porter`, URL scheme, backend package, database, Terraform). Don't rename those without asking: the bundle ID and scheme affect Clerk redirects and installed builds, and Terraform renames recreate AWS resources.
+Everything uses the Otto name: repo `otto-financial`, bundle ID `com.dominicchen.otto`, URL scheme `otto`, backend package `otto-backend`, `OTTO_*` settings, the `otto` database and `otto-*` AWS resources. Only historical records (ADRs) still say Porter. Changing the bundle ID or scheme again affects Clerk redirects and installed builds, and renaming applied Terraform resources recreates them, so ask first.
 
 ## Key docs
 
