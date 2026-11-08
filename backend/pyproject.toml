@@ -1,7 +1,7 @@
 [project]
-name = "porter-backend"
+name = "otto-backend"
 version = "0.1.0"
-description = "Porter API: a personal finance backend (FastAPI, modular monolith)."
+description = "Otto API: a personal finance backend (FastAPI, modular monolith)."
 requires-python = ">=3.13"
 dependencies = [
     "alembic>=1.14",

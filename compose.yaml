@@ -3,9 +3,9 @@ services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_USER: porter
-      POSTGRES_PASSWORD: porter
-      POSTGRES_DB: porter
+      POSTGRES_USER: otto
+      POSTGRES_PASSWORD: otto
+      POSTGRES_DB: otto
     ports: ["5432:5432"]
     volumes:
       - pgdata:/var/lib/postgresql/data
