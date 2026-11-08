@@ -1,6 +1,6 @@
 ---
 name: clarify-first
-description: Use before writing code for any non-trivial task in Porter (new features, schema or API changes, infra, UI screens, refactors across modules). Restates the goal, checks the PRD, CLAUDE.md and ADRs, then asks a few targeted questions with recommended defaults and waits for answers. Skip for trivial edits or when the user says "just do it".
+description: Use before writing code for any non-trivial task in Otto (new features, schema or API changes, infra, UI screens, refactors across modules). Restates the goal, checks the PRD, CLAUDE.md and ADRs, then asks a few targeted questions with recommended defaults and waits for answers. Skip for trivial edits or when the user says "just do it".
 ---
 
 # Clarify first
@@ -20,7 +20,7 @@ Goal: catch the decisions that would send the work in different directions befor
 
 1. **Restate the goal** in one or two sentences, in your own words, so a misunderstanding shows up immediately.
 
-2. **Read before asking.** Check `docs/prd.html`, `CLAUDE.md` and `docs/adr/` (and the relevant code). Do not ask about anything they already decide, such as money as integer cents, the `FinancialDataProvider` adapter, the "Midnight & metal" UI direction in PRD section 05, or the serverless architecture. If the request conflicts with one of them, say so and ask which wins.
+2. **Read before asking.** Check `docs/prd.html`, `CLAUDE.md` and `docs/adr/` (and the relevant code). Do not ask about anything they already decide, such as money as integer cents, the `FinancialDataProvider` adapter, the Otto design language in PRD section 05, or the serverless architecture. If the request conflicts with one of them, say so and ask which wins.
 
 3. **Ask 2–5 specific questions**, only where plausible answers would lead to meaningfully different work (data model, API shape, screen flow, scope of the milestone, AWS cost, new dependencies). For each question:
    - give 2–4 concrete options,

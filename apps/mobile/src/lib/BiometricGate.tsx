@@ -1,13 +1,13 @@
-import { BlurView } from 'expo-blur';
 import * as LocalAuthentication from 'expo-local-authentication';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { AppState, StyleSheet, View } from 'react-native';
+import { StyleSheet, View, AppState } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Atmosphere } from '@/components/Atmosphere';
 import { Button } from '@/components/Button';
-import { LockIcon } from '@/components/icons';
-import { Body, Display } from '@/components/Typography';
-import { space } from '@/theme/tokens';
+import { FaceIdIcon } from '@/components/icons';
+import { Wordmark } from '@/components/otto';
+import { Text } from '@/components/Text';
+import { screen, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 const RELOCK_AFTER_MS = 5 * 60 * 1000;
@@ -15,7 +15,7 @@ const RELOCK_AFTER_MS = 5 * 60 * 1000;
 async function promptUnlock(): Promise<'unlocked' | 'failed' | 'cancelled'> {
   // Without enrolled biometrics (e.g. the simulator) iOS falls back to the device passcode.
   const result = await LocalAuthentication.authenticateAsync({
-    promptMessage: 'Unlock Porter',
+    promptMessage: 'Unlock Otto',
     cancelLabel: 'Cancel',
   });
   if (result.success) return 'unlocked';
@@ -23,11 +23,12 @@ async function promptUnlock(): Promise<'unlocked' | 'failed' | 'cancelled'> {
 }
 
 /**
- * Locks the app behind Face ID on launch and after 5 minutes in the background, and blurs
+ * Locks the app behind Face ID on launch and after 5 minutes in the background, and covers
  * the screen whenever the app is inactive so balances never show in the app switcher.
  */
 export function BiometricGate({ children }: { children: ReactNode }) {
-  const { palette, scheme } = useTheme();
+  const { palette } = useTheme();
+  const insets = useSafeAreaInsets();
   const [unlocked, setUnlocked] = useState(false);
   const [obscured, setObscured] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,20 +67,32 @@ export function BiometricGate({ children }: { children: ReactNode }) {
 
   if (!unlocked) {
     return (
-      <View style={styles.lock}>
-        <Atmosphere />
+      <View
+        style={[
+          styles.lock,
+          {
+            backgroundColor: palette.ground,
+            paddingBottom: Math.max(insets.bottom, space.lg) + space.lg,
+          },
+        ]}
+      >
         <View style={styles.lockContent}>
-          <LockIcon color={palette.text} size={28} />
-          <Display size={40} style={{ marginTop: space.lg }}>
-            Porter is locked
-          </Display>
-          <Body muted style={{ marginTop: space.sm, textAlign: 'center' }}>
-            {error ?? 'Your finances stay private until you unlock.'}
-          </Body>
+          <View style={[styles.tile, { backgroundColor: palette.tones.indigo.bg }]}>
+            <FaceIdIcon color={palette.link} size={76} />
+          </View>
+          <Text variant="display" center style={{ marginTop: space.xxl }}>
+            Otto is locked
+          </Text>
+          <Text
+            variant="body"
+            muted
+            center
+            style={{ marginTop: space.md, fontSize: 17, lineHeight: 25 }}
+          >
+            {error ?? 'Your balances stay private until you unlock.'}
+          </Text>
         </View>
-        <View style={styles.lockAction}>
-          <Button title="Unlock with Face ID" onPress={() => void authenticate()} />
-        </View>
+        <Button title="Unlock with Face ID" onPress={() => void authenticate()} />
       </View>
     );
   }
@@ -87,13 +100,24 @@ export function BiometricGate({ children }: { children: ReactNode }) {
   return (
     <View style={{ flex: 1 }}>
       {children}
-      {obscured ? <BlurView intensity={60} tint={scheme} style={StyleSheet.absoluteFill} /> : null}
+      {obscured ? (
+        <View style={[StyleSheet.absoluteFill, styles.cover, { backgroundColor: palette.ground }]}>
+          <Wordmark size={44} color={palette.link} />
+        </View>
+      ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  lock: { flex: 1 },
-  lockContent: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: space.xl },
-  lockAction: { padding: space.xl, paddingBottom: 56 },
+  lock: { flex: 1, paddingHorizontal: screen.side },
+  lockContent: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  tile: {
+    width: 140,
+    height: 140,
+    borderRadius: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cover: { alignItems: 'center', justifyContent: 'center' },
 });

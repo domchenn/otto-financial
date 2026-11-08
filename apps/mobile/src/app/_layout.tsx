@@ -1,16 +1,12 @@
 import { ClerkProvider, useAuth } from '@clerk/expo';
 import { tokenCache } from '@clerk/expo/token-cache';
 import {
-  InstrumentSerif_400Regular,
-  useFonts as useSerifFonts,
-} from '@expo-google-fonts/instrument-serif';
-import {
-  Inter_300Light,
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  useFonts as useSansFonts,
-} from '@expo-google-fonts/inter';
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+  useFonts,
+} from '@expo-google-fonts/plus-jakarta-sans';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -28,19 +24,17 @@ export default function RootLayout() {
   const [queryClient] = useState(
     () => new QueryClient({ defaultOptions: { queries: { staleTime: 60_000, retry: 1 } } }),
   );
-  const [serifLoaded] = useSerifFonts({ InstrumentSerif_400Regular });
-  const [sansLoaded] = useSansFonts({
-    Inter_300Light,
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
+  const [fontsLoaded] = useFonts({
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
   });
   const { palette, scheme } = useTheme();
-  const fontsLoaded = serifLoaded && sansLoaded;
 
   useEffect(() => {
-    void SystemUI.setBackgroundColorAsync(palette.base);
-  }, [palette.base]);
+    void SystemUI.setBackgroundColorAsync(palette.ground);
+  }, [palette.ground]);
 
   useEffect(() => {
     if (fontsLoaded) void SplashScreen.hideAsync();
@@ -62,11 +56,18 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const { isLoaded, isSignedIn } = useAuth();
+  const { palette } = useTheme();
   if (!isLoaded) return null;
   return (
-    <Stack screenOptions={{ headerShown: false, animation: 'fade' }}>
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: 'fade',
+        contentStyle: { backgroundColor: palette.ground },
+      }}
+    >
       <Stack.Protected guard={isSignedIn === true}>
-        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(app)" />
       </Stack.Protected>
       <Stack.Protected guard={isSignedIn !== true}>
         <Stack.Screen name="sign-in" />

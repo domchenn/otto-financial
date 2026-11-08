@@ -1,75 +1,86 @@
 import type { BottomTabBarProps } from 'expo-router/tabs';
 import * as Haptics from 'expo-haptics';
-import type { ComponentType } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Glass } from './Glass';
-import { CardIcon, GiftIcon, HomeIcon, SparkleIcon, SpendingIcon } from './icons';
-import { radius, space } from '@/theme/tokens';
+import { HomeIcon, SparkleIcon, SpendingIcon, WalletIcon, type Icon } from './icons';
+import { Text } from './Text';
+import { screen, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-const ICONS: Record<string, ComponentType<{ color: string; size?: number }>> = {
+const ICONS: Record<string, Icon> = {
   index: HomeIcon,
-  cards: CardIcon,
+  wallet: WalletIcon,
   spending: SpendingIcon,
-  benefits: GiftIcon,
   ask: SparkleIcon,
 };
 
-/** Floating glass pill tab bar. */
+/** Floating white pill nav bar. Ask stays indigo so Otto is always one tap away. */
 export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTabBarProps) {
   const { palette } = useTheme();
   const insets = useSafeAreaInsets();
   return (
     <View
-      style={[styles.wrap, { bottom: Math.max(insets.bottom - 6, space.md) }]}
+      style={[styles.wrap, { bottom: Math.max(insets.bottom - 4, space.lg) }]}
       pointerEvents="box-none"
     >
-      <Glass radius={radius.xl} style={styles.bar}>
-        <View style={styles.row}>
-          {state.routes.map((route, index) => {
-            const focused = state.index === index;
-            const Icon = ICONS[route.name] ?? HomeIcon;
-            const options = descriptors[route.key]?.options;
-            return (
-              <Pressable
-                key={route.key}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: focused }}
-                accessibilityLabel={options?.title ?? route.name}
-                onPress={() => {
-                  const event = emitter.emit({
-                    type: 'tabPress',
-                    target: route.key,
-                    canPreventDefault: true,
-                  });
-                  if (!focused && !event.defaultPrevented) {
-                    void Haptics.selectionAsync();
-                    navigateToTab(route.key);
-                  }
-                }}
-                style={[styles.tab, focused && { backgroundColor: palette.controlActive }]}
+      <View style={[styles.bar, { backgroundColor: palette.surface, shadowColor: palette.shadow }]}>
+        {state.routes.map((route, index) => {
+          const focused = state.index === index;
+          const I = ICONS[route.name] ?? HomeIcon;
+          const title = descriptors[route.key]?.options?.title ?? route.name;
+          const isAsk = route.name === 'ask';
+          const color = isAsk ? palette.link : focused ? palette.ink : palette.muted;
+          return (
+            <Pressable
+              key={route.key}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: focused }}
+              accessibilityLabel={title}
+              onPress={() => {
+                const event = emitter.emit({
+                  type: 'tabPress',
+                  target: route.key,
+                  canPreventDefault: true,
+                });
+                if (!focused && !event.defaultPrevented) {
+                  void Haptics.selectionAsync();
+                  navigateToTab(route.key);
+                }
+              }}
+              style={styles.tab}
+            >
+              <I color={color} size={26} filled={isAsk && focused} />
+              <Text
+                variant="caption"
+                weight={focused || isAsk ? 'bold' : 'semibold'}
+                color={color}
+                style={styles.label}
               >
-                <Icon color={focused ? palette.controlActiveText : palette.textMuted} />
-              </Pressable>
-            );
-          })}
-        </View>
-      </Glass>
+                {title}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', left: space.lg, right: space.lg },
-  bar: { height: 58 },
-  row: {
-    flex: 1,
+  wrap: { position: 'absolute', left: screen.side - 8, right: screen.side - 8 },
+  bar: {
+    height: 76,
+    borderRadius: 38,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 6,
+    paddingHorizontal: space.sm,
+    shadowOpacity: 0.1,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
   },
-  tab: { width: 48, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center' },
+  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 4, height: 64 },
+  label: { fontSize: 13 },
 });

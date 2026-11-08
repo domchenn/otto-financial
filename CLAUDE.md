@@ -1,6 +1,8 @@
-# Porter
+# Otto
 
-Porter is a personal, iPhone-first finance app. Dominic is the only user and the only contributor.
+Otto (formerly Porter) is a personal, iPhone-first finance app. Dominic is the only user and the only contributor.
+
+User-facing text says Otto. Code identifiers still say `porter` (repo, bundle ID `com.dominicchen.porter`, URL scheme, backend package, database, Terraform). Don't rename those without asking: the bundle ID and scheme affect Clerk redirects and installed builds, and Terraform renames recreate AWS resources.
 
 ## Key docs
 
@@ -31,7 +33,8 @@ Porter is a personal, iPhone-first finance app. Dominic is the only user and the
 
 - Money is stored as integer cents.
 - Bank data goes through a `FinancialDataProvider` adapter.
-- UI follows PRD section 05 ("Midnight & metal"): glass panels, serif display type, champagne accent only for value, no gradient buttons.
+- UI follows PRD section 05 (Otto design language): Plus Jakarta Sans, warm off-white ground with white cards, indigo only for actions (one primary button per screen), pastels with fixed meanings (mint budget, lilac points, butter credits, sky payments), shadows only on floating things, no gradients. Build screens from `src/components` and the tokens; use the `StepScreen` (Template B) or `MomentScreen` (Template A) layouts.
+- Sample data for screens lives in `apps/mobile/src/lib/sample.ts` until the real APIs land; replace it screen by screen.
 - Use `npx expo install` for Expo packages, and check the installed types: Expo APIs change every SDK.
 - Ask before adding dependencies or anything that costs money on AWS.
 
