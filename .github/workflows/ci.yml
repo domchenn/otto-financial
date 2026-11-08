@@ -57,6 +57,7 @@ jobs:
       - run: npx prettier --check "src/**/*.{ts,tsx}"
       - run: npx eslint .
       - run: npx tsc --noEmit
+      - run: npx jest --ci
 
   terraform:
     runs-on: ubuntu-latest

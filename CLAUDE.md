@@ -21,13 +21,25 @@ User-facing text says Otto. Code identifiers still say `porter` (repo, bundle ID
 - Commit only as the configured git user. Never change the author or committer.
 - Never add `Co-Authored-By`, "Generated with Claude Code", session links or any other AI attribution to commits, PRs or comments.
 - Never push, open PRs or comment on GitHub unless explicitly asked.
-- Always work on a feature branch, never directly on `main`.
+- Always work on a feature branch, never directly on `main`. `main` is protected: changes land only through a PR with green CI.
+- One PR per feature or fix. Stack a PR on its parent branch when it depends on unmerged work.
+- PR descriptions say what changed, how it was tested (checks run, what was and wasn't verified on a device) and anything left for later.
 
 ## Checks before finishing a change
 
 - backend (`backend/`): `uv run ruff format --check . && uv run ruff check . && uv run mypy app tests && uv run pytest`
-- mobile (`apps/mobile/`): `npx prettier --check "src/**/*.{ts,tsx}" && npx eslint . && npx tsc --noEmit`
+- mobile (`apps/mobile/`): `npx prettier --check "src/**/*.{ts,tsx}" && npx eslint . && npx tsc --noEmit && npx jest`
 - infra (`infra/`): `terraform fmt -check -recursive`
+
+## Tests
+
+Every PR that changes behavior includes tests; CI runs them on every PR.
+
+- New logic (money math, parsing, matching, budget/credit rules) gets unit tests. Backend uses pytest; mobile uses Jest (`jest-expo`).
+- New or changed mobile screens and components get React Native Testing Library tests for the key behavior: what the user sees and what tapping does. Query by role and text, not test IDs. RNTL v14 `render` and `fireEvent` are async, so `await` them.
+- Bug fixes start with a failing regression test.
+- Mobile tests sit next to the code as `*.test.ts(x)`. Screen tests go in `src/__tests__/`, never in `src/app/` (Expo Router would treat them as routes).
+- Sample data must stay internally consistent (totals match their parts); `src/lib/sample.test.ts` enforces it.
 
 ## Conventions
 
