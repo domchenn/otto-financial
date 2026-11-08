@@ -823,7 +823,7 @@
       </div></div>
       <div class="arrow">↓ HTTPS · Clerk JWT</div>
       <div class="tier"><div class="tier-label">Edge</div><div class="boxes">
-        <div class="box"><b>Route 53 + ACM</b><span>api.porter domain</span></div>
+        <div class="box"><b>Route 53 + ACM</b><span>api.otto domain</span></div>
         <div class="box"><b>API Gateway (HTTP API)</b><span>TLS, JWT check, throttling</span></div>
       </div></div>
       <div class="arrow">↓</div>
@@ -865,7 +865,7 @@
 
     <h3>Email ingestion (Gmail)</h3>
     <ol class="steps">
-      <li>Gmail filters (from Amex, Chase, Capital One, Bilt, Rakuten) auto-forward to <code>in@mail.&lt;porter-domain&gt;</code>.</li>
+      <li>Gmail filters (from Amex, Chase, Capital One, Bilt, Rakuten) auto-forward to <code>in@mail.&lt;otto-domain&gt;</code>.</li>
       <li>An SES receipt rule stores the raw MIME in encrypted S3 and enqueues a job.</li>
       <li>The worker tries a template parser first (deterministic, unit-tested against real fixtures). If no parser matches, Claude extracts fields into a strict JSON schema with a confidence score.</li>
       <li>Low-confidence results go to an in-app "Review" inbox and are never applied silently.</li>
@@ -873,7 +873,7 @@
     <p style="color:var(--muted);font-size:14px">Why forwarding instead of the Gmail API: <code>gmail.readonly</code> is a restricted scope. An unverified Google app in "testing" mode has refresh tokens that expire every 7 days. Forwarding avoids both problems and keeps all ingestion inside AWS.</p>
 
     <h3>Repository layout</h3>
-<pre style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow-x:auto;font:12.5px/1.6 ui-monospace,'SF Mono',Menlo,monospace;color:var(--ink-2)">porter-financial/
+<pre style="background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;overflow-x:auto;font:12.5px/1.6 ui-monospace,'SF Mono',Menlo,monospace;color:var(--ink-2)">otto-financial/
 ├─ apps/mobile/          Expo app + targets/ (Swift widget, intents)
 ├─ backend/              FastAPI · app/modules/* · alembic/ · tests/
 ├─ catalog/              cards/*.yaml — earn rules &amp; benefits
