@@ -25,6 +25,13 @@ class Settings(BaseSettings):
     # Only these Clerk user IDs may use the API. Empty means nobody can.
     allowed_user_ids: Annotated[list[str], NoDecode] = Field(default_factory=list)
 
+    # Plaid (https://dashboard.plaid.com/developers/keys). Sandbox until Production is approved.
+    plaid_client_id: str = ""
+    plaid_secret: str = ""
+    plaid_env: Literal["sandbox", "production"] = "sandbox"
+    # Fernet key that encrypts provider access tokens at rest (see .env.example to generate).
+    token_encryption_key: str = ""
+
     log_level: str = "INFO"
 
     @property
