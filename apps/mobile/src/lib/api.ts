@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { config } from './config';
+import type { Benefits, CardProduct } from './credits';
 import type { Account, Connection, NetWorth, Summary, Transaction } from './finance';
 import { preparePlaidLink, type PlaidOutcome, type PreparedLink } from './plaid';
 
@@ -57,6 +58,8 @@ export const queryKeys = {
   connections: ['connections'] as const,
   transactions: (params: TransactionParams = {}) => ['transactions', params] as const,
   transaction: (id: string) => ['transaction', id] as const,
+  benefits: ['benefits'] as const,
+  cardProducts: ['card-products'] as const,
 };
 
 export type TransactionParams = {
@@ -125,9 +128,15 @@ function useInvalidateMoney() {
   return useCallback(
     () =>
       Promise.all(
-        ['summary', 'net-worth', 'accounts', 'connections', 'transactions', 'transaction'].map(
-          (key) => client.invalidateQueries({ queryKey: [key] }),
-        ),
+        [
+          'summary',
+          'net-worth',
+          'accounts',
+          'connections',
+          'transactions',
+          'transaction',
+          'benefits',
+        ].map((key) => client.invalidateQueries({ queryKey: [key] })),
       ),
     [client],
   );
@@ -229,5 +238,57 @@ export function useLinkBank() {
       return { status: 'connected' };
     },
     onSettled: invalidate,
+  });
+}
+
+// --- benefits ------------------------------------------------------------------------------
+
+export function useBenefits() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.benefits, queryFn: () => api<Benefits>('/v1/benefits') });
+}
+
+export function useCardProducts() {
+  const api = useApi();
+  return useQuery({
+    queryKey: queryKeys.cardProducts,
+    queryFn: () => api<CardProduct[]>('/v1/card-products'),
+    staleTime: Infinity, // the catalog only changes with a deploy
+  });
+}
+
+/** Both benefit mutations return the refreshed benefits, so the cache is set directly. */
+function useSetBenefits() {
+  const client = useQueryClient();
+  return useCallback((data: Benefits) => client.setQueryData(queryKeys.benefits, data), [client]);
+}
+
+export function useAssignCard() {
+  const api = useApi();
+  const setBenefits = useSetBenefits();
+  return useMutation({
+    mutationFn: (body: {
+      accountId: string;
+      cardId: string | null;
+      anniversaryMonth: number | null;
+    }) =>
+      api<Benefits>(`/v1/accounts/${body.accountId}/card`, {
+        method: 'PUT',
+        body: JSON.stringify({ card_id: body.cardId, anniversary_month: body.anniversaryMonth }),
+      }),
+    onSuccess: setBenefits,
+  });
+}
+
+export function useMarkCreditUsed() {
+  const api = useApi();
+  const setBenefits = useSetBenefits();
+  return useMutation({
+    mutationFn: (body: { periodId: string; used: boolean }) =>
+      api<Benefits>(`/v1/benefit-periods/${body.periodId}/used`, {
+        method: 'POST',
+        body: JSON.stringify({ used: body.used }),
+      }),
+    onSuccess: setBenefits,
   });
 }

@@ -4,6 +4,7 @@ import { render } from '@testing-library/react-native';
 import type { ReactElement } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import type { Benefits, CreditPeriod } from '@/lib/credits';
 import type { Account, Connection, NetWorth, Summary, Transaction } from '@/lib/finance';
 
 export function renderScreen(ui: ReactElement) {
@@ -167,4 +168,87 @@ export const netWorth: NetWorth = {
     { period: 'All', change_cents: 30000, since: isoDaysFromNow(-40) },
   ],
   tracking_since: isoDaysFromNow(-40),
+};
+
+export function creditPeriod(overrides: Partial<CreditPeriod> = {}): CreditPeriod {
+  return {
+    period_id: 'p-dining',
+    account_id: 'acc-gold',
+    card_id: 'amex-gold',
+    card_name: 'Gold Card',
+    account_mask: '1007',
+    credit_id: 'dining',
+    name: 'Dining credit',
+    cadence: 'monthly',
+    enrollment: true,
+    channel: null,
+    amount_cents: 1000,
+    used_cents: 0,
+    remaining_cents: 1000,
+    confirmed: false,
+    marked_used: false,
+    start_date: '2026-11-01',
+    end_date: '2026-11-30',
+    resets_on: '2026-12-01',
+    days_left: 3,
+    ...overrides,
+  };
+}
+
+const goldDining = creditPeriod();
+const goldDunkin = creditPeriod({
+  period_id: 'p-dunkin',
+  credit_id: 'dunkin',
+  name: "Dunkin' credit",
+  amount_cents: 700,
+  remaining_cents: 700,
+});
+const goldResy = creditPeriod({
+  period_id: 'p-resy',
+  credit_id: 'resy',
+  name: 'Resy credit',
+  cadence: 'semiannual',
+  channel: 'U.S. Resy restaurants',
+  amount_cents: 5000,
+  remaining_cents: 5000,
+  start_date: '2026-07-01',
+  end_date: '2026-12-31',
+  resets_on: '2027-01-01',
+  days_left: 34,
+});
+
+/** Gold Card guessed from its name with three credits, plus a card Otto couldn't place. */
+export const benefits: Benefits = {
+  remaining_cents: 6700,
+  expiring_this_month_cents: 1700,
+  expiring_this_month_count: 2,
+  needs_attention: [goldDining, goldDunkin],
+  cards: [
+    {
+      account_id: 'acc-gold',
+      account_name: 'Gold Card',
+      account_mask: '1007',
+      institution_name: 'American Express',
+      card_id: 'amex-gold',
+      card_name: 'Gold Card',
+      issuer: 'American Express',
+      source: 'guess',
+      anniversary_month: null,
+      needs_anniversary_month: false,
+      credits: [goldDining, goldDunkin, goldResy],
+    },
+    {
+      account_id: 'acc-plaid',
+      account_name: 'Plaid Credit Card',
+      account_mask: '3333',
+      institution_name: 'First Platypus Bank',
+      card_id: null,
+      card_name: null,
+      issuer: null,
+      source: 'guess',
+      anniversary_month: null,
+      needs_anniversary_month: false,
+      credits: [],
+    },
+  ],
 };
