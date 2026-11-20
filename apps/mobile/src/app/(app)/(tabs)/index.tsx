@@ -13,7 +13,8 @@ import { ListRow, SectionHeader } from '@/components/rows';
 import { StatTile, TileGrid } from '@/components/StatTile';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useNetWorth, useSummary, useTransactions } from '@/lib/api';
+import { useNetWorth, useSpending, useSummary, useTransactions } from '@/lib/api';
+import { budgetLimitCents } from '@/lib/budget';
 import {
   amountLabel,
   categoryName,
@@ -22,8 +23,8 @@ import {
   netWorthChangeSentence,
 } from '@/lib/finance';
 import { formatCents, formatNumber } from '@/lib/money';
-// Budgets, points and credits are still sample data until their milestones land.
-import { creditSummary, points, week } from '@/lib/sample';
+// Points and credits are still sample data until their milestones land.
+import { creditSummary, points } from '@/lib/sample';
 import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -50,11 +51,16 @@ export default function Home() {
   const recent = useTransactions({ limit: 3 });
   const refresh = useRefresh();
   const netWorth = useNetWorth().data;
-  const s = summary.data;
-  const spentCents = s?.week_spent_cents ?? 0;
-  const leftCents = week.limitCents - spentCents;
+  const spending = useSpending('week');
+  // Never show stale or made-up numbers next to an error: no data means "—".
+  const s = summary.isError ? undefined : summary.data;
+  const weekData = spending.isError ? undefined : spending.data;
+  const failed = summary.isError || spending.isError;
+  const limitCents = budgetLimitCents.week;
+  const spentCents = weekData?.spent_cents ?? 0;
+  const leftCents = limitCents - spentCents;
   const next = s?.upcoming_payments[0];
-  const connected = s?.has_connections ?? true;
+  const connected = summary.data?.has_connections ?? true;
 
   return (
     <TabScreen refreshControl={refresh}>
@@ -86,16 +92,18 @@ export default function Home() {
       <Text variant="display" style={styles.hero}>
         You have{' '}
         <Text variant="display" color={palette.link} tabular>
-          {s ? formatCents(Math.max(leftCents, 0)) : '…'}
+          {weekData ? formatCents(Math.max(leftCents, 0)) : '—'}
         </Text>{' '}
         left to spend this week.
       </Text>
       <Text variant="body" muted style={styles.heroSub}>
-        {summary.isError
+        {failed
           ? "Otto couldn't reach your data. Pull down to try again."
-          : leftCents < 0
-            ? `You're ${formatCents(-leftCents)} over this week's budget.`
-            : `You've spent ${formatCents(spentCents)} since Monday.`}
+          : !weekData
+            ? ' '
+            : leftCents < 0
+              ? `You're ${formatCents(-leftCents)} over this week's budget.`
+              : `You've spent ${formatCents(spentCents)} since Monday.`}
       </Text>
 
       {!connected ? (
@@ -123,13 +131,13 @@ export default function Home() {
           <StatTile
             tone="mint"
             label="This week"
-            value={formatCents(spentCents)}
-            suffix={`of ${formatCents(week.limitCents)}`}
+            value={weekData ? formatCents(spentCents) : '—'}
+            suffix={`of ${formatCents(limitCents)}`}
             onPress={() => router.push('/spending')}
           >
             <View style={{ marginTop: space.md }}>
               <ProgressBar
-                value={Math.min(spentCents / week.limitCents, 1)}
+                value={weekData ? Math.min(spentCents / limitCents, 1) : 0}
                 color={palette.tones.mint.accent}
                 track={palette.tones.mint.track}
               />
@@ -153,7 +161,9 @@ export default function Home() {
             tone="sky"
             label="Next payment"
             value={next ? formatCents(next.amount_cents) : '—'}
-            caption={next ? `${next.name} · ${dueLabel(next.due_date).text}` : 'Nothing due'}
+            caption={
+              next ? `${next.name} · ${dueLabel(next.due_date).text}` : s ? 'Nothing due' : ' '
+            }
             onPress={() =>
               next ? router.push(`/card/${next.account_id}`) : router.push('/wallet')
             }

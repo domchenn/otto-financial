@@ -15,6 +15,8 @@ import {
   netWorthChangeSentence,
   type NetWorth,
   parseDate,
+  spendingInsight,
+  type Spending,
   utilizationLabel,
   utilizationSentence,
 } from './finance';
@@ -175,5 +177,39 @@ describe('wallet labels', () => {
     expect(utilizationSentence(7, 1000000)).toBe('7% of your $10,000 limit used · healthy');
     expect(utilizationSentence(45, 200000)).toBe('45% of your $2,000 limit used · high');
     expect(utilizationSentence(null, 0)).toBeNull();
+  });
+});
+
+describe('spendingInsight', () => {
+  const base: Spending = {
+    period: 'week',
+    start: '2026-11-16',
+    end: '2026-11-19',
+    spent_cents: 10000,
+    days: [],
+    categories: [
+      {
+        category: 'FOOD_AND_DRINK',
+        cents: 4400,
+        top_account_name: 'Gold Card',
+        top_account_share: 0.95,
+      },
+    ],
+  };
+
+  it('states the top category plainly, with the card behind it', () => {
+    expect(spendingInsight(base)).toBe('Dining is 44% of your week, almost all on your Gold Card.');
+    const mostly = { ...base.categories[0]!, top_account_share: 0.6 };
+    expect(spendingInsight({ ...base, categories: [mostly] })).toBe(
+      'Dining is 44% of your week, mostly on your Gold Card.',
+    );
+    const split = { ...base.categories[0]!, top_account_share: 0.4 };
+    expect(spendingInsight({ ...base, period: 'month', categories: [split] })).toBe(
+      'Dining is 44% of your month.',
+    );
+  });
+
+  it('says nothing when there is no spend', () => {
+    expect(spendingInsight({ ...base, spent_cents: 0, categories: [] })).toBeNull();
   });
 });

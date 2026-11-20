@@ -319,3 +319,31 @@ export function utilizationSentence(pct: number | null, limitCents: number): str
   const grade = utilizationLabel(pct).text.split(' · ')[1];
   return `${pct}% of your ${formatCents(limitCents)} limit used · ${grade}`;
 }
+
+export type Spending = {
+  period: 'week' | 'month';
+  start: string;
+  end: string;
+  spent_cents: number;
+  days: { date: string; cents: number | null }[];
+  categories: {
+    category: string | null;
+    cents: number;
+    top_account_name: string | null;
+    top_account_share: number;
+  }[];
+};
+
+/**
+ * One factual line about the biggest category, e.g. "Dining is 44% of your week, almost all
+ * on your Gold Card." Null when there's nothing to say.
+ */
+export function spendingInsight(spending: Spending): string | null {
+  const top = spending.categories[0];
+  if (!top || spending.spent_cents <= 0) return null;
+  const share = Math.round((top.cents * 100) / spending.spent_cents);
+  const base = `${categoryName(top.category)} is ${share}% of your ${spending.period}`;
+  if (!top.top_account_name || top.top_account_share < 0.5) return `${base}.`;
+  const how = top.top_account_share >= 0.9 ? 'almost all' : 'mostly';
+  return `${base}, ${how} on your ${top.top_account_name}.`;
+}
