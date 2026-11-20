@@ -9,6 +9,7 @@ import { Coin } from '@/components/Illustration';
 import { Footer, MomentScreen } from '@/components/layouts';
 import { Wordmark } from '@/components/otto';
 import { Text } from '@/components/Text';
+import { usePrepareLink } from '@/lib/api';
 import { space, type ToneName } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
@@ -30,6 +31,7 @@ const ART_H = 330;
 
 export default function Connect() {
   const { palette } = useTheme();
+  usePrepareLink(); // so the next screen opens Plaid without a wait
   const cx = ART_W / 2;
   const cy = ART_H * 0.52;
 
