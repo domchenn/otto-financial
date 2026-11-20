@@ -2,8 +2,15 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, screen } from '@testing-library/react-native';
 
 import Home from '@/app/(app)/(tabs)/index';
-import type { Summary, Transaction } from '@/lib/finance';
-import { refund, renderScreen, mockResult, summary, sweetgreen } from '@/test/fixtures';
+import type { Spending, Summary, Transaction } from '@/lib/finance';
+import {
+  refund,
+  renderScreen,
+  mockResult,
+  summary,
+  sweetgreen,
+  weekSpending,
+} from '@/test/fixtures';
 
 jest.mock('@clerk/expo', () => ({ useUser: () => ({ user: { firstName: 'Dominic' } }) }));
 
@@ -13,9 +20,12 @@ jest.mock('expo-router', () => ({ router: { push: (...args: unknown[]) => mockPu
 let mockSummary: Summary | undefined;
 let mockSummaryError = false;
 let mockTransactions: Transaction[] | undefined;
+let mockSpending: Spending | undefined;
+let mockSpendingError = false;
 jest.mock('@/lib/api', () => ({
   useSummary: () => mockResult(mockSummary, { isError: mockSummaryError }),
   useTransactions: () => mockResult(mockTransactions),
+  useSpending: () => mockResult(mockSpending, { isError: mockSpendingError }),
   useNetWorth: () =>
     mockResult(jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures').netWorth),
 }));
@@ -25,6 +35,8 @@ beforeEach(() => {
   mockSummary = summary;
   mockSummaryError = false;
   mockTransactions = [sweetgreen, refund];
+  mockSpending = weekSpending;
+  mockSpendingError = false;
   mockPush.mockClear();
 });
 
@@ -39,7 +51,7 @@ describe('Home', () => {
   });
 
   it('says when spending is over budget', async () => {
-    mockSummary = { ...summary, week_spent_cents: 62000 };
+    mockSpending = { ...weekSpending, spent_cents: 62000 };
     await renderScreen(<Home />);
     expect(screen.getByText("You're $120 over this week's budget.")).toBeOnTheScreen();
   });
@@ -82,6 +94,16 @@ describe('Home', () => {
     mockSummaryError = true;
     await renderScreen(<Home />);
     expect(screen.getByText(/couldn't reach your data/)).toBeOnTheScreen();
+  });
+
+  // Regression: a failed refresh left old or placeholder numbers next to the error message.
+  it('shows dashes, not numbers, when spending fails to load', async () => {
+    mockSpendingError = true;
+    await renderScreen(<Home />);
+    expect(screen.getByText(/couldn't reach your data/)).toBeOnTheScreen();
+    expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2); // headline and This week
+    expect(screen.queryByText('$380')).toBeNull();
+    expect(screen.queryByText('$120')).toBeNull();
   });
 
   it('shows net worth and opens its screen', async () => {
