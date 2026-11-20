@@ -239,3 +239,37 @@ export function amountLabel(amountCents: number): string {
     ? formatCents(-amountCents, { cents: true, sign: true })
     : formatCents(amountCents, { cents: true });
 }
+
+export type NetWorthPeriod = '1W' | '1M' | '3M' | '1Y' | 'All';
+
+export type NetWorth = {
+  net_cents: number;
+  cash_cents: number;
+  investments_cents: number;
+  cards_cents: number;
+  loans_cents: number;
+  changes: { period: NetWorthPeriod; change_cents: number | null; since: string | null }[];
+  tracking_since: string | null;
+};
+
+const PERIOD_PHRASE: Record<NetWorthPeriod, string> = {
+  '1W': 'this week',
+  '1M': 'this month',
+  '3M': 'in the last 3 months',
+  '1Y': 'this year',
+  All: 'since Otto started tracking',
+};
+
+/** "Up $120 this week", or why there's no comparison yet. */
+export function netWorthChangeSentence(netWorth: NetWorth, period: NetWorthPeriod): string {
+  const change = netWorth.changes.find((c) => c.period === period);
+  const phrase = PERIOD_PHRASE[period];
+  if (!change || change.change_cents === null) {
+    return netWorth.tracking_since
+      ? `Otto started tracking ${formatShortDate(netWorth.tracking_since)}. Changes appear as days go by.`
+      : 'Connect an account and Otto starts tracking your net worth.';
+  }
+  if (change.change_cents === 0) return `No change ${phrase}.`;
+  const amount = formatCents(Math.abs(change.change_cents));
+  return `${change.change_cents > 0 ? 'Up' : 'Down'} ${amount} ${phrase}.`;
+}

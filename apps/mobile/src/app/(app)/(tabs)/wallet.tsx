@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { CardSwatch, Pill } from '@/components/badges';
+import { CardSwatch, Monogram, Pill } from '@/components/badges';
 import { Button } from '@/components/Button';
 import { IconButton } from '@/components/IconButton';
 import { PlusIcon } from '@/components/icons';
@@ -9,8 +9,15 @@ import { TabScreen } from '@/components/layouts';
 import { ListRow, SectionHeader } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useAccounts, useLinkBank, usePrepareLink, useSummary } from '@/lib/api';
-import { agoLabel, cardArt, dueLabel, utilizationLabel } from '@/lib/finance';
+import { NetWorthBar } from '@/components/NetWorthBar';
+import { useAccounts, useLinkBank, useNetWorth, usePrepareLink, useSummary } from '@/lib/api';
+import {
+  agoLabel,
+  cardArt,
+  dueLabel,
+  netWorthChangeSentence,
+  utilizationLabel,
+} from '@/lib/finance';
 import { formatCents } from '@/lib/money';
 // Credits are sample data until M2.
 import { creditSummary } from '@/lib/sample';
@@ -28,7 +35,11 @@ export default function Wallet() {
   const link = useLinkBank();
   usePrepareLink();
   const s = summary.data;
+  const netWorth = useNetWorth().data;
   const cards = (accounts.data ?? []).filter((a) => a.kind === 'credit');
+  const assets = (accounts.data ?? []).filter(
+    (a) => a.kind === 'depository' || a.kind === 'investment',
+  );
   const broken = s?.attention[0];
   const util = utilizationLabel(s?.utilization_pct ?? null);
   const nextDue = s?.upcoming_payments[0];
@@ -63,6 +74,25 @@ export default function Wallet() {
         </Card>
       ) : null}
 
+      {netWorth && (netWorth.tracking_since || netWorth.net_cents !== 0) ? (
+        <Card
+          style={{ marginTop: space.lg }}
+          onPress={() => router.push('/net-worth')}
+          accessibilityLabel="Net worth"
+        >
+          <Text variant="body" muted>
+            Net worth
+          </Text>
+          <Text variant="hero" tabular style={{ marginTop: space.xs }}>
+            {formatCents(netWorth.net_cents)}
+          </Text>
+          <Text variant="body" muted style={{ marginBottom: space.md }}>
+            {netWorthChangeSentence(netWorth, '1W')}
+          </Text>
+          <NetWorthBar netWorth={netWorth} />
+        </Card>
+      ) : null}
+
       <Card style={{ marginTop: space.lg }}>
         <Text variant="body" muted>
           Total card balances
@@ -79,6 +109,27 @@ export default function Wallet() {
           </View>
         ) : null}
       </Card>
+
+      {assets.length > 0 ? (
+        <>
+          <SectionHeader title="Cash & investments" detail={`${assets.length} accounts`} />
+          <Card style={styles.list}>
+            <Stack>
+              {assets.map((a) => (
+                <ListRow
+                  key={a.id}
+                  leading={<Monogram label={a.name.charAt(0)} size={44} />}
+                  title={a.name}
+                  subtitle={[a.institution_name, a.mask ? `•• ${a.mask}` : null]
+                    .filter(Boolean)
+                    .join(' · ')}
+                  value={formatCents(a.current_cents ?? 0, { cents: true })}
+                />
+              ))}
+            </Stack>
+          </Card>
+        </>
+      ) : null}
 
       <SectionHeader
         title="Credit cards"

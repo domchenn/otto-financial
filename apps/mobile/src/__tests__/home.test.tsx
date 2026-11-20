@@ -16,6 +16,8 @@ let mockTransactions: Transaction[] | undefined;
 jest.mock('@/lib/api', () => ({
   useSummary: () => mockResult(mockSummary, { isError: mockSummaryError }),
   useTransactions: () => mockResult(mockTransactions),
+  useNetWorth: () =>
+    mockResult(jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures').netWorth),
 }));
 jest.mock('@/lib/useRefresh', () => ({ useRefresh: () => undefined }));
 
@@ -80,5 +82,12 @@ describe('Home', () => {
     mockSummaryError = true;
     await renderScreen(<Home />);
     expect(screen.getByText(/couldn't reach your data/)).toBeOnTheScreen();
+  });
+
+  it('shows net worth and opens its screen', async () => {
+    await renderScreen(<Home />);
+    expect(screen.getByText('Up $120 this week.')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByText('Net worth'));
+    expect(mockPush).toHaveBeenCalledWith('/net-worth');
   });
 });
