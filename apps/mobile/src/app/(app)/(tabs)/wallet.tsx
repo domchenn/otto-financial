@@ -14,6 +14,7 @@ import { agoLabel, cardArt, dueLabel, utilizationLabel } from '@/lib/finance';
 import { formatCents } from '@/lib/money';
 // Credits are sample data until M2.
 import { creditSummary } from '@/lib/sample';
+import { linkAlerts } from '@/lib/linkAlerts';
 import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -38,7 +39,7 @@ export default function Wallet() {
         <IconButton
           icon={PlusIcon}
           label="Connect another account"
-          onPress={() => link.mutate(undefined)}
+          onPress={() => link.mutate(undefined, linkAlerts)}
         />
       </View>
 

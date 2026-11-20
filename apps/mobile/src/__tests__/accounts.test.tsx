@@ -16,6 +16,7 @@ jest.mock('@/lib/api', () => ({
   useDisconnect: () => mockDisconnect,
   useLinkBank: () => mockLink,
 }));
+jest.mock('@/lib/linkAlerts', () => ({ linkAlerts: { onSuccess: jest.fn(), onError: jest.fn() } }));
 jest.mock('@/lib/useRefresh', () => ({ useRefresh: () => undefined }));
 
 beforeEach(() => {

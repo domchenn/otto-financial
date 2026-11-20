@@ -27,7 +27,10 @@ export default function PlaidLink() {
         if (result.status === 'connected') router.replace('/onboarding/analysing');
         else if (result.status === 'failed') router.replace('/onboarding/link-error');
       },
-      onError: () => router.replace('/onboarding/link-error'),
+      onError: (error) => {
+        console.warn('Connecting a bank failed:', error);
+        router.replace('/onboarding/link-error');
+      },
     });
   };
 
