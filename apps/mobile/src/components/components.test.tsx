@@ -64,3 +64,14 @@ describe('OttoNoticed', () => {
     expect(show).not.toHaveBeenCalled();
   });
 });
+
+describe('tiles', () => {
+  it('use the neutral gray tile when a pastel would carry no meaning', async () => {
+    const { LabelTile } = jest.requireActual<typeof import('./badges')>('./badges');
+    const { light } = jest.requireActual<typeof import('@/theme/tokens')>('@/theme/tokens');
+    await render(<LabelTile label="AX" tone="neutral" />);
+    expect(screen.getByText('AX')).toHaveStyle({ color: light.ink });
+    await render(<LabelTile label="CR" tone="butter" />);
+    expect(screen.getByText('CR')).toHaveStyle({ color: light.tones.butter.text });
+  });
+});

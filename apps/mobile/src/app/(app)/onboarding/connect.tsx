@@ -10,20 +10,20 @@ import { Footer, MomentScreen } from '@/components/layouts';
 import { Wordmark } from '@/components/otto';
 import { Text } from '@/components/Text';
 import { usePrepareLink } from '@/lib/api';
-import { space, type ToneName } from '@/theme/tokens';
+import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-const PROMISES: { icon: Icon; tone: ToneName; text: string }[] = [
-  { icon: EyeIcon, tone: 'mint', text: 'Read-only. Otto can never move your money.' },
-  { icon: LockIcon, tone: 'sky', text: 'Secured by Plaid. We never see your bank password.' },
-  { icon: CloseIcon, tone: 'lilac', text: 'Disconnect any account, anytime.' },
+const PROMISES: { icon: Icon; text: string }[] = [
+  { icon: EyeIcon, text: 'Read-only. Otto can never move your money.' },
+  { icon: LockIcon, text: 'Secured by Plaid. We never see your bank password.' },
+  { icon: CloseIcon, text: 'Disconnect any account, anytime.' },
 ];
 
-const BANKS: { label: string; tone: ToneName; x: number; y: number; r: number }[] = [
-  { label: 'AX', tone: 'sky', x: 0.2, y: 0.28, r: -6 },
-  { label: 'CH', tone: 'mint', x: 0.8, y: 0.28, r: 6 },
-  { label: 'C1', tone: 'butter', x: 0.18, y: 0.72, r: 4 },
-  { label: 'BA', tone: 'lilac', x: 0.82, y: 0.72, r: -4 },
+const BANKS: { label: string; x: number; y: number; r: number }[] = [
+  { label: 'AX', x: 0.2, y: 0.28, r: -6 },
+  { label: 'CH', x: 0.8, y: 0.28, r: 6 },
+  { label: 'C1', x: 0.18, y: 0.72, r: 4 },
+  { label: 'BA', x: 0.82, y: 0.72, r: -4 },
 ];
 
 const ART_W = 360;
@@ -71,7 +71,7 @@ export default function Connect() {
                   },
                 ]}
               >
-                <LabelTile label={b.label} tone={b.tone} size={80} />
+                <LabelTile label={b.label} tone="neutral" size={80} />
               </View>
             ))}
             <View
@@ -108,7 +108,7 @@ export default function Connect() {
       <View style={{ gap: space.lg, marginTop: space.xl }}>
         {PROMISES.map((p) => (
           <View key={p.text} style={styles.promise}>
-            <IconTile icon={p.icon} tone={p.tone} size={48} />
+            <IconTile icon={p.icon} tone="neutral" size={48} />
             <Text variant="row" weight="bold" style={{ flex: 1, fontSize: 17 }}>
               {p.text}
             </Text>

@@ -47,7 +47,7 @@ Every PR that changes behavior includes tests; CI runs them on every PR.
 
 - Money is stored as integer cents.
 - Bank data goes through a `FinancialDataProvider` adapter.
-- UI follows PRD section 05 (Otto design language): Plus Jakarta Sans, warm off-white ground with white cards, indigo only for actions (one primary button per screen), pastels with fixed meanings (mint budget, lilac points, butter credits, sky payments), shadows only on floating things, no gradients. Build screens from `src/components` and the tokens; use the `StepScreen` (Template B) or `MomentScreen` (Template A) layouts.
+- UI follows PRD section 05 (Otto design language): Plus Jakarta Sans, warm off-white ground with white cards, indigo only for actions (one primary button per screen), pastels only where they carry their fixed meaning (mint budget, lilac points, butter credits, sky payments) and never as decoration (use the neutral gray tile otherwise), shadows only on floating things, no gradients. Build screens from `src/components` and the tokens; use the `StepScreen` (Template B) or `MomentScreen` (Template A) layouts.
 - Sample data for screens lives in `apps/mobile/src/lib/sample.ts` until the real APIs land; replace it screen by screen.
 - Use `npx expo install` for Expo packages, and check the installed types: Expo APIs change every SDK.
 - Ask before adding dependencies or anything that costs money on AWS.

@@ -25,19 +25,27 @@ function useDebounced<T>(value: T, ms = 300): T {
 }
 
 export default function Transactions() {
-  const params = useLocalSearchParams<{ account?: string }>();
+  const params = useLocalSearchParams<{ account?: string; category?: string }>();
   const { palette } = useTheme();
   const [query, setQuery] = useState('');
   const [accountId, setAccountId] = useState<string | undefined>(params.account);
   const q = useDebounced(query.trim());
   const accounts = useAccounts();
-  const transactions = useTransactions({ account_id: accountId, q: q || undefined, limit: 200 });
+  const transactions = useTransactions({
+    account_id: accountId,
+    category: params.category,
+    q: q || undefined,
+    limit: 200,
+  });
   const refresh = useRefresh();
   const groups = useMemo(() => groupByDay(transactions.data ?? []), [transactions.data]);
   const cards = (accounts.data ?? []).filter((a) => a.kind === 'credit' || a.kind === 'depository');
 
   return (
-    <StepScreen title="Transactions" refreshControl={refresh}>
+    <StepScreen
+      title={params.category ? categoryName(params.category) : 'Transactions'}
+      refreshControl={refresh}
+    >
       <View style={{ marginTop: space.lg }}>
         <Field
           placeholder="Search merchants"
