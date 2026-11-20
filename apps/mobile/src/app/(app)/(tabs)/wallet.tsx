@@ -9,69 +9,101 @@ import { TabScreen } from '@/components/layouts';
 import { ListRow, SectionHeader } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
+import { useAccounts, useLinkBank, useSummary } from '@/lib/api';
+import { agoLabel, cardArt, dueLabel, utilizationLabel } from '@/lib/finance';
 import { formatCents } from '@/lib/money';
-import { cards, wallet } from '@/lib/sample';
+// Credits are sample data until M2.
+import { creditSummary } from '@/lib/sample';
+import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 export default function Wallet() {
   const { palette } = useTheme();
   const alert = palette.tones.alert;
+  const summary = useSummary();
+  const accounts = useAccounts();
+  const refresh = useRefresh();
+  const link = useLinkBank();
+  const s = summary.data;
+  const cards = (accounts.data ?? []).filter((a) => a.kind === 'credit');
+  const broken = s?.attention[0];
+  const util = utilizationLabel(s?.utilization_pct ?? null);
+  const nextDue = s?.upcoming_payments[0];
+
   return (
-    <TabScreen>
+    <TabScreen refreshControl={refresh}>
       <View style={styles.header}>
         <Text variant="display">Wallet</Text>
         <IconButton
           icon={PlusIcon}
           label="Connect another account"
-          onPress={() => router.push('/onboarding/connect')}
+          onPress={() => link.mutate(undefined)}
         />
       </View>
 
-      <Card tone="alert" style={styles.banner}>
-        <Text variant="body" color={alert.text} style={{ flex: 1, fontSize: 16, lineHeight: 22 }}>
-          <Text variant="body" weight="bold" color={alert.text} style={{ fontSize: 16 }}>
-            Chase needs a quick sign-in.
-          </Text>{' '}
-          Balances were last updated 3 days ago.
-        </Text>
-        <Button
-          small
-          variant="outline"
-          title="Fix"
-          onPress={() => router.push('/settings/accounts')}
-          style={styles.fix}
-        />
-      </Card>
+      {broken ? (
+        <Card tone="alert" style={styles.banner}>
+          <Text variant="body" color={alert.text} style={{ flex: 1, fontSize: 16, lineHeight: 22 }}>
+            <Text variant="body" weight="bold" color={alert.text} style={{ fontSize: 16 }}>
+              {broken.institution_name ?? 'A bank'} needs a quick sign-in.
+            </Text>{' '}
+            Balances were last updated {agoLabel(broken.last_synced_at)}.
+          </Text>
+          <Button
+            small
+            variant="outline"
+            title="Fix"
+            onPress={() => router.push('/settings/accounts')}
+            style={styles.fix}
+          />
+        </Card>
+      ) : null}
 
       <Card style={{ marginTop: space.lg }}>
         <Text variant="body" muted>
           Total card balances
         </Text>
         <Text variant="hero" tabular style={{ marginTop: space.xs }}>
-          {formatCents(wallet.totalBalanceCents, { cents: true })}
+          {s ? formatCents(s.card_balance_cents, { cents: true }) : '…'}
         </Text>
-        <View style={styles.pills}>
-          <Pill tone="mint" label={`${wallet.utilizationPct}% utilization · healthy`} />
-          <Pill tone="sky" label={`Next due ${wallet.nextDue}`} />
-        </View>
+        {s && s.card_count > 0 ? (
+          <View style={styles.pills}>
+            <Pill tone={util.tone} label={util.text} />
+            {nextDue ? (
+              <Pill tone="sky" label={`Next ${dueLabel(nextDue.due_date).text.toLowerCase()}`} />
+            ) : null}
+          </View>
+        ) : null}
       </Card>
 
-      <SectionHeader title="Credit cards" detail={`${cards.length} cards`} />
+      <SectionHeader
+        title="Credit cards"
+        detail={`${cards.length} ${cards.length === 1 ? 'card' : 'cards'}`}
+      />
       <Card style={styles.list}>
         <Stack>
-          {cards.map((card) => (
-            <ListRow
-              key={card.id}
-              leading={<CardSwatch color={card.color} chip={card.chip} width={64} />}
-              title={card.name}
-              subtitle={`•• ${card.last4} · ${card.dueSoon ? card.due : `Due ${card.due}`}`}
-              subtitleColor={card.dueSoon ? palette.alert : undefined}
-              value={formatCents(card.balanceCents, { cents: true })}
-              chevron
-              onPress={() => router.push(`/card/${card.id}`)}
-            />
-          ))}
+          {cards.map((card) => {
+            const art = cardArt(card);
+            const due = dueLabel(card.next_due_date);
+            return (
+              <ListRow
+                key={card.id}
+                leading={<CardSwatch color={art.color} chip={art.chip} width={64} />}
+                title={card.name}
+                subtitle={card.mask ? `•• ${card.mask} · ${due.text}` : due.text}
+                subtitleColor={due.soon ? palette.alert : undefined}
+                value={formatCents(card.current_cents ?? 0, { cents: true })}
+                chevron
+                onPress={() => router.push(`/card/${card.id}`)}
+              />
+            );
+          })}
+          {accounts.data && cards.length === 0 ? (
+            <Text variant="body" muted style={{ paddingVertical: space.md }}>
+              No cards connected yet. Tap + to connect one.
+            </Text>
+          ) : null}
         </Stack>
       </Card>
 
@@ -86,7 +118,7 @@ export default function Wallet() {
               Card credits
             </Text>
             <Text variant="body" muted>
-              $65 ready to use this month
+              {formatCents(creditSummary.readyThisMonthCents)} ready to use this month
             </Text>
           </View>
           <Text variant="row" weight="bold" color={palette.link}>

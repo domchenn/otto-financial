@@ -1,8 +1,8 @@
 import { router } from 'expo-router';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { IconTile } from '@/components/badges';
-import { Button, TextButton } from '@/components/Button';
+import { Button } from '@/components/Button';
 import { CheckIcon, UnlinkIcon } from '@/components/icons';
 import { Footer, StepScreen } from '@/components/layouts';
 import { Card } from '@/components/Surface';
@@ -16,15 +16,11 @@ export default function LinkError() {
     <StepScreen
       footer={
         <Footer>
-          <Button title="Try Chase again" onPress={() => router.replace('/onboarding/link')} />
+          <Button title="Try again" onPress={() => router.replace('/onboarding/link')} />
           <Button
             variant="secondary"
-            title="Continue without Chase"
+            title="Continue without it"
             onPress={() => router.replace('/onboarding/analysing')}
-          />
-          <TextButton
-            title="Get help"
-            onPress={() => Alert.alert('Get help', 'Support links arrive with Plaid in M1.')}
           />
         </Footer>
       }
@@ -32,7 +28,7 @@ export default function LinkError() {
       <View style={styles.center}>
         <IconTile icon={UnlinkIcon} tone="alert" size={150} />
         <Text variant="display" center style={{ marginTop: space.xl }}>
-          We couldn&apos;t reach Chase
+          We couldn&apos;t reach your bank
         </Text>
         <Text
           variant="body"

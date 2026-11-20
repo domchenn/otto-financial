@@ -1,21 +1,44 @@
 import { router } from 'expo-router';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { LockIcon } from '@/components/icons';
+import { useLinkBank } from '@/lib/api';
 import { Footer } from '@/components/layouts';
 import { Text } from '@/components/Text';
 import { radius, screen, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 /**
- * Placeholder for Plaid Link (M1). The real sheet opens Plaid's own UI; Otto only receives
- * a public token and never sees bank credentials.
+ * Opens Plaid Link over this backdrop. Plaid shows its own UI; Otto only receives a public
+ * token and never sees bank credentials.
  */
 export default function PlaidLink() {
   const { palette } = useTheme();
   const insets = useSafeAreaInsets();
+  const link = useLinkBank();
+  const started = useRef(false);
+
+  const start = () => {
+    link.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result.status === 'connected') router.replace('/onboarding/analysing');
+        else if (result.status === 'failed') router.replace('/onboarding/link-error');
+      },
+      onError: () => router.replace('/onboarding/link-error'),
+    });
+  };
+
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    start();
+    // Open Link once on arrival; "Open Plaid" below retries after the user closes it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <View
       style={{
@@ -31,7 +54,7 @@ export default function PlaidLink() {
           <LockIcon color={palette.muted} size={34} />
         </View>
         <Text variant="heading" center style={{ marginTop: space.xl, fontSize: 26 }}>
-          Plaid&apos;s secure window opens here
+          {link.isPending ? 'Opening Plaid…' : 'Plaid closed'}
         </Text>
         <Text
           variant="body"
@@ -42,22 +65,10 @@ export default function PlaidLink() {
           You search for your bank, sign in and choose accounts inside Plaid. Otto receives
           read-only access and never sees the password.
         </Text>
-        <View style={[styles.tag, { backgroundColor: palette.raised }]}>
-          <Text variant="caption" weight="bold" muted>
-            Arrives in M1
-          </Text>
-        </View>
       </View>
       <Footer>
-        <Button
-          title="Simulate: connected"
-          onPress={() => router.replace('/onboarding/analysing')}
-        />
-        <Button
-          variant="secondary"
-          title="Simulate: connection failed"
-          onPress={() => router.replace('/onboarding/link-error')}
-        />
+        <Button title="Open Plaid" disabled={link.isPending} onPress={start} />
+        <Button variant="secondary" title="Not now" onPress={() => router.back()} />
       </Footer>
     </View>
   );
@@ -76,5 +87,4 @@ const styles = StyleSheet.create({
     padding: space.xl,
   },
   lock: { width: 96, height: 96, borderRadius: 26, alignItems: 'center', justifyContent: 'center' },
-  tag: { marginTop: space.lg, paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10 },
 });

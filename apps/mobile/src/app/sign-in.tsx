@@ -1,10 +1,11 @@
 import { useSignIn } from '@clerk/expo';
+import { useSSO } from '@clerk/expo/experimental';
 import { useEffect, useRef, useState } from 'react';
 import { Pressable, StyleSheet, TextInput, View, type TextInputInstance } from 'react-native';
 
 import { Button, TextButton } from '@/components/Button';
 import { Field } from '@/components/Field';
-import { AlertIcon, MailIcon } from '@/components/icons';
+import { AlertIcon, AppleIcon, GoogleIcon, MailIcon } from '@/components/icons';
 import { Footer, StepScreen } from '@/components/layouts';
 import { Card } from '@/components/Surface';
 import { Text } from '@/components/Text';
@@ -15,8 +16,11 @@ import { useTheme } from '@/theme/useTheme';
 const CODE_LENGTH = 6;
 const RESEND_SECONDS = 30;
 
+type Provider = 'oauth_apple' | 'oauth_google';
+
 /**
- * Email-code sign-in. Sign-ups are disabled in the Clerk dashboard (restricted mode),
+ * Sign in with Apple, Google (both through Clerk's browser flow, so no Apple entitlement is
+ * needed) or an email code. Sign-ups are disabled in the Clerk dashboard (restricted mode),
  * so only the owner's existing account can get through.
  */
 export default function SignIn() {
@@ -28,6 +32,24 @@ export default function SignIn() {
   const [step, setStep] = useState<'email' | 'code'>('email');
   const [error, setError] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(0);
+  const { startSSOFlow } = useSSO();
+  const [ssoBusy, setSsoBusy] = useState<Provider | null>(null);
+
+  async function continueWith(strategy: Provider) {
+    setError(null);
+    setSsoBusy(strategy);
+    try {
+      const { createdSessionId, authSessionResult } = await startSSOFlow({ strategy });
+      // Closing the browser sheet is a choice, not an error.
+      if (!createdSessionId && authSessionResult?.type === 'success') {
+        setError("That account isn't linked to Otto. Sign in with the email on your Otto account.");
+      }
+    } catch (e) {
+      setError(friendly(e));
+    } finally {
+      setSsoBusy(null);
+    }
+  }
 
   useEffect(() => {
     if (resendIn <= 0) return;
@@ -101,6 +123,31 @@ export default function SignIn() {
             onSubmitEditing={() => void sendCode()}
             error={error}
             hint="Use the email on your Otto account."
+          />
+        </View>
+        <View style={styles.orRow}>
+          <View style={[styles.orLine, { backgroundColor: palette.hairline }]} />
+          <Text variant="caption" muted>
+            or
+          </Text>
+          <View style={[styles.orLine, { backgroundColor: palette.hairline }]} />
+        </View>
+        <View style={{ gap: space.md }}>
+          <Button
+            variant="apple"
+            icon={AppleIcon}
+            title="Continue with Apple"
+            loading={ssoBusy === 'oauth_apple'}
+            disabled={ssoBusy !== null}
+            onPress={() => void continueWith('oauth_apple')}
+          />
+          <Button
+            variant="outline"
+            icon={GoogleIcon}
+            title="Continue with Google"
+            loading={ssoBusy === 'oauth_google'}
+            disabled={ssoBusy !== null}
+            onPress={() => void continueWith('oauth_google')}
           />
         </View>
       </StepScreen>
@@ -248,6 +295,8 @@ function CodeBoxes({
 }
 
 const styles = StyleSheet.create({
+  orRow: { flexDirection: 'row', alignItems: 'center', gap: space.md, marginVertical: space.xl },
+  orLine: { flex: 1, height: StyleSheet.hairlineWidth },
   boxes: { flexDirection: 'row', gap: space.sm, marginTop: space.xl },
   box: {
     flex: 1,

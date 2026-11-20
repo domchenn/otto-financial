@@ -43,6 +43,22 @@ npx expo run:ios --device
 3. Put the publishable key in `apps/mobile/.env`, and the Frontend API URL plus your user ID
    in `backend/.env`.
 
+### Plaid setup (one time)
+
+1. Sign up at [dashboard.plaid.com](https://dashboard.plaid.com) and copy the **client ID** and
+   **sandbox secret** into `OTTO_PLAID_CLIENT_ID` / `OTTO_PLAID_SECRET` in `backend/.env`.
+2. Generate `OTTO_TOKEN_ENCRYPTION_KEY` (the command is in `.env.example`). Losing it means
+   re-linking every bank, so keep a copy somewhere safe.
+3. In the Plaid dashboard, add the iOS bundle ID `com.dominicchen.otto` under allowed apps.
+4. Rebuild the dev build after pulling (`npx expo run:ios --device`): Plaid Link is native code.
+
+In sandbox, pick any non-OAuth bank in Link and sign in with `user_good` / `pass_good`.
+Pull to refresh on Home, Wallet or a card to sync again (webhooks come later).
+
+If tests can't connect with `role "otto" does not exist`, another Postgres (e.g. Homebrew) is
+holding `localhost:5432`. Stop it (`brew services stop postgresql@15`) or point
+`OTTO_DATABASE_URL` / `OTTO_TEST_DATABASE_URL` at the container.
+
 ## Tests and checks
 
 ```bash
