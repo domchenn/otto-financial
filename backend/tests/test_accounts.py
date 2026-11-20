@@ -1,6 +1,7 @@
 import datetime as dt
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass, field, replace
+from zoneinfo import ZoneInfo
 
 import pytest
 from fastapi.testclient import TestClient
@@ -21,7 +22,9 @@ from app.modules.accounts.provider import (
 from app.modules.accounts.router import get_provider
 from app.modules.accounts.service import upcoming_payments, week_start
 
-TODAY = dt.date.today()
+# The user's calendar day (new users default to America/New_York), not the machine's: CI runs
+# in UTC, which is already tomorrow during a New York evening.
+TODAY = dt.datetime.now(ZoneInfo("America/New_York")).date()
 
 CHECKING = ProviderAccount(
     account_id="acc-checking",
