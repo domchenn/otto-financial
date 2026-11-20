@@ -341,3 +341,36 @@ def get_summary(user: UserDep, session: SessionDep) -> SummaryOut:
         ],
         has_connections=bool(_connection_rows(session, user)),
     )
+
+
+class NetWorthChangeOut(BaseModel):
+    period: str
+    change_cents: int | None
+    since: dt.date | None
+
+
+class NetWorthDetailOut(BaseModel):
+    net_cents: int
+    cash_cents: int
+    investments_cents: int
+    cards_cents: int
+    loans_cents: int
+    changes: list[NetWorthChangeOut]
+    tracking_since: dt.date | None
+
+
+@router.get("/net-worth")
+def get_net_worth(user: UserDep, session: SessionDep) -> NetWorthDetailOut:
+    d = service.net_worth_detail(session, user)
+    return NetWorthDetailOut(
+        net_cents=d.net_cents,
+        cash_cents=d.cash_cents,
+        investments_cents=d.investments_cents,
+        cards_cents=d.cards_cents,
+        loans_cents=d.loans_cents,
+        changes=[
+            NetWorthChangeOut(period=c.period, change_cents=c.change_cents, since=c.since)
+            for c in d.changes
+        ],
+        tracking_since=d.tracking_since,
+    )
