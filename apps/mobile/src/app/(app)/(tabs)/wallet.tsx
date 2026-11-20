@@ -9,7 +9,6 @@ import { TabScreen } from '@/components/layouts';
 import { ListRow, SectionHeader } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { NetWorthBar } from '@/components/NetWorthBar';
 import { useAccounts, useLinkBank, useNetWorth, usePrepareLink, useSummary } from '@/lib/api';
 import {
   agoLabel,
@@ -86,10 +85,9 @@ export default function Wallet() {
           <Text variant="hero" tabular style={{ marginTop: space.xs }}>
             {formatCents(netWorth.net_cents)}
           </Text>
-          <Text variant="body" muted style={{ marginBottom: space.md }}>
+          <Text variant="body" muted>
             {netWorthChangeSentence(netWorth, '1W')}
           </Text>
-          <NetWorthBar netWorth={netWorth} />
         </Card>
       ) : null}
 
