@@ -22,6 +22,8 @@ type ListRowProps = {
   onPress?: () => void;
   /** Extra content under the title (e.g. a category bar). */
   children?: ReactNode;
+  /** How many lines the title may wrap to before truncating (default 1). */
+  titleLines?: number;
 };
 
 /** Leading art, title + subtitle, amount on the right. */
@@ -38,6 +40,7 @@ export function ListRow({
   chevron,
   onPress,
   children,
+  titleLines = 1,
 }: ListRowProps) {
   const { palette } = useTheme();
   const body = (
@@ -45,7 +48,7 @@ export function ListRow({
       {leading}
       <View style={styles.main}>
         <View style={styles.titleLine}>
-          <Text variant="row" weight="bold" style={styles.title} numberOfLines={1}>
+          <Text variant="row" weight="bold" style={styles.title} numberOfLines={titleLines}>
             {title}
           </Text>
           {children && value ? (
