@@ -8,8 +8,8 @@ terraform {
 }
 
 locals {
-  name     = "porter-${var.environment}"
-  ssm_path = "/porter/${var.environment}"
+  name     = "otto-${var.environment}"
+  ssm_path = "/otto/${var.environment}"
 }
 
 data "aws_caller_identity" "current" {}
@@ -17,7 +17,7 @@ data "aws_region" "current" {}
 
 # ---------------------------------------------------------------------------
 # Secrets. Terraform creates the parameters; real values are set out of band:
-#   aws ssm put-parameter --name /porter/staging/database_url --type SecureString \
+#   aws ssm put-parameter --name /otto/staging/database_url --type SecureString \
 #     --overwrite --value 'postgresql+psycopg://...'
 # so secrets never land in Terraform state.
 # ---------------------------------------------------------------------------
@@ -105,11 +105,11 @@ resource "aws_iam_role_policy" "lambda" {
 # ---------------------------------------------------------------------------
 locals {
   app_environment = {
-    PORTER_ENVIRONMENT        = var.environment
-    PORTER_SSM_PARAMETER_PATH = local.ssm_path
-    PORTER_CLERK_ISSUER       = var.clerk_issuer
-    PORTER_ALLOWED_USER_IDS   = join(",", var.allowed_user_ids)
-    PORTER_JOBS_QUEUE_URL     = aws_sqs_queue.jobs.url
+    OTTO_ENVIRONMENT        = var.environment
+    OTTO_SSM_PARAMETER_PATH = local.ssm_path
+    OTTO_CLERK_ISSUER       = var.clerk_issuer
+    OTTO_ALLOWED_USER_IDS   = join(",", var.allowed_user_ids)
+    OTTO_JOBS_QUEUE_URL     = aws_sqs_queue.jobs.url
   }
 }
 
@@ -188,7 +188,7 @@ resource "aws_apigatewayv2_route" "default" {
 }
 
 resource "aws_cloudwatch_log_group" "api_access" {
-  name              = "/porter/${var.environment}/api-access"
+  name              = "/otto/${var.environment}/api-access"
   retention_in_days = var.log_retention_days
 }
 

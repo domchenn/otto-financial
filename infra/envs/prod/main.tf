@@ -6,7 +6,7 @@ terraform {
       version = "~> 6.0"
     }
   }
-  # Bucket comes from infra/shared:  terraform init -backend-config="bucket=porter-tf-state-<account>"
+  # Bucket comes from infra/shared:  terraform init -backend-config="bucket=otto-tf-state-<account>"
   backend "s3" {
     key          = "prod/terraform.tfstate"
     region       = "us-east-1"
@@ -18,7 +18,7 @@ terraform {
 provider "aws" {
   region = "us-east-1"
   default_tags {
-    tags = { project = "porter", environment = "prod", managed_by = "terraform" }
+    tags = { project = "otto", environment = "prod", managed_by = "terraform" }
   }
 }
 
@@ -38,8 +38,8 @@ variable "alert_email" {
   type = string
 }
 
-module "porter" {
-  source           = "../../modules/porter"
+module "otto" {
+  source           = "../../modules/otto"
   environment      = "prod"
   image_uri        = var.image_uri
   clerk_issuer     = var.clerk_issuer
@@ -48,9 +48,9 @@ module "porter" {
 }
 
 output "api_url" {
-  value = module.porter.api_url
+  value = module.otto.api_url
 }
 
 output "migrate_function_name" {
-  value = module.porter.migrate_function_name
+  value = module.otto.migrate_function_name
 }
