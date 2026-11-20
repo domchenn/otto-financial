@@ -23,9 +23,9 @@ step; ranking offers means joining them to what was bought.
   example a credit's `rules`).
 - Data with an uneven source shape (emails, provider payloads) is normalized into rows before
   the rest of the app uses it. Raw originals that are only kept for debugging go to S3.
-- Reference data that changes rarely, such as the benefits catalog, lives as a YAML file in
-  the repo (reviewed through commits, with a source and a `last_verified` date per card) and
-  is loaded into Postgres.
+- Reference data that changes rarely, such as the benefits catalog, lives as a TOML file in
+  the repo (read with the standard library's `tomllib`, reviewed through commits, with a
+  source and a `last_verified` date per card) and is loaded into Postgres.
 - Embeddings for the assistant, when they arrive, use the `pgvector` extension rather than a
   separate vector database.
 

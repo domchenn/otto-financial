@@ -1,0 +1,967 @@
+# Otto benefits catalog: what each card offers. See docs/adr/0002-postgres-for-all-data.md.
+#
+# Each card lists where its numbers came from and when they were checked:
+#   verified = "issuer"     read on the issuer's own card page
+#   verified = "secondary"  the issuer page couldn't be read; taken from a dated review
+#                           (AwardWallet, The Points Guy). Recheck against the issuer.
+#
+# Credit fields
+#   amount_cents        per period. december_amount_cents overrides December for monthly credits.
+#   cadence             monthly | quarterly | semiannual (Jan-Jun, Jul-Dec) | calendar_year
+#                       | cardmember_year (resets on the card's anniversary month)
+#   delivery            statement_credit is tracked now. uber_cash, travelbank, bilt_cash,
+#                       in_app and portal are listed for completeness and tracked later.
+#   enrollment          true if the cardholder must enroll, activate or pick something first
+#   merchants           lowercase text matched against a purchase's merchant or name
+#   categories          Plaid personal finance categories (primary) that qualify
+#   credit_patterns     lowercase text matched against the issuer's statement-credit line.
+#                       Issuer descriptors aren't published; these are first guesses to tune
+#                       against real statements.
+#   channel             where it has to be booked or bought, when that matters
+#   ends                last day the credit is offered (inclusive), when the issuer states one
+#
+# Not included: per-stay credits (Hotel Collection $100, Venture X experience credits),
+# spend-unlocked credits (Adobe, Shops at Chase, Southwest), and Global Entry / TSA PreCheck
+# (every four years, anchored to the last use).
+
+# ---------------------------------------------------------------- American Express
+
+[[cards]]
+id = "amex-platinum"
+issuer = "American Express"
+name = "Platinum Card"
+annual_fee_cents = 89500
+aliases = ["platinum card"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.americanexpress.com/us/credit-cards/card/platinum/"]
+
+  [[cards.credits]]
+  id = "hotel"
+  name = "Hotel credit"
+  amount_cents = 30000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Amex Travel (Fine Hotels + Resorts, The Hotel Collection), prepaid"
+  credit_patterns = ["hotel credit", "fine hotels", "hotel collection"]
+
+  [[cards.credits]]
+  id = "resy"
+  name = "Resy credit"
+  amount_cents = 10000
+  cadence = "quarterly"
+  delivery = "statement_credit"
+  enrollment = true
+  channel = "U.S. Resy restaurants"
+  credit_patterns = ["resy"]
+
+  [[cards.credits]]
+  id = "digital-entertainment"
+  name = "Digital entertainment credit"
+  amount_cents = 2500
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  credit_patterns = ["digital entertainment"]
+
+  [[cards.credits]]
+  id = "lululemon"
+  name = "lululemon credit"
+  amount_cents = 7500
+  cadence = "quarterly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["lululemon"]
+  credit_patterns = ["lululemon"]
+
+  [[cards.credits]]
+  id = "walmart-plus"
+  name = "Walmart+ credit"
+  amount_cents = 1295
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["walmart+", "walmart plus"]
+  credit_patterns = ["walmart"]
+
+  [[cards.credits]]
+  id = "uber-one"
+  name = "Uber One credit"
+  amount_cents = 12000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["uber one"]
+  credit_patterns = ["uber one"]
+
+  [[cards.credits]]
+  id = "airline-fee"
+  name = "Airline fee credit"
+  amount_cents = 20000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  channel = "Incidental fees at one selected airline"
+  credit_patterns = ["airline fee", "airline incidental"]
+
+  [[cards.credits]]
+  id = "clear"
+  name = "CLEAR+ credit"
+  amount_cents = 21900
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["clear"]
+  credit_patterns = ["clear"]
+
+  [[cards.credits]]
+  id = "uber-cash"
+  name = "Uber Cash"
+  amount_cents = 1500
+  december_amount_cents = 3500
+  cadence = "monthly"
+  delivery = "uber_cash"
+  enrollment = false
+
+[[cards]]
+id = "amex-gold"
+issuer = "American Express"
+name = "Gold Card"
+aliases = ["gold card", "american express gold"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.americanexpress.com/us/credit-cards/card/gold-card/"]
+
+  [[cards.credits]]
+  id = "dining"
+  name = "Dining credit"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["grubhub", "seamless", "buffalo wild wings", "five guys", "cheesecake factory", "wonder"]
+  credit_patterns = ["dining credit"]
+
+  [[cards.credits]]
+  id = "resy"
+  name = "Resy credit"
+  amount_cents = 5000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = true
+  channel = "U.S. Resy restaurants"
+  credit_patterns = ["resy"]
+
+  [[cards.credits]]
+  id = "dunkin"
+  name = "Dunkin' credit"
+  amount_cents = 700
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["dunkin"]
+  credit_patterns = ["dunkin"]
+
+  [[cards.credits]]
+  id = "uber-cash"
+  name = "Uber Cash"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "uber_cash"
+  enrollment = false
+
+[[cards]]
+id = "amex-business-platinum"
+issuer = "American Express"
+name = "Business Platinum Card"
+annual_fee_cents = 89500
+aliases = ["business platinum"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://thepointsguy.com/credit-cards/reviews/amex-business-platinum-card-review"]
+
+  [[cards.credits]]
+  id = "hotel"
+  name = "Hotel credit"
+  amount_cents = 30000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Amex Travel (Fine Hotels + Resorts, The Hotel Collection), prepaid"
+  credit_patterns = ["hotel credit", "fine hotels", "hotel collection"]
+
+  [[cards.credits]]
+  id = "dell"
+  name = "Dell credit"
+  amount_cents = 15000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["dell"]
+  credit_patterns = ["dell"]
+
+  [[cards.credits]]
+  id = "indeed"
+  name = "Indeed credit"
+  amount_cents = 9000
+  cadence = "quarterly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["indeed"]
+  credit_patterns = ["indeed"]
+
+  [[cards.credits]]
+  id = "chatgpt"
+  name = "ChatGPT Business credit"
+  amount_cents = 30000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["openai", "chatgpt"]
+  credit_patterns = ["openai", "chatgpt"]
+
+  [[cards.credits]]
+  id = "hilton"
+  name = "Hilton credit"
+  amount_cents = 5000
+  cadence = "quarterly"
+  delivery = "statement_credit"
+  enrollment = true
+  channel = "Hilton properties, with Hilton for Business"
+  merchants = ["hilton"]
+  credit_patterns = ["hilton"]
+
+  [[cards.credits]]
+  id = "wireless"
+  name = "Wireless credit"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["verizon", "at&t", "t-mobile"]
+  credit_patterns = ["wireless"]
+
+  [[cards.credits]]
+  id = "clear"
+  name = "CLEAR+ credit"
+  amount_cents = 21900
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["clear"]
+  credit_patterns = ["clear"]
+
+  [[cards.credits]]
+  id = "airline-fee"
+  name = "Airline fee credit"
+  amount_cents = 20000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  channel = "Incidental fees at one selected airline"
+  credit_patterns = ["airline fee", "airline incidental"]
+
+[[cards]]
+id = "amex-business-gold"
+issuer = "American Express"
+name = "Business Gold Card"
+aliases = ["business gold"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
+
+  [[cards.credits]]
+  id = "flexible-business"
+  name = "Flexible business credit"
+  amount_cents = 2000
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  credit_patterns = ["business credit"]
+
+  [[cards.credits]]
+  id = "walmart-plus"
+  name = "Walmart+ credit"
+  amount_cents = 1295
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["walmart+", "walmart plus"]
+  credit_patterns = ["walmart"]
+
+  [[cards.credits]]
+  id = "squarespace"
+  name = "Squarespace credit"
+  amount_cents = 15000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["squarespace"]
+  credit_patterns = ["squarespace"]
+
+  [[cards.credits]]
+  id = "chatgpt"
+  name = "ChatGPT Business credit"
+  amount_cents = 30000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["openai", "chatgpt"]
+  credit_patterns = ["openai", "chatgpt"]
+
+[[cards]]
+id = "amex-green"
+issuer = "American Express"
+name = "Green Card"
+aliases = ["green card"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
+
+  [[cards.credits]]
+  id = "clear"
+  name = "CLEAR+ credit"
+  amount_cents = 21900
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["clear"]
+  credit_patterns = ["clear"]
+
+[[cards]]
+id = "amex-hilton-aspire"
+issuer = "American Express"
+name = "Hilton Honors Aspire"
+annual_fee_cents = 55000
+aliases = ["aspire"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
+
+  [[cards.credits]]
+  id = "hilton-resort"
+  name = "Hilton resort credit"
+  amount_cents = 20000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Participating Hilton resorts, paid directly"
+  merchants = ["hilton", "waldorf", "conrad"]
+  credit_patterns = ["hilton", "resort credit"]
+
+  [[cards.credits]]
+  id = "flight"
+  name = "Flight credit"
+  amount_cents = 5000
+  cadence = "quarterly"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Flights booked with the airline or Amex Travel"
+  credit_patterns = ["flight credit"]
+
+  [[cards.credits]]
+  id = "clear"
+  name = "CLEAR+ credit"
+  amount_cents = 21900
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["clear"]
+  credit_patterns = ["clear"]
+
+[[cards]]
+id = "amex-hilton-surpass"
+issuer = "American Express"
+name = "Hilton Honors Surpass"
+aliases = ["surpass"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
+
+  [[cards.credits]]
+  id = "hilton"
+  name = "Hilton credit"
+  amount_cents = 5000
+  cadence = "quarterly"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["hilton"]
+  credit_patterns = ["hilton"]
+
+[[cards]]
+id = "amex-marriott-brilliant"
+issuer = "American Express"
+name = "Marriott Bonvoy Brilliant"
+annual_fee_cents = 65000
+aliases = ["brilliant", "bonvoy brilliant"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
+
+  [[cards.credits]]
+  id = "dining"
+  name = "Dining credit"
+  amount_cents = 2500
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = false
+  categories = ["FOOD_AND_DRINK"]
+  credit_patterns = ["dining credit"]
+
+[[cards]]
+id = "amex-delta-reserve"
+issuer = "American Express"
+name = "Delta SkyMiles Reserve"
+annual_fee_cents = 65000
+aliases = ["delta skymiles reserve", "delta reserve"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
+
+  [[cards.credits]]
+  id = "resy"
+  name = "Resy credit"
+  amount_cents = 2000
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  channel = "U.S. Resy restaurants"
+  credit_patterns = ["resy"]
+
+  [[cards.credits]]
+  id = "rideshare"
+  name = "Rideshare credit"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["uber", "lyft", "curb", "alto"]
+  credit_patterns = ["rideshare"]
+
+  [[cards.credits]]
+  id = "delta-stays"
+  name = "Delta Stays credit"
+  amount_cents = 20000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Prepaid Delta Stays bookings"
+  credit_patterns = ["delta stays"]
+
+[[cards]]
+id = "amex-delta-platinum"
+issuer = "American Express"
+name = "Delta SkyMiles Platinum"
+aliases = ["delta skymiles platinum", "delta platinum"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
+
+  [[cards.credits]]
+  id = "resy"
+  name = "Resy credit"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  channel = "U.S. Resy restaurants"
+  credit_patterns = ["resy"]
+
+  [[cards.credits]]
+  id = "rideshare"
+  name = "Rideshare credit"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["uber", "lyft", "curb", "alto"]
+  credit_patterns = ["rideshare"]
+
+  [[cards.credits]]
+  id = "delta-stays"
+  name = "Delta Stays credit"
+  amount_cents = 15000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Prepaid Delta Stays bookings"
+  credit_patterns = ["delta stays"]
+
+[[cards]]
+id = "amex-blue-cash-preferred"
+issuer = "American Express"
+name = "Blue Cash Preferred"
+annual_fee_cents = 9500
+aliases = ["blue cash preferred"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
+
+  [[cards.credits]]
+  id = "disney-streaming"
+  name = "Disney streaming credit"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["disney plus", "disneyplus", "hulu", "espn"]
+  credit_patterns = ["disney"]
+
+[[cards]]
+id = "amex-blue-cash-everyday"
+issuer = "American Express"
+name = "Blue Cash Everyday"
+annual_fee_cents = 0
+aliases = ["blue cash everyday"]
+verified = "secondary"
+last_verified = 2026-11-20
+sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
+
+  [[cards.credits]]
+  id = "disney-streaming"
+  name = "Disney streaming credit"
+  amount_cents = 700
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["disney plus", "disneyplus", "hulu", "espn"]
+  credit_patterns = ["disney"]
+
+# ---------------------------------------------------------------- Chase
+
+[[cards]]
+id = "chase-sapphire-reserve"
+issuer = "Chase"
+name = "Sapphire Reserve"
+annual_fee_cents = 79500
+aliases = ["sapphire reserve"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://creditcards.chase.com/rewards-credit-cards/sapphire/reserve"]
+
+  [[cards.credits]]
+  id = "travel"
+  name = "Travel credit"
+  amount_cents = 30000
+  cadence = "cardmember_year"
+  delivery = "statement_credit"
+  enrollment = false
+  categories = ["TRAVEL"]
+  credit_patterns = ["travel credit"]
+
+  [[cards.credits]]
+  id = "the-edit"
+  name = "The Edit hotel credit"
+  amount_cents = 50000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Prepaid 2+ night stays with The Edit through Chase Travel ($250 per booking)"
+  credit_patterns = ["the edit"]
+
+  [[cards.credits]]
+  id = "dining"
+  name = "Exclusive Tables dining credit"
+  amount_cents = 15000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Sapphire Reserve Exclusive Tables restaurants on OpenTable"
+  credit_patterns = ["dining credit", "exclusive tables"]
+
+  [[cards.credits]]
+  id = "stubhub"
+  name = "StubHub credit"
+  amount_cents = 15000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = true
+  ends = 2027-12-31
+  merchants = ["stubhub", "viagogo"]
+  credit_patterns = ["stubhub"]
+
+  [[cards.credits]]
+  id = "peloton"
+  name = "Peloton credit"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  ends = 2027-12-31
+  merchants = ["peloton"]
+  credit_patterns = ["peloton"]
+
+  [[cards.credits]]
+  id = "lyft"
+  name = "Lyft credit"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "in_app"
+  enrollment = false
+  ends = 2027-09-30
+
+  [[cards.credits]]
+  id = "doordash"
+  name = "DoorDash restaurant promo"
+  amount_cents = 1500
+  cadence = "monthly"
+  delivery = "in_app"
+  enrollment = true
+  ends = 2029-12-31
+
+[[cards]]
+id = "chase-sapphire-preferred"
+issuer = "Chase"
+name = "Sapphire Preferred"
+annual_fee_cents = 9500
+aliases = ["sapphire preferred"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://creditcards.chase.com/rewards-credit-cards/sapphire/preferred"]
+
+  [[cards.credits]]
+  id = "hotel"
+  name = "Chase Travel hotel credit"
+  amount_cents = 10000
+  cadence = "cardmember_year"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Hotel stays booked through Chase Travel"
+  credit_patterns = ["hotel credit"]
+
+  [[cards.credits]]
+  id = "doordash"
+  name = "DoorDash non-restaurant promo"
+  amount_cents = 1000
+  cadence = "monthly"
+  delivery = "in_app"
+  enrollment = true
+
+[[cards]]
+id = "chase-united-quest"
+issuer = "Chase"
+name = "United Quest"
+annual_fee_cents = 35000
+aliases = ["united quest"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://creditcards.chase.com/travel-credit-cards/united/united-quest"]
+
+  [[cards.credits]]
+  id = "renowned-hotels"
+  name = "Renowned Hotels credit"
+  amount_cents = 15000
+  cadence = "cardmember_year"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Renowned Hotels & Resorts, Pay Now"
+  credit_patterns = ["renowned"]
+
+  [[cards.credits]]
+  id = "rideshare"
+  name = "Rideshare credit"
+  amount_cents = 800
+  december_amount_cents = 1200
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["uber", "lyft"]
+  credit_patterns = ["rideshare"]
+
+  [[cards.credits]]
+  id = "jsx"
+  name = "JSX credit"
+  amount_cents = 15000
+  cadence = "cardmember_year"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["jsx"]
+  credit_patterns = ["jsx"]
+
+  [[cards.credits]]
+  id = "united-travel"
+  name = "United travel credit"
+  amount_cents = 20000
+  cadence = "cardmember_year"
+  delivery = "travelbank"
+  enrollment = false
+
+  [[cards.credits]]
+  id = "avis-budget"
+  name = "Avis or Budget credit"
+  amount_cents = 8000
+  cadence = "cardmember_year"
+  delivery = "travelbank"
+  enrollment = false
+
+  [[cards.credits]]
+  id = "instacart"
+  name = "Instacart credit"
+  amount_cents = 1500
+  cadence = "monthly"
+  delivery = "in_app"
+  enrollment = true
+  ends = 2027-12-31
+
+[[cards]]
+id = "chase-united-club"
+issuer = "Chase"
+name = "United Club"
+annual_fee_cents = 69500
+aliases = ["united club"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://creditcards.chase.com/travel-credit-cards/united/club-infinite"]
+
+  [[cards.credits]]
+  id = "renowned-hotels"
+  name = "Renowned Hotels credit"
+  amount_cents = 20000
+  cadence = "cardmember_year"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Renowned Hotels & Resorts, Pay Now"
+  credit_patterns = ["renowned"]
+
+  [[cards.credits]]
+  id = "rideshare"
+  name = "Rideshare credit"
+  amount_cents = 1200
+  december_amount_cents = 1800
+  cadence = "monthly"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["uber", "lyft"]
+  credit_patterns = ["rideshare"]
+
+  [[cards.credits]]
+  id = "jsx"
+  name = "JSX credit"
+  amount_cents = 20000
+  cadence = "cardmember_year"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["jsx"]
+  credit_patterns = ["jsx"]
+
+  [[cards.credits]]
+  id = "avis-budget"
+  name = "Avis or Budget credit"
+  amount_cents = 10000
+  cadence = "cardmember_year"
+  delivery = "travelbank"
+  enrollment = false
+
+  [[cards.credits]]
+  id = "instacart"
+  name = "Instacart credit"
+  amount_cents = 2000
+  cadence = "monthly"
+  delivery = "in_app"
+  enrollment = true
+  ends = 2027-12-31
+
+[[cards]]
+id = "chase-freedom-flex"
+issuer = "Chase"
+name = "Freedom Flex"
+annual_fee_cents = 0
+aliases = ["freedom flex"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://creditcards.chase.com/cash-back-credit-cards/freedom/flex"]
+
+[[cards]]
+id = "chase-freedom-unlimited"
+issuer = "Chase"
+name = "Freedom Unlimited"
+annual_fee_cents = 0
+aliases = ["freedom unlimited"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://creditcards.chase.com/cash-back-credit-cards/freedom/unlimited"]
+
+[[cards]]
+id = "chase-prime-visa"
+issuer = "Chase"
+name = "Prime Visa"
+annual_fee_cents = 0
+aliases = ["prime visa", "amazon prime", "prime rewards"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://creditcards.chase.com/cash-back-credit-cards/amazon-prime-rewards"]
+
+# ---------------------------------------------------------------- Capital One
+
+[[cards]]
+id = "capital-one-venture-x"
+issuer = "Capital One"
+name = "Venture X"
+annual_fee_cents = 39500
+aliases = ["venture x"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = [
+  "https://www.capitalone.com/credit-cards/venture-x/",
+  "https://www.capitalone.com/credit-cards/travel-and-miles/",
+]
+
+  [[cards.credits]]
+  id = "travel"
+  name = "Capital One Travel credit"
+  amount_cents = 30000
+  cadence = "cardmember_year"
+  delivery = "portal"
+  enrollment = false
+  channel = "Capital One Travel"
+
+[[cards]]
+id = "capital-one-venture"
+issuer = "Capital One"
+name = "Venture"
+annual_fee_cents = 9500
+aliases = ["venture rewards", "venture"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.capitalone.com/credit-cards/venture/"]
+
+[[cards]]
+id = "capital-one-savor"
+issuer = "Capital One"
+name = "Savor"
+annual_fee_cents = 0
+aliases = ["savor"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.capitalone.com/credit-cards/savor/"]
+
+# ---------------------------------------------------------------- Citi
+
+[[cards]]
+id = "citi-strata-elite"
+issuer = "Citi"
+name = "Strata Elite"
+aliases = ["strata elite"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.citi.com/credit-cards/citi-strata-elite-credit-card"]
+
+  [[cards.credits]]
+  id = "splurge"
+  name = "Splurge credit"
+  amount_cents = 20000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  channel = "Two chosen brands: 1stDibs, American Airlines, Best Buy, Future, Live Nation"
+  merchants = ["1stdibs", "american airlines", "best buy", "future personal training", "live nation", "ticketmaster"]
+  credit_patterns = ["splurge"]
+
+  [[cards.credits]]
+  id = "blacklane"
+  name = "Blacklane credit"
+  amount_cents = 10000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = false
+  merchants = ["blacklane"]
+  credit_patterns = ["blacklane"]
+
+  [[cards.credits]]
+  id = "hotel"
+  name = "Citi Travel hotel credit"
+  amount_cents = 30000
+  cadence = "calendar_year"
+  delivery = "portal"
+  enrollment = false
+  channel = "2+ night hotel stays through Citi Travel"
+
+[[cards]]
+id = "citi-strata-premier"
+issuer = "Citi"
+name = "Strata Premier"
+annual_fee_cents = 9500
+aliases = ["strata premier"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.citi.com/credit-cards/citi-strata-premier-credit-card"]
+
+  [[cards.credits]]
+  id = "hotel"
+  name = "Citi Travel hotel credit"
+  amount_cents = 10000
+  cadence = "calendar_year"
+  delivery = "portal"
+  enrollment = false
+  channel = "One hotel stay of $500+ through Citi Travel"
+
+[[cards]]
+id = "citi-double-cash"
+issuer = "Citi"
+name = "Double Cash"
+annual_fee_cents = 0
+aliases = ["double cash"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.citi.com/credit-cards/citi-double-cash-credit-card"]
+
+# ---------------------------------------------------------------- Bilt
+
+[[cards]]
+id = "bilt-palladium"
+issuer = "Bilt"
+name = "Bilt Palladium"
+annual_fee_cents = 49500
+aliases = ["palladium"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.bilt.com/card"]
+
+  [[cards.credits]]
+  id = "hotel"
+  name = "Bilt Travel hotel credit"
+  amount_cents = 20000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Bilt Travel portal hotel bookings"
+  credit_patterns = ["bilt travel", "hotel credit"]
+
+  [[cards.credits]]
+  id = "bilt-cash"
+  name = "Bilt Cash"
+  amount_cents = 20000
+  cadence = "calendar_year"
+  delivery = "bilt_cash"
+  enrollment = false
+
+[[cards]]
+id = "bilt-obsidian"
+issuer = "Bilt"
+name = "Bilt Obsidian"
+annual_fee_cents = 9500
+aliases = ["obsidian"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.bilt.com/card"]
+
+  [[cards.credits]]
+  id = "hotel"
+  name = "Bilt Travel hotel credit"
+  amount_cents = 5000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = false
+  channel = "Bilt Travel portal hotel bookings"
+  credit_patterns = ["bilt travel", "hotel credit"]
+
+[[cards]]
+id = "bilt-blue"
+issuer = "Bilt"
+name = "Bilt Blue"
+annual_fee_cents = 0
+aliases = ["bilt blue"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://www.bilt.com/card"]
