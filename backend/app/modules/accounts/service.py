@@ -6,7 +6,7 @@ import uuid
 from dataclasses import dataclass
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import delete, func, or_, select
+from sqlalchemy import ColumnElement, delete, func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -361,18 +361,23 @@ def week_start(today: dt.date) -> dt.date:
     return today - dt.timedelta(days=today.weekday())  # Monday
 
 
+def _discretionary(user: User, start: dt.date, end: dt.date) -> list[ColumnElement[bool]]:
+    """Filters for discretionary spend from start to end inclusive (PRD F5 exclusions)."""
+    return [
+        Transaction.user_id == user.id,
+        Transaction.date >= start,
+        Transaction.date <= end,
+        Account.kind.in_(("credit", "depository")),
+        or_(Transaction.category.is_(None), Transaction.category.not_in(NON_DISCRETIONARY)),
+    ]
+
+
 def discretionary_spend(session: Session, user: User, start: dt.date, end: dt.date) -> int:
     """Purchases (pending and posted) from start to end inclusive, excluding PRD F5 exclusions."""
     total = session.scalar(
         select(func.coalesce(func.sum(Transaction.amount_cents), 0))
         .join(Account, Account.id == Transaction.account_id)
-        .where(
-            Transaction.user_id == user.id,
-            Transaction.date >= start,
-            Transaction.date <= end,
-            Account.kind.in_(("credit", "depository")),
-            or_(Transaction.category.is_(None), Transaction.category.not_in(NON_DISCRETIONARY)),
-        )
+        .where(*_discretionary(user, start, end))
     )
     return int(total or 0)
 
@@ -513,3 +518,81 @@ def net_worth_detail(session: Session, user: User, today: dt.date | None = None)
             )
         )
     return NetWorthDetail(cash, investments, cards, loans, changes, first)
+
+
+# --- spending -------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class CategorySpend:
+    category: str | None
+    cents: int
+    top_account_name: str | None
+    top_account_share: float
+
+
+@dataclass(frozen=True)
+class Spending:
+    period: str
+    start: dt.date
+    end: dt.date
+    spent_cents: int
+    days: list[tuple[dt.date, int | None]]
+    categories: list[CategorySpend]
+
+
+def spending(session: Session, user: User, period: str, today: dt.date | None = None) -> Spending:
+    """Discretionary spend for this week (Mon-Sun) or month: total, per day, per category.
+
+    The same filters as the Home summary, so both screens always agree. Days after today are
+    None. Each category names the account most of it went on.
+    """
+    today = today or local_today(user)
+    start = week_start(today) if period == "week" else today.replace(day=1)
+    filters = _discretionary(user, start, today)
+
+    by_day: dict[dt.date, int] = {
+        day: int(cents)
+        for day, cents in session.execute(
+            select(Transaction.date, func.sum(Transaction.amount_cents))
+            .join(Account, Account.id == Transaction.account_id)
+            .where(*filters)
+            .group_by(Transaction.date)
+        ).all()
+    }
+    if period == "week":
+        length = 7
+    else:
+        next_month = (start.replace(day=28) + dt.timedelta(days=4)).replace(day=1)
+        length = (next_month - start).days
+    days: list[tuple[dt.date, int | None]] = []
+    for i in range(length):
+        day = start + dt.timedelta(days=i)
+        days.append((day, by_day.get(day, 0) if day <= today else None))
+
+    rows = session.execute(
+        select(Transaction.category, Account.name, func.sum(Transaction.amount_cents))
+        .join(Account, Account.id == Transaction.account_id)
+        .where(*filters)
+        .group_by(Transaction.category, Account.name)
+    ).all()
+    per_category: dict[str | None, dict[str, int]] = {}
+    for category, account_name, cents in rows:
+        per_category.setdefault(category, {})[account_name] = int(cents)
+    categories = []
+    for category, accounts in per_category.items():
+        total = sum(accounts.values())
+        if total <= 0:
+            continue
+        top_name, top_cents = max(accounts.items(), key=lambda kv: kv[1])
+        categories.append(CategorySpend(category, total, top_name, top_cents / total))
+    categories.sort(key=lambda c: c.cents, reverse=True)
+
+    return Spending(
+        period=period,
+        start=start,
+        end=today,
+        spent_cents=sum(c for _, c in days if c is not None),
+        days=days,
+        categories=categories,
+    )

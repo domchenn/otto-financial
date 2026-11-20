@@ -13,6 +13,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect, useState } from 'react';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 
 import { BiometricGate } from '@/lib/BiometricGate';
 import { config } from '@/lib/config';
@@ -50,14 +51,16 @@ export default function RootLayout() {
   if (!ready) return null;
 
   return (
-    <ClerkProvider publishableKey={config.clerkPublishableKey} tokenCache={tokenCache}>
-      <QueryClientProvider client={queryClient}>
-        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        <BiometricGate>
-          <RootNavigator />
-        </BiometricGate>
-      </QueryClientProvider>
-    </ClerkProvider>
+    <KeyboardProvider>
+      <ClerkProvider publishableKey={config.clerkPublishableKey} tokenCache={tokenCache}>
+        <QueryClientProvider client={queryClient}>
+          <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+          <BiometricGate>
+            <RootNavigator />
+          </BiometricGate>
+        </QueryClientProvider>
+      </ClerkProvider>
+    </KeyboardProvider>
   );
 }
 

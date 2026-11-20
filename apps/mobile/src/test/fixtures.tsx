@@ -5,7 +5,7 @@ import type { ReactElement } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Benefits, CreditPeriod } from '@/lib/credits';
-import type { Account, Connection, NetWorth, Summary, Transaction } from '@/lib/finance';
+import type { Account, Connection, NetWorth, Spending, Summary, Transaction } from '@/lib/finance';
 
 export function renderScreen(ui: ReactElement) {
   return render(
@@ -249,6 +249,32 @@ export const benefits: Benefits = {
       anniversary_month: null,
       needs_anniversary_month: false,
       credits: [],
+    },
+  ],
+};
+
+/** This week: $120 so far, $82 on dining (mostly the Gold Card) and $38 shopping. */
+export const weekSpending: Spending = {
+  period: 'week',
+  start: isoDaysFromNow(-((new Date().getDay() + 6) % 7)),
+  end: isoDaysFromNow(0),
+  spent_cents: 12000,
+  days: Array.from({ length: 7 }, (_, i) => {
+    const offset = i - ((new Date().getDay() + 6) % 7);
+    return { date: isoDaysFromNow(offset), cents: offset > 0 ? null : offset === 0 ? 12000 : 0 };
+  }),
+  categories: [
+    {
+      category: 'FOOD_AND_DRINK',
+      cents: 8200,
+      top_account_name: 'Gold Card',
+      top_account_share: 0.95,
+    },
+    {
+      category: 'GENERAL_MERCHANDISE',
+      cents: 3800,
+      top_account_name: 'Gold Card',
+      top_account_share: 1,
     },
   ],
 };

@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { Monogram, Pill } from '@/components/badges';
+import { Monogram } from '@/components/badges';
 import { StepScreen } from '@/components/layouts';
 import { ProgressBar } from '@/components/ProgressBar';
 import { ListRow, SectionHeader } from '@/components/rows';
@@ -106,7 +106,14 @@ export default function CardDetail() {
       {pct !== null ? (
         <Card style={{ marginTop: space.lg }}>
           <View style={styles.spread}>
-            <Pill tone={util.tone} label={util.text} />
+            {/* Utilization isn't budget, so no mint: plain text, alert only when high. */}
+            <Text
+              variant="row"
+              weight="bold"
+              color={util.tone === 'alert' ? palette.alert : palette.ink}
+            >
+              {util.text}
+            </Text>
             <Text variant="body" muted>
               {formatCents(card.available_cents ?? (card.limit_cents ?? 0) - balance)} available
             </Text>
@@ -114,8 +121,8 @@ export default function CardDetail() {
           <View style={{ marginTop: space.md }}>
             <ProgressBar
               value={Math.min(pct / 100, 1)}
-              color={palette.tones.mint.accent}
-              track={palette.tones.mint.track}
+              color={util.tone === 'alert' ? palette.alert : palette.ink}
+              track={palette.raised}
             />
           </View>
         </Card>

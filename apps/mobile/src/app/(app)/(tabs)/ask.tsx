@@ -1,58 +1,97 @@
+import { useUser } from '@clerk/expo';
 import { router } from 'expo-router';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AskInput } from '@/components/AskInput';
-import { IconTile } from '@/components/badges';
-import { CardIcon, ClockIcon, PlaneIcon, SpendingIcon, type Icon } from '@/components/icons';
-import { OttoAvatar } from '@/components/otto';
+import { CardIcon, ClockIcon, GiftIcon, SpendingIcon, type Icon } from '@/components/icons';
+import { Wordmark } from '@/components/otto';
 import { ListRow } from '@/components/rows';
-import { Card } from '@/components/Surface';
+import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import type { AskTopic } from '@/lib/ask';
-import { screen, space, type ToneName } from '@/theme/tokens';
+import { useSpending } from '@/lib/api';
+import { formatCents } from '@/lib/money';
+// Credits are sample data until the credits feature lands; the Credits screen uses the same.
+import { creditSummary, credits, getCard } from '@/lib/sample';
+import { screen, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-const PROMPTS: { topic: AskTopic; title: string; subtitle: string; icon: Icon; tone: ToneName }[] =
-  [
+type Suggestion = { key: string; title: string; subtitle: string; icon: Icon; onPress: () => void };
+
+const ask = (topic: string) => router.push({ pathname: '/chat', params: { q: topic } });
+const monthEnd = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(
+  new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
+);
+
+/** Suggestions from the user's own numbers where Otto has them, generic text otherwise. */
+function useSuggestions(): Suggestion[] {
+  const week = useSpending('week');
+  const spent = week.isError ? undefined : week.data?.spent_cents;
+  const soonest = credits.find((c) => !c.used && c.group !== 'year');
+  const soonestCard = soonest ? getCard(soonest.card) : undefined;
+
+  return [
+    soonest
+      ? {
+          key: 'credit',
+          title: `Your ${formatCents(soonest.amountCents)} ${soonest.name.toLowerCase()} ${soonest.resets.toLowerCase()}`,
+          subtitle: soonestCard ? `${soonestCard.issuer} ${soonestCard.shortName}` : 'Card credit',
+          icon: ClockIcon,
+          onPress: () => router.push(`/credits/${soonest.id}`),
+        }
+      : {
+          key: 'credit',
+          title: 'Which credits reset soon?',
+          subtitle: 'Before they expire',
+          icon: ClockIcon,
+          onPress: () => ask('credits'),
+        },
     {
-      topic: 'dinner',
+      key: 'dinner',
       title: 'Which card for dinner tonight?',
       subtitle: 'Before you pay',
       icon: CardIcon,
-      tone: 'lilac',
+      onPress: () => ask('dinner'),
     },
     {
-      topic: 'week',
+      key: 'week',
       title: 'Summarize my week',
-      subtitle: 'Spending, points and credits',
+      subtitle:
+        spent !== undefined
+          ? `${formatCents(spent)} spent since Monday`
+          : 'Spending, points and credits',
       icon: SpendingIcon,
-      tone: 'mint',
+      onPress: () => ask('week'),
     },
-    {
-      topic: 'japan',
-      title: 'How close am I to Japan?',
-      subtitle: 'Your trip goal',
-      icon: PlaneIcon,
-      tone: 'lilac',
-    },
-    {
-      topic: 'credits',
-      title: 'What credits expire this month?',
-      subtitle: '$65 waiting',
-      icon: ClockIcon,
-      tone: 'butter',
-    },
+    creditSummary.readyThisMonthCents > 0
+      ? {
+          key: 'credits',
+          title: `${formatCents(creditSummary.readyThisMonthCents)} in credits expire ${monthEnd}`,
+          subtitle: `${creditSummary.expiringThisMonth} credits still unused`,
+          icon: GiftIcon,
+          onPress: () => ask('credits'),
+        }
+      : {
+          key: 'credits',
+          title: 'What credits expire this month?',
+          subtitle: 'Card credits',
+          icon: GiftIcon,
+          onPress: () => ask('credits'),
+        },
   ];
+}
 
 export default function Ask() {
   const { palette } = useTheme();
   const insets = useSafeAreaInsets();
+  const suggestions = useSuggestions();
+  // Room for the floating tab bar under the input; the keyboard covers the tab bar when open.
+  const closedGap = Math.max(insets.bottom, space.lg) + 100;
+  const name = useUser().user?.firstName;
+
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: palette.ground }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={{ flex: 1, backgroundColor: palette.ground }}>
       <ScrollView
         contentContainerStyle={{
           paddingTop: Math.max(insets.top + space.lg, 60),
@@ -61,38 +100,37 @@ export default function Ask() {
         }}
         keyboardShouldPersistTaps="handled"
       >
-        <OttoAvatar size={68} />
-        <Text variant="display" style={{ marginTop: space.xl, marginBottom: space.xl }}>
-          Hi Dom. What do you want to know?
+        <Wordmark size={24} />
+        <Text variant="display" style={{ marginTop: space.md, marginBottom: space.xl }}>
+          {name ? `Hi ${name}. What do you want to know?` : 'What do you want to know?'}
         </Text>
-        <View style={{ gap: space.md }}>
-          {PROMPTS.map((p) => (
-            <Card key={p.topic} padded={false} style={styles.prompt}>
+        <Card style={{ paddingVertical: space.sm }}>
+          <Stack>
+            {suggestions.map((s) => (
               <ListRow
-                leading={<IconTile icon={p.icon} tone={p.tone} size={52} />}
-                title={p.title}
-                subtitle={p.subtitle}
-                onPress={() => router.push({ pathname: '/chat', params: { q: p.topic } })}
+                key={s.key}
+                leading={<s.icon color={palette.ink} size={24} />}
+                title={s.title}
+                subtitle={s.subtitle}
+                titleLines={2}
+                chevron
+                onPress={s.onPress}
               />
-            </Card>
-          ))}
-        </View>
+            ))}
+          </Stack>
+        </Card>
       </ScrollView>
-      <View
-        style={{
-          paddingHorizontal: screen.side,
-          paddingBottom: Math.max(insets.bottom, space.lg) + 100,
-        }}
+      {/* Moves with the keyboard frame by frame (UI thread), like one piece with it. Open, it
+          rests 12pt above the keyboard instead of above the tab bar. */}
+      <KeyboardStickyView
+        offset={{ closed: 0, opened: closedGap - space.md }}
+        style={{ paddingHorizontal: screen.side, paddingBottom: closedGap }}
       >
         <AskInput
           placeholder="Ask about your money…"
           onSubmit={(text) => router.push({ pathname: '/chat', params: { text } })}
         />
-      </View>
-    </KeyboardAvoidingView>
+      </KeyboardStickyView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  prompt: { paddingHorizontal: space.xl, paddingVertical: space.sm },
-});

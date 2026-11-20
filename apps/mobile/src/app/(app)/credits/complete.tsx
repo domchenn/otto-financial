@@ -39,10 +39,10 @@ export default function CreditsComplete() {
           <View
             style={[
               styles.check,
-              { backgroundColor: palette.illustration.mint, shadowColor: palette.shadow },
+              { backgroundColor: palette.tones.butter.bg, shadowColor: palette.shadow },
             ]}
           >
-            <CheckIcon color={palette.tones.mint.text} size={90} />
+            <CheckIcon color={palette.tones.butter.text} size={90} />
           </View>
           <PointsBubble
             label={`+${formatCents(month)}`}

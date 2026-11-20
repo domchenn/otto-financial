@@ -2,8 +2,18 @@ import { StyleSheet, View } from 'react-native';
 
 import type { Icon } from './icons';
 import { Text } from './Text';
-import { radius, type ToneName } from '@/theme/tokens';
+import { radius, type Palette, type ToneName } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
+
+/**
+ * Pastels carry a fixed meaning (mint budget, lilac points, butter credits, sky payments);
+ * "neutral" is the light gray tile for everything else.
+ */
+export type TileTone = ToneName | 'neutral';
+
+function tileColors(palette: Palette, tone: TileTone): { bg: string; text: string } {
+  return tone === 'neutral' ? { bg: palette.raised, text: palette.ink } : palette.tones[tone];
+}
 
 /** Rounded square with a pastel fill and a line icon in the pastel's dark shade. */
 export function IconTile({
@@ -12,11 +22,11 @@ export function IconTile({
   size = 56,
 }: {
   icon: Icon;
-  tone: ToneName;
+  tone: TileTone;
   size?: number;
 }) {
   const { palette } = useTheme();
-  const t = palette.tones[tone];
+  const t = tileColors(palette, tone);
   return (
     <View
       style={[
@@ -36,11 +46,11 @@ export function LabelTile({
   size = 56,
 }: {
   label: string;
-  tone: ToneName;
+  tone: TileTone;
   size?: number;
 }) {
   const { palette } = useTheme();
-  const t = palette.tones[tone];
+  const t = tileColors(palette, tone);
   return (
     <View
       style={[

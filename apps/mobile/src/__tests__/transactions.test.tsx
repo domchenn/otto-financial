@@ -9,9 +9,10 @@ import { checking, gold, refund, renderScreen, sweetgreen } from '@/test/fixture
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({
   router: { push: (...args: unknown[]) => mockPush(...args), back: jest.fn() },
-  useLocalSearchParams: () => ({}),
+  useLocalSearchParams: () => mockSearchParams,
 }));
 
+let mockSearchParams: Record<string, string> = {};
 const mockParams: TransactionParams[] = [];
 jest.mock('@/lib/api', () => {
   const f = jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures');
@@ -26,6 +27,7 @@ jest.mock('@/lib/api', () => {
 jest.mock('@/lib/useRefresh', () => ({ useRefresh: () => undefined }));
 
 beforeEach(() => {
+  mockSearchParams = {};
   mockParams.length = 0;
   mockPush.mockClear();
 });
@@ -74,5 +76,14 @@ describe('Transactions across years', () => {
     const groups = groupByDay([thisYear, lastYear], new Date(2026, 10, 19));
     expect(groups.map((g) => g.key)).toEqual(['2026-01-03', '2025-01-03']);
     expect(groups.map((g) => g.day)).toEqual(['Jan 3', 'Jan 3, 2025']);
+  });
+});
+
+describe('Transactions for a category', () => {
+  it('filters to the category opened from Spending and names it', async () => {
+    mockSearchParams = { category: 'FOOD_AND_DRINK' };
+    await renderScreen(<Transactions />);
+    expect(mockParams.at(-1)?.category).toBe('FOOD_AND_DRINK');
+    expect(screen.getByText('Dining')).toBeOnTheScreen();
   });
 });

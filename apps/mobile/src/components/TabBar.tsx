@@ -15,7 +15,7 @@ const ICONS: Record<string, Icon> = {
   ask: SparkleIcon,
 };
 
-/** Floating white pill nav bar. Ask stays indigo so Otto is always one tap away. */
+/** Floating white pill nav bar. Only the active tab is highlighted. */
 export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTabBarProps) {
   const { palette } = useTheme();
   const insets = useSafeAreaInsets();
@@ -29,8 +29,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
           const focused = state.index === index;
           const I = ICONS[route.name] ?? HomeIcon;
           const title = descriptors[route.key]?.options?.title ?? route.name;
-          const isAsk = route.name === 'ask';
-          const color = isAsk ? palette.link : focused ? palette.ink : palette.muted;
+          const color = focused ? palette.ink : palette.muted;
           return (
             <Pressable
               key={route.key}
@@ -50,10 +49,10 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
               }}
               style={styles.tab}
             >
-              <I color={color} size={26} filled={isAsk && focused} />
+              <I color={color} size={26} />
               <Text
                 variant="caption"
-                weight={focused || isAsk ? 'bold' : 'semibold'}
+                weight={focused ? 'bold' : 'semibold'}
                 color={color}
                 style={styles.label}
               >

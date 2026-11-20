@@ -1,6 +1,6 @@
 import datetime as dt
 import uuid
-from typing import Annotated
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 from pydantic import BaseModel
@@ -373,4 +373,48 @@ def get_net_worth(user: UserDep, session: SessionDep) -> NetWorthDetailOut:
             for c in d.changes
         ],
         tracking_since=d.tracking_since,
+    )
+
+
+class DaySpendOut(BaseModel):
+    date: dt.date
+    cents: int | None
+
+
+class CategorySpendOut(BaseModel):
+    category: str | None
+    cents: int
+    top_account_name: str | None
+    top_account_share: float
+
+
+class SpendingOut(BaseModel):
+    period: Literal["week", "month"]
+    start: dt.date
+    end: dt.date
+    spent_cents: int
+    days: list[DaySpendOut]
+    categories: list[CategorySpendOut]
+
+
+@router.get("/spending")
+def get_spending(
+    user: UserDep, session: SessionDep, period: Literal["week", "month"] = "week"
+) -> SpendingOut:
+    s = service.spending(session, user, period)
+    return SpendingOut(
+        period=period,
+        start=s.start,
+        end=s.end,
+        spent_cents=s.spent_cents,
+        days=[DaySpendOut(date=d, cents=c) for d, c in s.days],
+        categories=[
+            CategorySpendOut(
+                category=c.category,
+                cents=c.cents,
+                top_account_name=c.top_account_name,
+                top_account_share=c.top_account_share,
+            )
+            for c in s.categories
+        ],
     )
