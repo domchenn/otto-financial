@@ -8,14 +8,13 @@ import { Footer, StepScreen } from '@/components/layouts';
 import { NotificationPreview } from '@/components/NotificationPreview';
 import { OptionRow } from '@/components/selection';
 import { Text } from '@/components/Text';
-import { space, type ToneName } from '@/theme/tokens';
+import { space } from '@/theme/tokens';
 
 type Cadence = 'daily' | 'matters' | 'weekly';
 
 const OPTIONS: {
   id: Cadence;
   label: string;
-  tone: ToneName;
   title: string;
   subtitle: string;
   preview: [string, string];
@@ -23,7 +22,6 @@ const OPTIONS: {
   {
     id: 'daily',
     label: 'AM',
-    tone: 'butter',
     title: 'A daily brief',
     subtitle: 'A quick morning summary of your money',
     preview: ['Good morning, Dom', '$312 left this week. Your dining credit resets in 3 days.'],
@@ -31,7 +29,6 @@ const OPTIONS: {
   {
     id: 'matters',
     label: '!',
-    tone: 'indigo',
     title: 'Only when it matters',
     subtitle: 'Expiring credits, due dates and unusual charges',
     preview: ['Credit expiring Tuesday', 'Your $10 Gold dining credit resets in 3 days.'],
@@ -39,7 +36,6 @@ const OPTIONS: {
   {
     id: 'weekly',
     label: '7d',
-    tone: 'mint',
     title: 'A weekly recap',
     subtitle: 'Every Sunday: what you spent and earned',
     preview: ['Your week with Otto', 'You spent $188, earned 640 points and used $15 in credits.'],
@@ -69,7 +65,7 @@ export default function CheckIn() {
             subtitle={o.subtitle}
             selected={cadence === o.id}
             onPress={() => setCadence(o.id)}
-            leading={<LabelTile label={o.label} tone={o.tone} size={56} />}
+            leading={<LabelTile label={o.label} tone="neutral" size={56} />}
           />
         ))}
       </View>

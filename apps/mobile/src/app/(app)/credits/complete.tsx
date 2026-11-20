@@ -33,10 +33,10 @@ export default function CreditsComplete() {
           <View
             style={[
               styles.check,
-              { backgroundColor: palette.illustration.mint, shadowColor: palette.shadow },
+              { backgroundColor: palette.tones.butter.bg, shadowColor: palette.shadow },
             ]}
           >
-            <CheckIcon color={palette.tones.mint.text} size={90} />
+            <CheckIcon color={palette.tones.butter.text} size={90} />
           </View>
           <PointsBubble
             label={`+${formatCents(month)}`}
@@ -81,14 +81,14 @@ export default function CreditsComplete() {
             {formatCents(year)}
           </Text>
         </Card>
-        <Card tone="mint" style={styles.tile}>
-          <Text variant="body" weight="semibold" color={palette.tones.mint.text}>
+        <Card tone="butter" style={styles.tile}>
+          <Text variant="body" weight="semibold" color={palette.tones.butter.text}>
             Streak
           </Text>
           <Text
             variant="heading"
             weight="extrabold"
-            color={palette.tones.mint.text}
+            color={palette.tones.butter.text}
             style={{ fontSize: 28 }}
           >
             3 months
