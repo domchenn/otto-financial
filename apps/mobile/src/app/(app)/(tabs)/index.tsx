@@ -13,8 +13,14 @@ import { ListRow, SectionHeader } from '@/components/rows';
 import { StatTile, TileGrid } from '@/components/StatTile';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useSummary, useTransactions } from '@/lib/api';
-import { amountLabel, categoryName, dueLabel, merchantName } from '@/lib/finance';
+import { useNetWorth, useSummary, useTransactions } from '@/lib/api';
+import {
+  amountLabel,
+  categoryName,
+  dueLabel,
+  merchantName,
+  netWorthChangeSentence,
+} from '@/lib/finance';
 import { formatCents, formatNumber } from '@/lib/money';
 // Budgets, points and credits are still sample data until their milestones land.
 import { creditSummary, points, week } from '@/lib/sample';
@@ -43,6 +49,7 @@ export default function Home() {
   const summary = useSummary();
   const recent = useTransactions({ limit: 3 });
   const refresh = useRefresh();
+  const netWorth = useNetWorth().data;
   const s = summary.data;
   const spentCents = s?.week_spent_cents ?? 0;
   const leftCents = week.limitCents - spentCents;
@@ -153,6 +160,18 @@ export default function Home() {
           />
         </TileGrid>
       </View>
+
+      {netWorth && connected ? (
+        <Card style={{ marginTop: space.lg, paddingVertical: space.xs }}>
+          <ListRow
+            title="Net worth"
+            subtitle={netWorthChangeSentence(netWorth, '1W')}
+            value={formatCents(netWorth.net_cents)}
+            chevron
+            onPress={() => router.push('/net-worth')}
+          />
+        </Card>
+      ) : null}
 
       <Card style={{ marginTop: space.xl, paddingTop: space.xs }}>
         <SectionHeader

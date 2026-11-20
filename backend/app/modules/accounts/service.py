@@ -441,3 +441,75 @@ def list_transactions(
     )
     rows = session.execute(stmt.limit(limit).offset(offset)).all()
     return [(t, a) for t, a in rows]
+
+
+# --- net worth ------------------------------------------------------------------------------
+
+NET_WORTH_PERIODS: dict[str, int | None] = {"1W": 7, "1M": 30, "3M": 90, "1Y": 365, "All": None}
+
+
+@dataclass(frozen=True)
+class NetWorthChange:
+    period: str
+    change_cents: int | None
+    since: dt.date | None
+
+
+@dataclass(frozen=True)
+class NetWorthDetail:
+    cash_cents: int
+    investments_cents: int
+    cards_cents: int
+    loans_cents: int
+    changes: list[NetWorthChange]
+    tracking_since: dt.date | None
+
+    @property
+    def net_cents(self) -> int:
+        return self.cash_cents + self.investments_cents - self.cards_cents - self.loans_cents
+
+
+def net_worth_detail(session: Session, user: User, today: dt.date | None = None) -> NetWorthDetail:
+    """Net worth by kind of account, and how it changed over each period.
+
+    A change compares today's balances with the most recent daily snapshot on or before the
+    period's start. Snapshots begin when the first bank is connected, so longer periods are
+    None until there is that much history ("All" compares with the first snapshot).
+    """
+    today = today or local_today(user)
+    accounts = user_accounts(session, user)
+
+    def total(kind: str) -> int:
+        return sum(a.current_cents or 0 for a in accounts if a.kind == kind)
+
+    cash, investments = total("depository"), total("investment")
+    cards, loans = total("credit"), total("loan")
+    net = cash + investments - cards - loans
+
+    snapshots = session.scalars(
+        select(NetWorthSnapshot)
+        .where(NetWorthSnapshot.user_id == user.id, NetWorthSnapshot.date < today)
+        .order_by(NetWorthSnapshot.date)
+    ).all()
+    first = session.scalars(
+        select(NetWorthSnapshot.date)
+        .where(NetWorthSnapshot.user_id == user.id)
+        .order_by(NetWorthSnapshot.date)
+        .limit(1)
+    ).one_or_none()
+
+    changes = []
+    for period, days in NET_WORTH_PERIODS.items():
+        if days is None:
+            base = snapshots[0] if snapshots else None
+        else:
+            cutoff = today - dt.timedelta(days=days)
+            base = next((sn for sn in reversed(snapshots) if sn.date <= cutoff), None)
+        changes.append(
+            NetWorthChange(
+                period=period,
+                change_cents=(net - (base.assets_cents - base.liabilities_cents)) if base else None,
+                since=base.date if base else None,
+            )
+        )
+    return NetWorthDetail(cash, investments, cards, loans, changes, first)
