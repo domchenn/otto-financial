@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { Alert, Pressable, StyleSheet, View } from 'react-native';
 
 import { LabelTile } from '@/components/badges';
@@ -7,29 +6,71 @@ import { LockIcon, PlusIcon } from '@/components/icons';
 import { Footer, StepScreen } from '@/components/layouts';
 import { Card } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { institutions } from '@/lib/sample';
-import { space } from '@/theme/tokens';
+import { useConnections, useDisconnect, useLinkBank } from '@/lib/api';
+import { agoLabel, institutionCode, type Connection } from '@/lib/finance';
+import { useRefresh } from '@/lib/useRefresh';
+import { space, type ToneName } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
+
+const TONES: ToneName[] = ['sky', 'mint', 'lilac', 'butter'];
+
+function linkFailed(result: { status: string }) {
+  if (result.status === 'failed') {
+    Alert.alert("That didn't connect", 'Nothing was changed. Give it another try in a moment.');
+  }
+}
 
 export default function ConnectedAccounts() {
   const { palette } = useTheme();
+  const connections = useConnections();
+  const disconnect = useDisconnect();
+  const link = useLinkBank();
+  const refresh = useRefresh();
+
+  const confirmDisconnect = (inst: Connection) =>
+    Alert.alert(
+      `Disconnect ${inst.institution_name ?? 'this bank'}?`,
+      "This deletes that bank's data from Otto.",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Disconnect',
+          style: 'destructive',
+          onPress: () => disconnect.mutate(inst.id),
+        },
+      ],
+    );
+
   return (
     <StepScreen
       title="Connected accounts"
+      refreshControl={refresh}
       footer={
         <Footer>
           <Button
             variant="secondary"
             icon={PlusIcon}
             title="Connect another account"
-            onPress={() => router.push('/onboarding/connect')}
+            loading={link.isPending}
+            onPress={() => link.mutate(undefined, { onSuccess: linkFailed })}
           />
         </Footer>
       }
     >
       <View style={{ gap: space.lg, marginTop: space.lg }}>
-        {institutions.map((inst) => {
-          const attention = inst.status === 'attention';
+        {connections.data?.length === 0 ? (
+          <Text variant="body" muted>
+            No banks connected yet.
+          </Text>
+        ) : null}
+        {connections.isError ? (
+          <Text variant="body" color={palette.alert}>
+            Otto couldn&apos;t load your banks. Pull down to try again.
+          </Text>
+        ) : null}
+        {(connections.data ?? []).map((inst, i) => {
+          const attention = inst.status !== 'ok';
+          const updated = agoLabel(inst.last_synced_at);
           return (
             <Card
               key={inst.id}
@@ -38,10 +79,14 @@ export default function ConnectedAccounts() {
               }
             >
               <View style={styles.head}>
-                <LabelTile label={inst.code} tone={inst.tone} size={56} />
+                <LabelTile
+                  label={institutionCode(inst.institution_name)}
+                  tone={TONES[i % TONES.length] ?? 'sky'}
+                  size={56}
+                />
                 <View style={{ flex: 1 }}>
                   <Text variant="heading" style={{ fontSize: 21 }}>
-                    {inst.name}
+                    {inst.institution_name ?? 'Bank'}
                   </Text>
                   <View style={styles.status}>
                     {!attention ? (
@@ -52,40 +97,28 @@ export default function ConnectedAccounts() {
                       weight="bold"
                       color={attention ? palette.alert : palette.moneyIn}
                     >
-                      {attention
-                        ? `Needs a quick sign-in · ${inst.updated}`
-                        : `Up to date · ${inst.updated}`}
+                      {attention ? `Needs a quick sign-in · ${updated}` : `Up to date · ${updated}`}
                     </Text>
                   </View>
                 </View>
-                {!attention ? (
-                  <Pressable
-                    accessibilityRole="button"
-                    hitSlop={10}
-                    onPress={() =>
-                      Alert.alert(
-                        `Disconnect ${inst.name}?`,
-                        "This deletes that bank's data from Otto.",
-                        [
-                          { text: 'Cancel', style: 'cancel' },
-                          { text: 'Disconnect', style: 'destructive' },
-                        ],
-                      )
-                    }
-                  >
-                    <Text variant="row" weight="bold" muted>
-                      Disconnect
-                    </Text>
-                  </Pressable>
-                ) : null}
+                <Pressable
+                  accessibilityRole="button"
+                  hitSlop={10}
+                  onPress={() => confirmDisconnect(inst)}
+                >
+                  <Text variant="row" weight="bold" muted>
+                    Disconnect
+                  </Text>
+                </Pressable>
               </View>
               <Text variant="body" muted style={{ marginTop: space.md, fontSize: 16 }}>
-                {inst.cards.join(', ')}
+                {inst.accounts.map((a) => (a.mask ? `${a.name} ·· ${a.mask}` : a.name)).join(', ')}
               </Text>
               {attention ? (
                 <Button
-                  title={`Sign in to ${inst.name}`}
-                  onPress={() => router.push('/onboarding/link')}
+                  title={`Sign in to ${inst.institution_name ?? 'your bank'}`}
+                  loading={link.isPending}
+                  onPress={() => link.mutate(inst.id, { onSuccess: linkFailed })}
                   style={{ marginTop: space.lg }}
                 />
               ) : null}
