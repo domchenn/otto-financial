@@ -1,7 +1,11 @@
 import { describe, expect, it } from '@jest/globals';
 
 import {
+  accountsInView,
   agoLabel,
+  availableViews,
+  viewTotal,
+  type Account,
   amountLabel,
   cardArt,
   categoryName,
@@ -136,5 +140,34 @@ describe('netWorthChangeSentence', () => {
     expect(netWorthChangeSentence({ ...base, tracking_since: null }, '1Y')).toMatch(
       /Connect an account/,
     );
+  });
+});
+
+describe('account views', () => {
+  const acct = (id: string, kind: Account['kind'], subtype: string | null, cents: number) =>
+    ({ id, kind, subtype, current_cents: cents }) as Account;
+  const accounts = [
+    acct('chk', 'depository', 'checking', 1000),
+    acct('sav', 'depository', 'savings', 2000),
+    acct('mm', 'depository', 'money market', 500),
+    acct('card', 'credit', 'credit card', 300),
+  ];
+
+  it('offers only views that have accounts, Net worth always', () => {
+    expect(availableViews(accounts).map((v) => v.label)).toEqual([
+      'Net worth',
+      'Checking',
+      'Savings',
+      'Cards',
+    ]);
+    expect(availableViews([]).map((v) => v.label)).toEqual(['Net worth']);
+  });
+
+  it('puts savings-like accounts under Savings and totals each view', () => {
+    expect(accountsInView(accounts, 'savings').map((a) => a.id)).toEqual(['sav', 'mm']);
+    expect(viewTotal(accounts, 'checking')).toBe(1000);
+    expect(viewTotal(accounts, 'savings')).toBe(2500);
+    expect(viewTotal(accounts, 'cards')).toBe(300);
+    expect(viewTotal(accounts, 'networth')).toBe(1000 + 2500 - 300);
   });
 });

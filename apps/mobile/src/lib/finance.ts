@@ -273,3 +273,48 @@ export function netWorthChangeSentence(netWorth: NetWorth, period: NetWorthPerio
   const amount = formatCents(Math.abs(change.change_cents));
   return `${change.change_cents > 0 ? 'Up' : 'Down'} ${amount} ${phrase}.`;
 }
+
+export type AccountView = 'networth' | 'checking' | 'savings' | 'investments' | 'cards';
+
+export const ACCOUNT_VIEWS: { view: AccountView; label: string }[] = [
+  { view: 'networth', label: 'Net worth' },
+  { view: 'checking', label: 'Checking' },
+  { view: 'savings', label: 'Savings' },
+  { view: 'investments', label: 'Investments' },
+  { view: 'cards', label: 'Cards' },
+];
+
+/** Which accounts a view covers. Savings includes savings-like accounts (money market, CDs). */
+export function accountsInView(accounts: Account[], view: AccountView): Account[] {
+  switch (view) {
+    case 'networth':
+      return accounts.filter((a) => a.kind !== 'other');
+    case 'checking':
+      return accounts.filter((a) => a.kind === 'depository' && a.subtype === 'checking');
+    case 'savings':
+      return accounts.filter((a) => a.kind === 'depository' && a.subtype !== 'checking');
+    case 'investments':
+      return accounts.filter((a) => a.kind === 'investment');
+    case 'cards':
+      return accounts.filter((a) => a.kind === 'credit');
+  }
+}
+
+/** Views worth offering: Net worth always, the rest only when there are accounts for them. */
+export function availableViews(accounts: Account[]): { view: AccountView; label: string }[] {
+  return ACCOUNT_VIEWS.filter(
+    ({ view }) => view === 'networth' || accountsInView(accounts, view).length > 0,
+  );
+}
+
+export function isOwed(account: Pick<Account, 'kind'>): boolean {
+  return account.kind === 'credit' || account.kind === 'loan';
+}
+
+/** A view's total; cards are reported as the positive amount owed. */
+export function viewTotal(accounts: Account[], view: AccountView): number {
+  return accountsInView(accounts, view).reduce((sum, a) => {
+    const cents = a.current_cents ?? 0;
+    return view === 'networth' && isOwed(a) ? sum - cents : sum + cents;
+  }, 0);
+}
