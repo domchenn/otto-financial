@@ -9,11 +9,12 @@ import { TabScreen } from '@/components/layouts';
 import { ListRow, SectionHeader } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useAccounts, useLinkBank, useSummary } from '@/lib/api';
+import { useAccounts, useLinkBank, usePrepareLink, useSummary } from '@/lib/api';
 import { agoLabel, cardArt, dueLabel, utilizationLabel } from '@/lib/finance';
 import { formatCents } from '@/lib/money';
 // Credits are sample data until M2.
 import { creditSummary } from '@/lib/sample';
+import { linkAlerts } from '@/lib/linkAlerts';
 import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -25,6 +26,7 @@ export default function Wallet() {
   const accounts = useAccounts();
   const refresh = useRefresh();
   const link = useLinkBank();
+  usePrepareLink();
   const s = summary.data;
   const cards = (accounts.data ?? []).filter((a) => a.kind === 'credit');
   const broken = s?.attention[0];
@@ -38,7 +40,8 @@ export default function Wallet() {
         <IconButton
           icon={PlusIcon}
           label="Connect another account"
-          onPress={() => link.mutate(undefined)}
+          disabled={link.isPending}
+          onPress={() => link.mutate(undefined, linkAlerts)}
         />
       </View>
 

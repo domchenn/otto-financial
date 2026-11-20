@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { act, fireEvent, screen } from '@testing-library/react-native';
 
 import Transactions from '@/app/(app)/transactions/index';
+import { groupByDay } from '@/lib/finance';
 import type { TransactionParams } from '@/lib/api';
 import { checking, gold, refund, renderScreen, sweetgreen } from '@/test/fixtures';
 
@@ -61,5 +62,17 @@ describe('Transactions', () => {
     expect(screen.getByText('Nothing matches "zzz".')).toBeOnTheScreen();
     expect(screen.queryByText(refund.merchant_name!)).toBeNull();
     jest.useRealTimers();
+  });
+});
+
+describe('Transactions across years', () => {
+  // Regression: Plaid returns two years of history, and grouping by the "Nov 3" label gave
+  // two groups the same React key (and merged nothing), crashing the list.
+  it('keeps the same calendar day in different years apart, with the year shown', async () => {
+    const thisYear = { ...sweetgreen, id: 'a', date: '2026-01-03' };
+    const lastYear = { ...sweetgreen, id: 'b', date: '2025-01-03' };
+    const groups = groupByDay([thisYear, lastYear], new Date(2026, 10, 19));
+    expect(groups.map((g) => g.key)).toEqual(['2026-01-03', '2025-01-03']);
+    expect(groups.map((g) => g.day)).toEqual(['Jan 3', 'Jan 3, 2025']);
   });
 });

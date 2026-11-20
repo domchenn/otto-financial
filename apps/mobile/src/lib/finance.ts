@@ -124,13 +124,31 @@ export function dueLabel(iso: string | null, today = new Date()): { text: string
   return { text: `Due ${formatShortDate(iso)}`, soon: false };
 }
 
-/** "Today", "Yesterday", a weekday within the last week, else "Nov 3". */
+/** "Today", "Yesterday", a weekday within the last week, "Nov 3", or "Nov 3, 2025" for another year. */
 export function dayLabel(iso: string, today = new Date()): string {
-  const days = daysBetween(parseDate(iso), today);
+  const date = parseDate(iso);
+  const days = daysBetween(date, today);
   if (days === 0) return 'Today';
   if (days === 1) return 'Yesterday';
-  if (days > 1 && days < 7) return weekday.format(parseDate(iso));
+  if (days > 1 && days < 7) return weekday.format(date);
+  if (date.getFullYear() !== today.getFullYear())
+    return `${formatShortDate(iso)}, ${date.getFullYear()}`;
   return formatShortDate(iso);
+}
+
+/** Consecutive transactions grouped by calendar day (input is newest first). */
+export function groupByDay(
+  items: Transaction[],
+  today = new Date(),
+): { key: string; day: string; items: Transaction[] }[] {
+  const groups: { key: string; day: string; items: Transaction[] }[] = [];
+  for (const t of items) {
+    const key = t.date.slice(0, 10);
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) last.items.push(t);
+    else groups.push({ key, day: dayLabel(key, today), items: [t] });
+  }
+  return groups;
 }
 
 /** "just now", "5 min ago", "2 hr ago", "3 days ago". */

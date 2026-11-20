@@ -48,6 +48,7 @@ describe('Plaid Link screen', () => {
   });
 
   it('shows the error screen when the API is unreachable', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
     mockOutcome = new Error('network');
     await renderScreen(<PlaidLink />);
     await waitFor(() => expect(mockReplace).toHaveBeenCalledWith('/onboarding/link-error'));

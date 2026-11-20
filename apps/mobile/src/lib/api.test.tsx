@@ -1,21 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, renderHook } from '@testing-library/react-native';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
-import { useLinkBank } from './api';
+import { useLinkBank, usePrepareLink } from './api';
 import type { PlaidOutcome } from './plaid';
 
 jest.mock('@clerk/expo', () => ({ useAuth: () => ({ getToken: async () => 'session-token' }) }));
 
 let mockOutcome: PlaidOutcome;
-jest.mock('./plaid', () => ({ openPlaidLink: jest.fn(async () => mockOutcome) }));
+let linkTokenCallsAtOpen: number[] = [];
+const mockPrepare = jest.fn(async (_token: string) => ({
+  open: async () => {
+    linkTokenCallsAtOpen.push(calls.filter((c) => c.url.endsWith('/v1/link-token')).length);
+    return mockOutcome;
+  },
+}));
+jest.mock('./plaid', () => ({ preparePlaidLink: (token: string) => mockPrepare(token) }));
 
 type Call = { url: string; method: string; body: unknown; auth: string | undefined };
 let calls: Call[] = [];
 
 beforeEach(() => {
   calls = [];
+  mockPrepare.mockClear();
+  linkTokenCallsAtOpen = [];
   globalThis.fetch = jest.fn(async (url: string | URL | Request, init?: RequestInit) => {
     const headers = (init?.headers ?? {}) as Record<string, string>;
     calls.push({
@@ -33,13 +42,24 @@ afterEach(() => {
   jest.restoreAllMocks();
 });
 
-function wrapper({ children }: { children: ReactNode }) {
+function makeWrapper() {
   const client = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
-  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+  };
 }
 
-async function link(connectionId?: string) {
-  const { result } = await renderHook(() => useLinkBank(), { wrapper });
+async function link(connectionId?: string, prepare = false) {
+  const { result } = await renderHook(
+    () => {
+      if (prepare) usePrepareLink();
+      return useLinkBank();
+    },
+    { wrapper: makeWrapper() },
+  );
+  if (prepare) {
+    await waitFor(() => expect(mockPrepare).toHaveBeenCalledTimes(1));
+  }
   let outcome: unknown;
   await act(async () => {
     outcome = await result.current.mutateAsync(connectionId);
@@ -79,5 +99,23 @@ describe('useLinkBank', () => {
     mockOutcome = { status: 'exited' };
     expect(await link()).toEqual({ status: 'exited' });
     expect(calls).toHaveLength(1);
+  });
+
+  it('opens a prepared session without fetching another token', async () => {
+    mockOutcome = { status: 'exited' };
+    await link(undefined, true);
+    // Opening used the session prepared on mount. (Afterwards the mounted screen may prepare
+    // a fresh one for next time, so later calls aren't counted.)
+    expect(linkTokenCallsAtOpen).toEqual([1]);
+  });
+
+  it('uses a fresh session every time, since sessions are single-use', async () => {
+    mockOutcome = { status: 'exited' };
+    const { result } = await renderHook(() => useLinkBank(), { wrapper: makeWrapper() });
+    await act(async () => {
+      await result.current.mutateAsync(undefined);
+      await result.current.mutateAsync(undefined);
+    });
+    expect(mockPrepare).toHaveBeenCalledTimes(2);
   });
 });

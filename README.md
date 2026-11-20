@@ -52,7 +52,10 @@ npx expo run:ios --device
 3. In the Plaid dashboard, add the iOS bundle ID `com.dominicchen.otto` under allowed apps.
 4. Rebuild the dev build after pulling (`npx expo run:ios --device`): Plaid Link is native code.
 
-In sandbox, pick any non-OAuth bank in Link and sign in with `user_good` / `pass_good`.
+In sandbox, Plaid never sends real texts: if Link asks for a phone number, use `415-555-0011`
+with code `123456` (or skip that step). Then pick any non-OAuth bank and sign in with
+`user_good` / `pass_good`. Work on the phone over your iPhone hotspot; campus Wi-Fi
+(eduroam) usually blocks the phone from reaching the Mac.
 Pull to refresh on Home, Wallet or a card to sync again (webhooks come later).
 
 If tests can't connect with `role "otto" does not exist`, another Postgres (e.g. Homebrew) is

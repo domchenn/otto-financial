@@ -6,25 +6,21 @@ import { LockIcon, PlusIcon } from '@/components/icons';
 import { Footer, StepScreen } from '@/components/layouts';
 import { Card } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useConnections, useDisconnect, useLinkBank } from '@/lib/api';
+import { useConnections, useDisconnect, useLinkBank, usePrepareLink } from '@/lib/api';
 import { agoLabel, institutionCode, type Connection } from '@/lib/finance';
+import { linkAlerts } from '@/lib/linkAlerts';
 import { useRefresh } from '@/lib/useRefresh';
 import { space, type ToneName } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 const TONES: ToneName[] = ['sky', 'mint', 'lilac', 'butter'];
 
-function linkFailed(result: { status: string }) {
-  if (result.status === 'failed') {
-    Alert.alert("That didn't connect", 'Nothing was changed. Give it another try in a moment.');
-  }
-}
-
 export default function ConnectedAccounts() {
   const { palette } = useTheme();
   const connections = useConnections();
   const disconnect = useDisconnect();
   const link = useLinkBank();
+  usePrepareLink();
   const refresh = useRefresh();
 
   const confirmDisconnect = (inst: Connection) =>
@@ -52,7 +48,7 @@ export default function ConnectedAccounts() {
             icon={PlusIcon}
             title="Connect another account"
             loading={link.isPending}
-            onPress={() => link.mutate(undefined, { onSuccess: linkFailed })}
+            onPress={() => link.mutate(undefined, linkAlerts)}
           />
         </Footer>
       }
@@ -118,7 +114,7 @@ export default function ConnectedAccounts() {
                 <Button
                   title={`Sign in to ${inst.institution_name ?? 'your bank'}`}
                   loading={link.isPending}
-                  onPress={() => link.mutate(inst.id, { onSuccess: linkFailed })}
+                  onPress={() => link.mutate(inst.id, linkAlerts)}
                   style={{ marginTop: space.lg }}
                 />
               ) : null}
