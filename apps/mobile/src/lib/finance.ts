@@ -303,3 +303,19 @@ export function viewTotal(accounts: Account[], view: AccountView): number {
     return view === 'networth' && isOwed(a) ? sum - cents : sum + cents;
   }, 0);
 }
+
+/** "Across 3 accounts and 1 card", for the net worth card. */
+export function accountCountLabel(accounts: number, cards: number): string {
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  if (accounts === 0 && cards === 0) return '';
+  if (cards === 0) return `Across ${plural(accounts, 'account')}`;
+  if (accounts === 0) return `Across ${plural(cards, 'card')}`;
+  return `Across ${plural(accounts, 'account')} and ${plural(cards, 'card')}`;
+}
+
+/** "7% of your $10,000 limit used · healthy", or null without a reported limit. */
+export function utilizationSentence(pct: number | null, limitCents: number): string | null {
+  if (pct === null || limitCents <= 0) return null;
+  const grade = utilizationLabel(pct).text.split(' · ')[1];
+  return `${pct}% of your ${formatCents(limitCents)} limit used · ${grade}`;
+}
