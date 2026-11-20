@@ -9,6 +9,7 @@ Everything uses the Otto name: repo `otto-financial`, bundle ID `com.dominicchen
 - `docs/prd.html`: product spec (source of truth for scope and UI)
 - `README.md`: setup and commands
 - `docs/adr/`: architecture decisions
+- `TODO.md`: the backlog, in priority order. Update it when work lands or new follow-ups come up.
 
 ## Layout
 
