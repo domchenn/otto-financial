@@ -10,10 +10,8 @@ import { useConnections, useDisconnect, useLinkBank, usePrepareLink } from '@/li
 import { agoLabel, institutionCode, type Connection } from '@/lib/finance';
 import { linkAlerts } from '@/lib/linkAlerts';
 import { useRefresh } from '@/lib/useRefresh';
-import { space, type ToneName } from '@/theme/tokens';
+import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
-
-const TONES: ToneName[] = ['sky', 'mint', 'lilac', 'butter'];
 
 export default function ConnectedAccounts() {
   const { palette } = useTheme();
@@ -77,7 +75,7 @@ export default function ConnectedAccounts() {
               <View style={styles.head}>
                 <LabelTile
                   label={institutionCode(inst.institution_name)}
-                  tone={TONES[i % TONES.length] ?? 'sky'}
+                  tone="neutral"
                   size={56}
                 />
                 <View style={{ flex: 1 }}>
