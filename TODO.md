@@ -9,18 +9,18 @@ or PRD section when there is one.
 
 ## Now: finish the MVP slice
 
-- [ ] Connect a Plaid sandbox bank on the phone (`user_good` / `pass_good`) and check Home,
-      Wallet and a card against Plaid's numbers. Blocked: `/v1/link-token` returns an error
-      from the phone
+- [ ] Check Home, Wallet, a card and Transactions against the First Platypus Bank sandbox
+      numbers on the phone
 
 ## Next
 
+- [ ] Show net worth in the app: cash and investments vs card balances, the accounts behind
+      each, and a history chart from the daily snapshots (1W / 1M / 3M / 1Y / All) (PRD F2)
 - [ ] Benefits and expiring credits: catalog YAML, period generator, "needs attention" on
       Home, mark used (PRD F4, M2)
 - [ ] Weekly and monthly budgets from real transactions; replace the sample $500 limit and
       the Spending tab's sample data (PRD F5)
 - [ ] Points: quick manual update plus estimate since last confirmed (PRD F3)
-- [ ] Net worth history chart from the daily snapshots: 1W / 1M / 3M / 1Y / All (PRD F2)
 - [ ] Deploy staging (Lambda + Neon) so the app works away from the Mac
 - [ ] Plaid webhooks and the 6-hourly safety refresh; needs the public staging URL (PRD F1)
 - [ ] Account deletion endpoint; Settings → Delete account is still a placeholder
