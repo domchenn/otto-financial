@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 
 import {
+  accountCountLabel,
   accountsInView,
   agoLabel,
   viewTotal,
@@ -15,6 +16,7 @@ import {
   type NetWorth,
   parseDate,
   utilizationLabel,
+  utilizationSentence,
 } from './finance';
 
 const today = new Date(2026, 10, 19, 15, 0); // Thu Nov 19 2026, 3 pm local
@@ -158,5 +160,20 @@ describe('account views', () => {
     expect(viewTotal(accounts, 'savings')).toBe(2500);
     expect(viewTotal(accounts, 'cards')).toBe(300);
     expect(viewTotal(accounts, 'networth')).toBe(1000 + 2500 - 300);
+  });
+});
+
+describe('wallet labels', () => {
+  it('counts accounts and cards in words', () => {
+    expect(accountCountLabel(3, 1)).toBe('Across 3 accounts and 1 card');
+    expect(accountCountLabel(1, 0)).toBe('Across 1 account');
+    expect(accountCountLabel(0, 2)).toBe('Across 2 cards');
+    expect(accountCountLabel(0, 0)).toBe('');
+  });
+
+  it('describes card utilization against the limit', () => {
+    expect(utilizationSentence(7, 1000000)).toBe('7% of your $10,000 limit used · healthy');
+    expect(utilizationSentence(45, 200000)).toBe('45% of your $2,000 limit used · high');
+    expect(utilizationSentence(null, 0)).toBeNull();
   });
 });

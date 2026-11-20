@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
-import { CardSwatch, Monogram, Pill } from '@/components/badges';
+import { CardSwatch, Monogram } from '@/components/badges';
 import { Button } from '@/components/Button';
 import { IconButton } from '@/components/IconButton';
 import { PlusIcon } from '@/components/icons';
@@ -15,8 +15,10 @@ import {
   agoLabel,
   cardArt,
   dueLabel,
+  accountCountLabel,
   netWorthChangeSentence,
   utilizationLabel,
+  utilizationSentence,
 } from '@/lib/finance';
 import { formatCents } from '@/lib/money';
 // Credits are sample data until M2.
@@ -42,7 +44,7 @@ export default function Wallet() {
   );
   const broken = s?.attention[0];
   const util = utilizationLabel(s?.utilization_pct ?? null);
-  const nextDue = s?.upcoming_payments[0];
+  const utilization = s ? utilizationSentence(s.utilization_pct, s.card_limit_cents) : null;
 
   return (
     <TabScreen refreshControl={refresh}>
@@ -90,29 +92,18 @@ export default function Wallet() {
             {netWorthChangeSentence(netWorth, '1W')}
           </Text>
           <NetWorthBar netWorth={netWorth} />
+          <Text variant="caption" muted style={{ marginTop: space.md }}>
+            {accountCountLabel(assets.length, cards.length)}
+          </Text>
         </Card>
       ) : null}
 
-      <Card style={{ marginTop: space.lg }}>
-        <Text variant="body" muted>
-          Total card balances
-        </Text>
-        <Text variant="hero" tabular style={{ marginTop: space.xs }}>
-          {s ? formatCents(s.card_balance_cents, { cents: true }) : '…'}
-        </Text>
-        {s && s.card_count > 0 ? (
-          <View style={styles.pills}>
-            <Pill tone={util.tone} label={util.text} />
-            {nextDue ? (
-              <Pill tone="sky" label={`Next ${dueLabel(nextDue.due_date).text.toLowerCase()}`} />
-            ) : null}
-          </View>
-        ) : null}
-      </Card>
-
       {assets.length > 0 ? (
         <>
-          <SectionHeader title="Cash & investments" detail={`${assets.length} accounts`} />
+          <SectionHeader
+            title="Cash & investments"
+            detail={formatCents(assets.reduce((sum, a) => sum + (a.current_cents ?? 0), 0))}
+          />
           <Card style={styles.list}>
             <Stack>
               {assets.map((a) => (
@@ -133,7 +124,7 @@ export default function Wallet() {
 
       <SectionHeader
         title="Credit cards"
-        detail={`${cards.length} ${cards.length === 1 ? 'card' : 'cards'}`}
+        detail={s ? formatCents(-s.card_balance_cents) : undefined}
       />
       <Card style={styles.list}>
         <Stack>
@@ -160,6 +151,15 @@ export default function Wallet() {
           ) : null}
         </Stack>
       </Card>
+      {utilization ? (
+        <Text
+          variant="caption"
+          color={util.tone === 'alert' ? palette.alert : palette.muted}
+          style={styles.utilization}
+        >
+          {utilization}
+        </Text>
+      ) : null}
 
       <Card
         style={{ marginTop: space.lg }}
@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     paddingVertical: space.lg,
   },
   fix: { borderWidth: 0 },
-  pills: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.lg },
+  utilization: { marginTop: space.sm, marginLeft: space.sm },
   list: { paddingVertical: space.sm },
   creditsRow: { flexDirection: 'row', alignItems: 'center' },
 });
