@@ -25,7 +25,8 @@ step; ranking offers means joining them to what was bought.
   the rest of the app uses it. Raw originals that are only kept for debugging go to S3.
 - Reference data that changes rarely, such as the benefits catalog, lives as a TOML file in
   the repo (read with the standard library's `tomllib`, reviewed through commits, with a
-  source and a `last_verified` date per card) and is loaded into Postgres.
+  source and a `last_verified` date per card). The app reads it at runtime; Postgres rows
+  refer to its stable ids (`amex-gold`, `dining`), so there is no copy to keep in sync.
 - Embeddings for the assistant, when they arrive, use the `pgvector` extension rather than a
   separate vector database.
 
