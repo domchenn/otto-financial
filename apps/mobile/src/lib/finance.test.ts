@@ -8,6 +8,8 @@ import {
   dayLabel,
   dueLabel,
   institutionCode,
+  netWorthChangeSentence,
+  type NetWorth,
   parseDate,
   utilizationLabel,
 } from './finance';
@@ -101,5 +103,38 @@ describe('institutionCode', () => {
     expect(institutionCode('American Express')).toBe('AE');
     expect(institutionCode('Chase')).toBe('CH');
     expect(institutionCode(null)).toBe('··');
+  });
+});
+
+describe('netWorthChangeSentence', () => {
+  const base: NetWorth = {
+    net_cents: 0,
+    cash_cents: 0,
+    investments_cents: 0,
+    cards_cents: 0,
+    loans_cents: 0,
+    tracking_since: '2026-11-19',
+    changes: [
+      { period: '1W', change_cents: 12000, since: '2026-11-12' },
+      { period: '1M', change_cents: -4550, since: '2026-10-20' },
+      { period: '3M', change_cents: 0, since: '2026-08-21' },
+      { period: '1Y', change_cents: null, since: null },
+      { period: 'All', change_cents: 100, since: '2026-08-01' },
+    ],
+  };
+
+  it('says which way it moved and by how much', () => {
+    expect(netWorthChangeSentence(base, '1W')).toBe('Up $120 this week.');
+    expect(netWorthChangeSentence(base, '1M')).toBe('Down $45 this month.');
+    expect(netWorthChangeSentence(base, '3M')).toBe('No change in the last 3 months.');
+  });
+
+  it('explains missing history instead of showing zero', () => {
+    expect(netWorthChangeSentence(base, '1Y')).toBe(
+      'Otto started tracking Nov 19. Changes appear as days go by.',
+    );
+    expect(netWorthChangeSentence({ ...base, tracking_since: null }, '1Y')).toMatch(
+      /Connect an account/,
+    );
   });
 });

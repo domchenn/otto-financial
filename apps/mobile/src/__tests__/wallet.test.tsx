@@ -3,7 +3,15 @@ import { fireEvent, screen } from '@testing-library/react-native';
 
 import Wallet from '@/app/(app)/(tabs)/wallet';
 import type { Account, Summary } from '@/lib/finance';
-import { checking, gold, mockMutation, renderScreen, mockResult, summary } from '@/test/fixtures';
+import {
+  brokerage,
+  checking,
+  gold,
+  mockMutation,
+  renderScreen,
+  mockResult,
+  summary,
+} from '@/test/fixtures';
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({ router: { push: (...args: unknown[]) => mockPush(...args) } }));
@@ -15,6 +23,8 @@ jest.mock('@/lib/api', () => ({
   useSummary: () => mockResult(mockSummary),
   useAccounts: () => mockResult(mockAccounts),
   useLinkBank: () => mockLink,
+  useNetWorth: () =>
+    mockResult(jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures').netWorth),
   usePrepareLink: () => {},
 }));
 jest.mock('@/lib/linkAlerts', () => ({ linkAlerts: { onSuccess: jest.fn(), onError: jest.fn() } }));
@@ -22,7 +32,7 @@ jest.mock('@/lib/useRefresh', () => ({ useRefresh: () => undefined }));
 
 beforeEach(() => {
   mockSummary = summary;
-  mockAccounts = [gold, checking];
+  mockAccounts = [gold, checking, brokerage];
   mockPush.mockClear();
   mockLink.mutate.mockClear();
 });
@@ -34,7 +44,6 @@ describe('Wallet', () => {
     expect(screen.getByText('7% utilization · healthy')).toBeOnTheScreen();
     expect(screen.getByText('1 card')).toBeOnTheScreen();
     expect(screen.getByText('•• 1007 · Due in 3 days')).toBeOnTheScreen();
-    expect(screen.queryByText('Total Checking')).toBeNull();
     await fireEvent.press(screen.getByText('Gold Card'));
     expect(mockPush).toHaveBeenCalledWith('/card/acc-gold');
   });
@@ -73,5 +82,16 @@ describe('Wallet', () => {
     mockAccounts = [];
     await renderScreen(<Wallet />);
     expect(screen.getByText('No cards connected yet. Tap + to connect one.')).toBeOnTheScreen();
+  });
+
+  it('leads with net worth and lists cash and investments', async () => {
+    await renderScreen(<Wallet />);
+    expect(screen.getByText('$16,315')).toBeOnTheScreen();
+    expect(screen.getByText('Up $120 this week.')).toBeOnTheScreen();
+    expect(screen.getByText('Cash & investments')).toBeOnTheScreen();
+    expect(screen.getByText('Total Checking')).toBeOnTheScreen();
+    expect(screen.getByText('Brokerage')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByLabelText('Net worth'));
+    expect(mockPush).toHaveBeenCalledWith('/net-worth');
   });
 });
