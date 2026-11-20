@@ -10,43 +10,49 @@ import { ListRow } from '@/components/rows';
 import { Chip } from '@/components/selection';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { formatCents } from '@/lib/money';
+import { useBenefits } from '@/lib/api';
 import {
-  cards,
-  credits,
-  creditSummary,
-  getCard,
-  usedCredits,
-  type Credit,
-  type CreditGroup,
-} from '@/lib/sample';
+  allCredits,
+  expiringSections,
+  isUrgent,
+  isUsed,
+  resetsLabel,
+  type CreditPeriod,
+  type CreditSection,
+} from '@/lib/credits';
+import { cardArt } from '@/lib/finance';
+import { formatCents } from '@/lib/money';
+import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-type View_ = 'expiring' | 'card' | 'used';
-
-const GROUP_LABELS: Record<CreditGroup, string> = {
-  week: 'This week',
-  month: 'This month',
-  year: 'By Dec 31',
-};
+type Mode = 'expiring' | 'card' | 'used';
 
 export default function Credits() {
-  const { palette } = useTheme();
-  const [view, setView] = useState<View_>('expiring');
+  const [mode, setMode] = useState<Mode>('expiring');
+  const benefits = useBenefits();
+  const refresh = useRefresh();
+  const data = benefits.data;
+  const credits = data ? allCredits(data) : [];
+  const unplaced = data?.cards.filter((c) => c.card_id === null || c.needs_anniversary_month) ?? [];
 
-  const sections: { title: string; items: Credit[] }[] =
-    view === 'expiring'
-      ? (['week', 'month', 'year'] as const).map((g) => ({
-          title: GROUP_LABELS[g],
-          items: credits.filter((c) => c.group === g),
-        }))
-      : cards
-          .map((card) => ({ title: card.name, items: credits.filter((c) => c.card === card.id) }))
-          .filter((s) => s.items.length > 0);
+  const sections: CreditSection[] =
+    mode === 'expiring'
+      ? expiringSections(credits)
+      : mode === 'card'
+        ? (data?.cards ?? [])
+            .filter((c) => c.credits.length > 0)
+            .map((c) => ({
+              title: `${c.card_name ?? c.account_name}${c.account_mask ? ` •• ${c.account_mask}` : ''}`,
+              items: c.credits,
+            }))
+        : [{ title: 'Used this period', items: credits.filter(isUsed) }].filter(
+            (s) => s.items.length > 0,
+          );
 
   return (
     <StepScreen
+      refreshControl={refresh}
       right={
         <IconButton
           icon={BellIcon}
@@ -59,80 +65,112 @@ export default function Credits() {
         Credits
       </Text>
       <Text variant="body" muted style={{ fontSize: 17, marginTop: space.xs }}>
-        <Text variant="body" weight="extrabold" style={{ fontSize: 17 }} tabular>
-          {formatCents(creditSummary.readyThisMonthCents)}
-        </Text>{' '}
-        ready to use this month ·{' '}
-        <Text variant="body" weight="extrabold" style={{ fontSize: 17 }} tabular>
-          {formatCents(creditSummary.usedThisYearCents)}
-        </Text>{' '}
-        used this year
+        {benefits.isError ? (
+          "Otto couldn't load your credits. Pull down to try again."
+        ) : (
+          <>
+            <Text variant="body" weight="extrabold" style={{ fontSize: 17 }} tabular>
+              {formatCents(data?.remaining_cents ?? 0)}
+            </Text>{' '}
+            left to use ·{' '}
+            <Text variant="body" weight="extrabold" style={{ fontSize: 17 }} tabular>
+              {formatCents(data?.expiring_this_month_cents ?? 0)}
+            </Text>{' '}
+            resets this month
+          </>
+        )}
       </Text>
+
+      {unplaced.map((c) => (
+        <Card
+          key={c.account_id}
+          style={{ marginTop: space.lg }}
+          onPress={() => router.push(`/card/${c.account_id}/product`)}
+          accessibilityLabel={`Set up ${c.account_name}`}
+        >
+          <Text variant="row" weight="bold" style={{ fontSize: 17 }}>
+            {c.card_id === null
+              ? `Which card is ${c.account_name}${c.account_mask ? ` •• ${c.account_mask}` : ''}?`
+              : `Add the anniversary month for ${c.card_name}`}
+          </Text>
+          <Text variant="body" muted>
+            {c.card_id === null
+              ? 'Pick it so Otto can track its credits.'
+              : 'Some of its credits reset on the month you opened it.'}
+          </Text>
+        </Card>
+      ))}
 
       <View style={styles.chips}>
         <Chip
           label="Expiring soon"
-          selected={view === 'expiring'}
-          onPress={() => setView('expiring')}
+          selected={mode === 'expiring'}
+          onPress={() => setMode('expiring')}
         />
-        <Chip label="By card" selected={view === 'card'} onPress={() => setView('card')} />
-        <Chip label="Used" selected={view === 'used'} onPress={() => setView('used')} />
+        <Chip label="By card" selected={mode === 'card'} onPress={() => setMode('card')} />
+        <Chip label="Used" selected={mode === 'used'} onPress={() => setMode('used')} />
       </View>
 
-      {view === 'used' ? (
-        <Card style={styles.list}>
-          <Stack>
-            {usedCredits.map((u) => (
-              <ListRow
-                key={u.name + u.when}
-                leading={<Swatch cardId={u.card} />}
-                title={u.name}
-                subtitle={`${getCard(u.card)?.shortName ?? ''} · ${u.when}`}
-                value={formatCents(u.amountCents)}
-                valueColor={palette.moneyIn}
-              />
-            ))}
-          </Stack>
-        </Card>
-      ) : (
-        sections.map((s) => (
-          <View key={s.title}>
-            <View style={styles.groupHead}>
-              <Text variant="row" weight="bold" style={{ fontSize: 18 }}>
-                {s.title}
-              </Text>
-              <Text variant="body" weight="semibold" muted tabular>
-                {formatCents(s.items.reduce((sum, c) => sum + c.amountCents, 0))}
-              </Text>
-            </View>
-            <Card style={styles.list}>
-              <Stack>
-                {s.items.map((c) => (
-                  <ListRow
-                    key={c.id}
-                    leading={<Swatch cardId={c.card} />}
-                    title={c.name}
-                    subtitle={`${getCard(c.card)?.shortName ?? ''} · ${c.resets}`}
-                    subtitleColor={c.urgent ? palette.alert : undefined}
-                    value={formatCents(c.amountCents)}
-                    onPress={() => router.push(`/credits/${c.id}`)}
-                  />
-                ))}
-              </Stack>
-            </Card>
+      {data && sections.length === 0 ? (
+        <Text variant="body" muted style={{ marginTop: space.xl }}>
+          {mode === 'used'
+            ? 'Nothing used yet this period.'
+            : credits.length === 0
+              ? 'No credits to track yet. Tell Otto which cards you have.'
+              : 'Every credit is used for now.'}
+        </Text>
+      ) : null}
+
+      {sections.map((s) => (
+        <View key={s.title}>
+          <View style={styles.groupHead}>
+            <Text variant="row" weight="bold" style={{ fontSize: 18 }}>
+              {s.title}
+            </Text>
+            <Text variant="body" weight="semibold" muted tabular>
+              {formatCents(
+                s.items.reduce(
+                  (sum, c) => sum + (mode === 'used' ? c.amount_cents : c.remaining_cents),
+                  0,
+                ),
+              )}
+            </Text>
           </View>
-        ))
-      )}
+          <Card style={styles.list}>
+            <Stack>
+              {s.items.map((c) => (
+                <CreditRow key={c.period_id} credit={c} />
+              ))}
+            </Stack>
+          </Card>
+        </View>
+      ))}
     </StepScreen>
   );
 }
 
-function Swatch({ cardId }: { cardId: string }) {
+function CreditRow({ credit: c }: { credit: CreditPeriod }) {
   const { palette } = useTheme();
-  const card = getCard(cardId);
+  const used = isUsed(c);
+  return (
+    <ListRow
+      leading={<Swatch name={c.card_name} />}
+      title={c.name}
+      subtitle={`${c.card_name} · ${used ? (c.marked_used ? 'Marked used' : 'Used') : resetsLabel(c)}`}
+      subtitleColor={isUrgent(c) ? palette.alert : undefined}
+      value={formatCents(used ? c.amount_cents : c.remaining_cents, { cents: 'auto' })}
+      valueColor={used ? palette.moneyIn : undefined}
+      onPress={() => router.push(`/credits/${c.period_id}`)}
+    />
+  );
+}
+
+function Swatch({ name }: { name: string }) {
+  const { palette } = useTheme();
+  const art = cardArt({ name, official_name: null });
   return (
     <View style={[styles.swatchTile, { backgroundColor: palette.tones.butter.bg }]}>
-      <CardSwatch color={card?.color ?? palette.raised} chip={card?.color} width={32} />
+      <CardSwatch color={art.color} chip={art.chip} width={32} />
     </View>
   );
 }

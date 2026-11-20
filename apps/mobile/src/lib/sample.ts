@@ -237,16 +237,6 @@ export const credits: Credit[] = [
   },
 ];
 
-export const usedCredits: { name: string; card: CardId; amountCents: number; when: string }[] = [
-  { name: 'Uber Cash', card: 'gold', amountCents: 1000, when: 'Used Nov 3' },
-  { name: 'Resy credit', card: 'gold', amountCents: 5000, when: 'Used Jun 14' },
-  { name: 'CLEAR Plus', card: 'platinum', amountCents: 18900, when: 'Used Mar 2' },
-];
-
-export function getCredit(id: string): Credit | undefined {
-  return credits.find((c) => c.id === id);
-}
-
 export const creditSummary = {
   readyThisMonthCents: credits
     .filter((c) => c.group !== 'year')

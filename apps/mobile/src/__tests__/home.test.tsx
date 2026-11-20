@@ -3,7 +3,8 @@ import { fireEvent, screen } from '@testing-library/react-native';
 
 import Home from '@/app/(app)/(tabs)/index';
 import type { Summary, Transaction } from '@/lib/finance';
-import { refund, renderScreen, mockResult, summary, sweetgreen } from '@/test/fixtures';
+import type { Benefits } from '@/lib/credits';
+import { benefits, refund, renderScreen, mockResult, summary, sweetgreen } from '@/test/fixtures';
 
 jest.mock('@clerk/expo', () => ({ useUser: () => ({ user: { firstName: 'Dominic' } }) }));
 
@@ -13,9 +14,11 @@ jest.mock('expo-router', () => ({ router: { push: (...args: unknown[]) => mockPu
 let mockSummary: Summary | undefined;
 let mockSummaryError = false;
 let mockTransactions: Transaction[] | undefined;
+let mockBenefits: Benefits | undefined;
 jest.mock('@/lib/api', () => ({
   useSummary: () => mockResult(mockSummary, { isError: mockSummaryError }),
   useTransactions: () => mockResult(mockTransactions),
+  useBenefits: () => mockResult(mockBenefits),
   useNetWorth: () =>
     mockResult(jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures').netWorth),
 }));
@@ -25,6 +28,7 @@ beforeEach(() => {
   mockSummary = summary;
   mockSummaryError = false;
   mockTransactions = [sweetgreen, refund];
+  mockBenefits = benefits;
   mockPush.mockClear();
 });
 
@@ -70,11 +74,34 @@ describe('Home', () => {
     expect(mockPush).toHaveBeenCalledWith('/onboarding/connect');
   });
 
-  it('dismisses the Otto nudge with Later', async () => {
+  it('nudges about the most urgent credit and opens it', async () => {
     await renderScreen(<Home />);
     expect(screen.getByText('Otto noticed')).toBeOnTheScreen();
+    expect(
+      screen.getByText('Your $10 Gold Card dining credit resets in 3 days.'),
+    ).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Show me how' }));
+    expect(mockPush).toHaveBeenCalledWith('/credits/p-dining');
+  });
+
+  it('dismisses the Otto nudge with Later', async () => {
+    await renderScreen(<Home />);
     await fireEvent.press(screen.getByRole('button', { name: 'Later' }));
     expect(screen.queryByText('Otto noticed')).toBeNull();
+  });
+
+  it('has no nudge when no credit needs attention', async () => {
+    mockBenefits = { ...benefits, needs_attention: [] };
+    await renderScreen(<Home />);
+    expect(screen.queryByText('Otto noticed')).toBeNull();
+  });
+
+  it('shows credits that reset this month', async () => {
+    await renderScreen(<Home />);
+    expect(screen.getByText('$17')).toBeOnTheScreen();
+    expect(screen.getByText('2 expire this month')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByText('Credits to use'));
+    expect(mockPush).toHaveBeenCalledWith('/credits');
   });
 
   it('tells the user when data could not load', async () => {
