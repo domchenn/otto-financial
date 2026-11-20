@@ -359,3 +359,35 @@ def test_net_worth_changes_compare_with_the_snapshot_at_each_period_start(
     assert changes["1M"]["change_cents"] == 431_578 - 350_000
     assert changes["3M"]["change_cents"] is None
     assert changes["All"]["change_cents"] == 431_578 - 350_000
+
+
+def test_spending_week_by_day_and_category(api: TestClient) -> None:
+    connect(api)
+    s = api.get("/v1/spending", params={"period": "week"}).json()
+    assert s["start"] == week_start(TODAY).isoformat()
+    assert len(s["days"]) == 7
+    today = next(d for d in s["days"] if d["date"] == TODAY.isoformat())
+    assert today["cents"] == 1_645 + 4_218
+    assert all(d["cents"] is None for d in s["days"] if d["date"] > TODAY.isoformat())
+    assert s["spent_cents"] == 1_645 + 4_218  # rent, the card payment and old purchases excluded
+    assert [(c["category"], c["cents"]) for c in s["categories"]] == [
+        ("GENERAL_MERCHANDISE", 4_218),
+        ("FOOD_AND_DRINK", 1_645),
+    ]
+    assert s["categories"][0]["top_account_name"] == "Gold Card"
+    assert s["categories"][0]["top_account_share"] == 1.0
+
+
+def test_spending_matches_the_home_summary(api: TestClient) -> None:
+    connect(api)
+    week = api.get("/v1/spending").json()
+    assert week["spent_cents"] == api.get("/v1/summary").json()["week_spent_cents"]
+
+
+def test_spending_month_covers_every_day_of_the_month(api: TestClient) -> None:
+    connect(api)
+    s = api.get("/v1/spending", params={"period": "month"}).json()
+    assert s["start"] == TODAY.replace(day=1).isoformat()
+    next_month = (TODAY.replace(day=28) + dt.timedelta(days=4)).replace(day=1)
+    assert len(s["days"]) == (next_month - TODAY.replace(day=1)).days
+    assert api.get("/v1/spending", params={"period": "year"}).status_code == 422

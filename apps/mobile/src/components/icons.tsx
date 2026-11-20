@@ -194,3 +194,43 @@ export const GoogleIcon = make((c) => (
 
 /** Same glyph as the Wallet tab, used for "which card" prompts. */
 export const CardIcon = WalletIcon;
+
+export const ForkKnifeIcon = make((c) => (
+  <>
+    <Path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10" stroke={c} {...stroke} />
+    <Path d="M17 21V3c-2.2 1.2-3.5 3.6-3.5 7v3H17" stroke={c} {...stroke} />
+  </>
+));
+
+export const CartIcon = make((c) => (
+  <>
+    <Path d="M3 4h2.2l2.3 11h10.3l2.2-8H6.4" stroke={c} {...stroke} />
+    <Circle cx={9} cy={19.5} r={1.4} stroke={c} {...stroke} />
+    <Circle cx={17} cy={19.5} r={1.4} stroke={c} {...stroke} />
+  </>
+));
+
+export const CarIcon = make((c) => (
+  <>
+    <Path
+      d="M5 16v2.5M19 16v2.5M3.5 16h17v-3.5L18.6 8a2 2 0 0 0-1.8-1.2H7.2A2 2 0 0 0 5.4 8L3.5 12.5z"
+      stroke={c}
+      {...stroke}
+    />
+    <Path d="M3.5 12.5h17" stroke={c} {...stroke} />
+    <Circle cx={7.5} cy={14.3} r={0.6} stroke={c} {...stroke} />
+    <Circle cx={16.5} cy={14.3} r={0.6} stroke={c} {...stroke} />
+  </>
+));
+
+/** Fallback for categories without their own icon. */
+export const TagIcon = make((c) => (
+  <>
+    <Path
+      d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1l7.9 7.9a1.4 1.4 0 0 1 0 2l-7 7a1.4 1.4 0 0 1-2 0z"
+      stroke={c}
+      {...stroke}
+    />
+    <Circle cx={8.3} cy={8.3} r={1.4} stroke={c} {...stroke} />
+  </>
+));

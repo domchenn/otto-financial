@@ -71,12 +71,8 @@ export default function DeleteAccount() {
         </Stack>
       </Card>
 
-      <Card tone="butter" style={{ marginTop: space.lg, paddingVertical: space.lg }}>
-        <Text
-          variant="body"
-          color={palette.tones.butter.text}
-          style={{ fontSize: 16, lineHeight: 23 }}
-        >
+      <Card style={{ marginTop: space.lg, paddingVertical: space.lg }}>
+        <Text variant="body" muted style={{ fontSize: 16, lineHeight: 23 }}>
           Have a subscription? Cancel it in your App Store settings first. Deleting your account
           doesn&apos;t stop billing.
         </Text>

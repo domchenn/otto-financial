@@ -47,14 +47,7 @@ export default function HomeEmpty() {
 
       <Card style={{ marginTop: space.xl }}>
         <View style={styles.stack}>
-          {(
-            [
-              ['AX', 'sky'],
-              ['CH', 'mint'],
-              ['C1', 'butter'],
-              ['+3', 'lilac'],
-            ] as const
-          ).map(([label, tone], i) => (
+          {['AX', 'CH', 'C1', '+3'].map((label, i) => (
             <View
               key={label}
               style={[
@@ -62,7 +55,7 @@ export default function HomeEmpty() {
                 { marginLeft: i === 0 ? 0 : -10, borderColor: palette.surface },
               ]}
             >
-              <LabelTile label={label} tone={tone} size={56} />
+              <LabelTile label={label} tone="neutral" size={56} />
             </View>
           ))}
         </View>
