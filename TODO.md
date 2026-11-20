@@ -18,6 +18,9 @@ or PRD section when there is one.
       each, and a history chart from the daily snapshots (1W / 1M / 3M / 1Y / All) (PRD F2)
 - [ ] Benefits and expiring credits: catalog YAML, period generator, "needs attention" on
       Home, mark used (PRD F4, M2)
+- [ ] Credits that aren't statement credits: Uber Cash (in the Uber app), Bilt Cash, DoorDash
+      discounts on Sapphire Reserve, and travel-portal credits (Amex Travel, Chase Travel,
+      Capital One Travel, Citi Travel). Need their own detection or a manual-only flow (PRD F4)
 - [ ] Weekly and monthly budgets from real transactions; replace the sample $500 limit and
       the Spending tab's sample data (PRD F5)
 - [ ] Points: quick manual update plus estimate since last confirmed (PRD F3)
