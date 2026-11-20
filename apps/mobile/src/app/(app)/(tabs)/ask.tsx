@@ -1,6 +1,7 @@
 import { useUser } from '@clerk/expo';
 import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
+import { KeyboardStickyView } from 'react-native-keyboard-controller';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AskInput } from '@/components/AskInput';
@@ -11,7 +12,6 @@ import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
 import { useSpending } from '@/lib/api';
 import { formatCents } from '@/lib/money';
-import { useKeyboardHeight } from '@/lib/useKeyboardHeight';
 // Credits are sample data until the credits feature lands; the Credits screen uses the same.
 import { creditSummary, credits, getCard } from '@/lib/sample';
 import { screen, space } from '@/theme/tokens';
@@ -86,7 +86,8 @@ export default function Ask() {
   const { palette } = useTheme();
   const insets = useSafeAreaInsets();
   const suggestions = useSuggestions();
-  const keyboardHeight = useKeyboardHeight();
+  // Room for the floating tab bar under the input; the keyboard covers the tab bar when open.
+  const closedGap = Math.max(insets.bottom, space.lg) + 100;
   const name = useUser().user?.firstName;
 
   return (
@@ -119,22 +120,17 @@ export default function Ask() {
           </Stack>
         </Card>
       </ScrollView>
-      <View
-        style={{
-          paddingHorizontal: screen.side,
-          // Sit just above the keyboard when it's open; otherwise leave room for the floating
-          // tab bar. One layout change, animated on the keyboard's own curve.
-          paddingBottom:
-            keyboardHeight > 0
-              ? keyboardHeight + space.md
-              : Math.max(insets.bottom, space.lg) + 100,
-        }}
+      {/* Moves with the keyboard frame by frame (UI thread), like one piece with it. Open, it
+          rests 12pt above the keyboard instead of above the tab bar. */}
+      <KeyboardStickyView
+        offset={{ closed: 0, opened: closedGap - space.md }}
+        style={{ paddingHorizontal: screen.side, paddingBottom: closedGap }}
       >
         <AskInput
           placeholder="Ask about your money…"
           onSubmit={(text) => router.push({ pathname: '/chat', params: { text } })}
         />
-      </View>
+      </KeyboardStickyView>
     </View>
   );
 }
