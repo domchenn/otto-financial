@@ -16,6 +16,7 @@ os.environ["OTTO_DATABASE_URL"] = os.environ.get(
 )
 os.environ["OTTO_CLERK_ISSUER"] = TEST_ISSUER
 os.environ["OTTO_ALLOWED_USER_IDS"] = TEST_USER
+os.environ["OTTO_TOKEN_ENCRYPTION_KEY"] = "pGJ2mN8yQe1n1f4hX0mJm3yQd0d7mWbqTq1Z3l8l2Uo="
 
 from alembic import command  # noqa: E402
 from alembic.config import Config  # noqa: E402
