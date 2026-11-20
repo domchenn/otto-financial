@@ -9,7 +9,13 @@ import type { PlaidOutcome } from './plaid';
 jest.mock('@clerk/expo', () => ({ useAuth: () => ({ getToken: async () => 'session-token' }) }));
 
 let mockOutcome: PlaidOutcome;
-const mockPrepare = jest.fn(async (_token: string) => ({ open: async () => mockOutcome }));
+let linkTokenCallsAtOpen: number[] = [];
+const mockPrepare = jest.fn(async (_token: string) => ({
+  open: async () => {
+    linkTokenCallsAtOpen.push(calls.filter((c) => c.url.endsWith('/v1/link-token')).length);
+    return mockOutcome;
+  },
+}));
 jest.mock('./plaid', () => ({ preparePlaidLink: (token: string) => mockPrepare(token) }));
 
 type Call = { url: string; method: string; body: unknown; auth: string | undefined };
@@ -18,6 +24,7 @@ let calls: Call[] = [];
 beforeEach(() => {
   calls = [];
   mockPrepare.mockClear();
+  linkTokenCallsAtOpen = [];
   globalThis.fetch = jest.fn(async (url: string | URL | Request, init?: RequestInit) => {
     const headers = (init?.headers ?? {}) as Record<string, string>;
     calls.push({
@@ -97,8 +104,9 @@ describe('useLinkBank', () => {
   it('opens a prepared session without fetching another token', async () => {
     mockOutcome = { status: 'exited' };
     await link(undefined, true);
-    expect(calls.filter((c) => c.url.endsWith('/v1/link-token'))).toHaveLength(1);
-    expect(mockPrepare).toHaveBeenCalledTimes(1);
+    // Opening used the session prepared on mount. (Afterwards the mounted screen may prepare
+    // a fresh one for next time, so later calls aren't counted.)
+    expect(linkTokenCallsAtOpen).toEqual([1]);
   });
 
   it('uses a fresh session every time, since sessions are single-use', async () => {
