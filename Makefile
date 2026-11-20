@@ -50,4 +50,5 @@ check-mobile:
 		&& npx jest
 
 check-infra:
+	@command -v terraform >/dev/null || { echo "terraform not installed; skipping (CI runs it)"; exit 0; }; \
 	cd infra && terraform fmt -check -recursive
