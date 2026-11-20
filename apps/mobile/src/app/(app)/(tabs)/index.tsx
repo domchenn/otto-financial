@@ -13,8 +13,9 @@ import { ListRow, SectionHeader } from '@/components/rows';
 import { StatTile, TileGrid } from '@/components/StatTile';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useNetWorth, useSpending, useSummary, useTransactions } from '@/lib/api';
+import { useBenefits, useNetWorth, useSpending, useSummary, useTransactions } from '@/lib/api';
 import { budgetLimitCents } from '@/lib/budget';
+import { noticeSentence } from '@/lib/credits';
 import {
   amountLabel,
   categoryName,
@@ -23,8 +24,8 @@ import {
   netWorthChangeSentence,
 } from '@/lib/finance';
 import { formatCents, formatNumber } from '@/lib/money';
-// Points and credits are still sample data until their milestones land.
-import { creditSummary, points } from '@/lib/sample';
+// Points are still sample data until their milestone lands.
+import { points } from '@/lib/sample';
 import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -51,6 +52,8 @@ export default function Home() {
   const recent = useTransactions({ limit: 3 });
   const refresh = useRefresh();
   const netWorth = useNetWorth().data;
+  const credits = useBenefits().data;
+  const nudge = credits?.needs_attention[0];
   const spending = useSpending('week');
   // Never show stale or made-up numbers next to an error: no data means "—".
   const s = summary.isError ? undefined : summary.data;
@@ -114,14 +117,16 @@ export default function Home() {
             Connect your cards and Otto will fill this in with your real balances and purchases.
           </OttoNoticed>
         </View>
-      ) : !nudgeDismissed ? (
+      ) : nudge && !nudgeDismissed ? (
         <View style={{ marginTop: space.xl }}>
           <OttoNoticed
-            primary={{ title: 'Show me where', onPress: () => router.push('/credits/gold-dining') }}
+            primary={{
+              title: 'Show me how',
+              onPress: () => router.push(`/credits/${nudge.period_id}`),
+            }}
             secondary={{ title: 'Later', onPress: () => setNudgeDismissed(true) }}
           >
-            Your $10 Amex Gold dining credit resets in 3 days. Dinner at a Grubhub spot this weekend
-            would use it.
+            {noticeSentence(nudge)}
           </OttoNoticed>
         </View>
       ) : null}
@@ -153,8 +158,14 @@ export default function Home() {
           <StatTile
             tone="butter"
             label="Credits to use"
-            value={formatCents(creditSummary.readyThisMonthCents)}
-            caption={`${creditSummary.expiringThisMonth} expire this month`}
+            value={credits ? formatCents(credits.expiring_this_month_cents) : '—'}
+            caption={
+              credits
+                ? credits.expiring_this_month_count === 0
+                  ? 'All used this month'
+                  : `${credits.expiring_this_month_count} expire this month`
+                : ' '
+            }
             onPress={() => router.push('/credits')}
           />
           <StatTile

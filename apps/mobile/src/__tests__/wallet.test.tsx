@@ -26,6 +26,8 @@ jest.mock('@/lib/api', () => ({
   useNetWorth: () =>
     mockResult(jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures').netWorth),
   usePrepareLink: () => {},
+  useBenefits: () =>
+    mockResult(jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures').benefits),
 }));
 jest.mock('@/lib/linkAlerts', () => ({ linkAlerts: { onSuccess: jest.fn(), onError: jest.fn() } }));
 jest.mock('@/lib/useRefresh', () => ({ useRefresh: () => undefined }));
@@ -97,5 +99,10 @@ describe('Wallet', () => {
     expect(screen.getByText('Brokerage')).toBeOnTheScreen();
     await fireEvent.press(screen.getByLabelText('Net worth'));
     expect(mockPush).toHaveBeenCalledWith('/net-worth');
+  });
+
+  it('shows how much credit is left to use', async () => {
+    await renderScreen(<Wallet />);
+    expect(screen.getByText('$67 left to use')).toBeOnTheScreen();
   });
 });

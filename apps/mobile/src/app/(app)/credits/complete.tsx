@@ -5,18 +5,24 @@ import { Button, TextButton } from '@/components/Button';
 import { CheckIcon } from '@/components/icons';
 import { Coin, Dot, PointsBubble, Sparkle, Stage } from '@/components/Illustration';
 import { Footer, MomentScreen } from '@/components/layouts';
-import { Card } from '@/components/Surface';
 import { Text } from '@/components/Text';
 import { formatCents } from '@/lib/money';
-import { creditSummary } from '@/lib/sample';
+import { useBenefits } from '@/lib/api';
+import { allCredits } from '@/lib/credits';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 /** Success moment after every monthly credit is used. */
 export default function CreditsComplete() {
   const { palette } = useTheme();
-  const month = creditSummary.readyThisMonthCents;
-  const year = creditSummary.usedThisYearCents + month;
+  const benefits = useBenefits().data;
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  // Credits whose period ends this month, all used by now.
+  const month = (benefits ? allCredits(benefits) : [])
+    .filter((c) => c.end_date.startsWith(monthKey))
+    .reduce((sum, c) => sum + c.amount_cents, 0);
+  const monthName = now.toLocaleDateString('en-US', { month: 'long' });
 
   return (
     <MomentScreen
@@ -63,38 +69,9 @@ export default function CreditsComplete() {
         center
         style={{ fontSize: 17, lineHeight: 25, marginTop: space.md }}
       >
-        You got {formatCents(month)} back in November. That&apos;s {formatCents(year)} so far this
-        year.
+        You got {formatCents(month)} back in {monthName}. Otto will line up next month&apos;s
+        credits when they reset.
       </Text>
-      <View style={styles.tiles}>
-        <Card tone="butter" style={styles.tile}>
-          <Text variant="body" weight="semibold" color={palette.tones.butter.text}>
-            Used this year
-          </Text>
-          <Text
-            variant="heading"
-            weight="extrabold"
-            tabular
-            color={palette.tones.butter.text}
-            style={{ fontSize: 28 }}
-          >
-            {formatCents(year)}
-          </Text>
-        </Card>
-        <Card tone="butter" style={styles.tile}>
-          <Text variant="body" weight="semibold" color={palette.tones.butter.text}>
-            Streak
-          </Text>
-          <Text
-            variant="heading"
-            weight="extrabold"
-            color={palette.tones.butter.text}
-            style={{ fontSize: 28 }}
-          >
-            3 months
-          </Text>
-        </Card>
-      </View>
     </MomentScreen>
   );
 }
