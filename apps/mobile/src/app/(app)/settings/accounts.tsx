@@ -6,7 +6,7 @@ import { LockIcon, PlusIcon } from '@/components/icons';
 import { Footer, StepScreen } from '@/components/layouts';
 import { Card } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useConnections, useDisconnect, useLinkBank } from '@/lib/api';
+import { useConnections, useDisconnect, useLinkBank, usePrepareLink } from '@/lib/api';
 import { agoLabel, institutionCode, type Connection } from '@/lib/finance';
 import { linkAlerts } from '@/lib/linkAlerts';
 import { useRefresh } from '@/lib/useRefresh';
@@ -20,6 +20,7 @@ export default function ConnectedAccounts() {
   const connections = useConnections();
   const disconnect = useDisconnect();
   const link = useLinkBank();
+  usePrepareLink();
   const refresh = useRefresh();
 
   const confirmDisconnect = (inst: Connection) =>
