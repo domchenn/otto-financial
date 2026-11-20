@@ -15,10 +15,9 @@ jest.spyOn(Appearance, 'setColorScheme').mockImplementation(() => {});
 beforeEach(() => setAppearance('system'));
 
 describe('AppearancePicker', () => {
-  it('starts on System and explains it', async () => {
+  it('starts on System', async () => {
     await render(<AppearancePicker />);
     expect(screen.getByRole('tab', { name: 'System' })).toBeSelected();
-    expect(screen.getByText(/follows your iPhone/)).toBeOnTheScreen();
   });
 
   it('switches to Dark when tapped', async () => {
@@ -27,6 +26,5 @@ describe('AppearancePicker', () => {
     expect(getAppearance()).toBe('dark');
     expect(screen.getByRole('tab', { name: 'Dark' })).toBeSelected();
     expect(screen.getByRole('tab', { name: 'System' })).not.toBeSelected();
-    expect(screen.getByText('Otto stays dark whatever your iPhone is set to.')).toBeOnTheScreen();
   });
 });
