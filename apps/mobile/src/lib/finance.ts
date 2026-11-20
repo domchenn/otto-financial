@@ -239,3 +239,83 @@ export function amountLabel(amountCents: number): string {
     ? formatCents(-amountCents, { cents: true, sign: true })
     : formatCents(amountCents, { cents: true });
 }
+
+export type NetWorthPeriod = '1W' | '1M' | '3M' | '1Y' | 'All';
+
+export type NetWorth = {
+  net_cents: number;
+  cash_cents: number;
+  investments_cents: number;
+  cards_cents: number;
+  loans_cents: number;
+  changes: { period: NetWorthPeriod; change_cents: number | null; since: string | null }[];
+  tracking_since: string | null;
+};
+
+const PERIOD_PHRASE: Record<NetWorthPeriod, string> = {
+  '1W': 'this week',
+  '1M': 'this month',
+  '3M': 'in the last 3 months',
+  '1Y': 'this year',
+  All: 'since Otto started tracking',
+};
+
+/** "Up $120 this week", or why there's no comparison yet. */
+export function netWorthChangeSentence(netWorth: NetWorth, period: NetWorthPeriod): string {
+  const change = netWorth.changes.find((c) => c.period === period);
+  const phrase = PERIOD_PHRASE[period];
+  if (!change || change.change_cents === null) {
+    return netWorth.tracking_since
+      ? `Otto started tracking ${formatShortDate(netWorth.tracking_since)}. Changes appear as days go by.`
+      : 'Connect an account and Otto starts tracking your net worth.';
+  }
+  if (change.change_cents === 0) return `No change ${phrase}.`;
+  const amount = formatCents(Math.abs(change.change_cents));
+  return `${change.change_cents > 0 ? 'Up' : 'Down'} ${amount} ${phrase}.`;
+}
+
+export type AccountView = 'networth' | 'checking' | 'savings' | 'investments' | 'cards';
+
+/** Which accounts a view covers. Savings includes savings-like accounts (money market, CDs). */
+export function accountsInView(accounts: Account[], view: AccountView): Account[] {
+  switch (view) {
+    case 'networth':
+      return accounts.filter((a) => a.kind !== 'other');
+    case 'checking':
+      return accounts.filter((a) => a.kind === 'depository' && a.subtype === 'checking');
+    case 'savings':
+      return accounts.filter((a) => a.kind === 'depository' && a.subtype !== 'checking');
+    case 'investments':
+      return accounts.filter((a) => a.kind === 'investment');
+    case 'cards':
+      return accounts.filter((a) => a.kind === 'credit');
+  }
+}
+
+export function isOwed(account: Pick<Account, 'kind'>): boolean {
+  return account.kind === 'credit' || account.kind === 'loan';
+}
+
+/** A view's total; cards are reported as the positive amount owed. */
+export function viewTotal(accounts: Account[], view: AccountView): number {
+  return accountsInView(accounts, view).reduce((sum, a) => {
+    const cents = a.current_cents ?? 0;
+    return view === 'networth' && isOwed(a) ? sum - cents : sum + cents;
+  }, 0);
+}
+
+/** "Across 3 accounts and 1 card", for the net worth card. */
+export function accountCountLabel(accounts: number, cards: number): string {
+  const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  if (accounts === 0 && cards === 0) return '';
+  if (cards === 0) return `Across ${plural(accounts, 'account')}`;
+  if (accounts === 0) return `Across ${plural(cards, 'card')}`;
+  return `Across ${plural(accounts, 'account')} and ${plural(cards, 'card')}`;
+}
+
+/** "7% of your $10,000 limit used · healthy", or null without a reported limit. */
+export function utilizationSentence(pct: number | null, limitCents: number): string | null {
+  if (pct === null || limitCents <= 0) return null;
+  const grade = utilizationLabel(pct).text.split(' · ')[1];
+  return `${pct}% of your ${formatCents(limitCents)} limit used · ${grade}`;
+}

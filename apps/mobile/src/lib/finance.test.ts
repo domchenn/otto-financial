@@ -1,15 +1,22 @@
 import { describe, expect, it } from '@jest/globals';
 
 import {
+  accountCountLabel,
+  accountsInView,
   agoLabel,
+  viewTotal,
+  type Account,
   amountLabel,
   cardArt,
   categoryName,
   dayLabel,
   dueLabel,
   institutionCode,
+  netWorthChangeSentence,
+  type NetWorth,
   parseDate,
   utilizationLabel,
+  utilizationSentence,
 } from './finance';
 
 const today = new Date(2026, 10, 19, 15, 0); // Thu Nov 19 2026, 3 pm local
@@ -101,5 +108,72 @@ describe('institutionCode', () => {
     expect(institutionCode('American Express')).toBe('AE');
     expect(institutionCode('Chase')).toBe('CH');
     expect(institutionCode(null)).toBe('··');
+  });
+});
+
+describe('netWorthChangeSentence', () => {
+  const base: NetWorth = {
+    net_cents: 0,
+    cash_cents: 0,
+    investments_cents: 0,
+    cards_cents: 0,
+    loans_cents: 0,
+    tracking_since: '2026-11-19',
+    changes: [
+      { period: '1W', change_cents: 12000, since: '2026-11-12' },
+      { period: '1M', change_cents: -4550, since: '2026-10-20' },
+      { period: '3M', change_cents: 0, since: '2026-08-21' },
+      { period: '1Y', change_cents: null, since: null },
+      { period: 'All', change_cents: 100, since: '2026-08-01' },
+    ],
+  };
+
+  it('says which way it moved and by how much', () => {
+    expect(netWorthChangeSentence(base, '1W')).toBe('Up $120 this week.');
+    expect(netWorthChangeSentence(base, '1M')).toBe('Down $45 this month.');
+    expect(netWorthChangeSentence(base, '3M')).toBe('No change in the last 3 months.');
+  });
+
+  it('explains missing history instead of showing zero', () => {
+    expect(netWorthChangeSentence(base, '1Y')).toBe(
+      'Otto started tracking Nov 19. Changes appear as days go by.',
+    );
+    expect(netWorthChangeSentence({ ...base, tracking_since: null }, '1Y')).toMatch(
+      /Connect an account/,
+    );
+  });
+});
+
+describe('account views', () => {
+  const acct = (id: string, kind: Account['kind'], subtype: string | null, cents: number) =>
+    ({ id, kind, subtype, current_cents: cents }) as Account;
+  const accounts = [
+    acct('chk', 'depository', 'checking', 1000),
+    acct('sav', 'depository', 'savings', 2000),
+    acct('mm', 'depository', 'money market', 500),
+    acct('card', 'credit', 'credit card', 300),
+  ];
+
+  it('puts savings-like accounts under Savings and totals each view', () => {
+    expect(accountsInView(accounts, 'savings').map((a) => a.id)).toEqual(['sav', 'mm']);
+    expect(viewTotal(accounts, 'checking')).toBe(1000);
+    expect(viewTotal(accounts, 'savings')).toBe(2500);
+    expect(viewTotal(accounts, 'cards')).toBe(300);
+    expect(viewTotal(accounts, 'networth')).toBe(1000 + 2500 - 300);
+  });
+});
+
+describe('wallet labels', () => {
+  it('counts accounts and cards in words', () => {
+    expect(accountCountLabel(3, 1)).toBe('Across 3 accounts and 1 card');
+    expect(accountCountLabel(1, 0)).toBe('Across 1 account');
+    expect(accountCountLabel(0, 2)).toBe('Across 2 cards');
+    expect(accountCountLabel(0, 0)).toBe('');
+  });
+
+  it('describes card utilization against the limit', () => {
+    expect(utilizationSentence(7, 1000000)).toBe('7% of your $10,000 limit used · healthy');
+    expect(utilizationSentence(45, 200000)).toBe('45% of your $2,000 limit used · high');
+    expect(utilizationSentence(null, 0)).toBeNull();
   });
 });

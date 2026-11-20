@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { config } from './config';
-import type { Account, Connection, Summary, Transaction } from './finance';
+import type { Account, Connection, NetWorth, Summary, Transaction } from './finance';
 import { preparePlaidLink, type PlaidOutcome, type PreparedLink } from './plaid';
 
 export class ApiError extends Error {
@@ -51,6 +51,7 @@ export function useMe() {
 
 export const queryKeys = {
   summary: ['summary'] as const,
+  netWorth: ['net-worth'] as const,
   accounts: ['accounts'] as const,
   account: (id: string) => ['accounts', id] as const,
   connections: ['connections'] as const,
@@ -74,6 +75,11 @@ function toQuery(params: TransactionParams): string {
 export function useSummary() {
   const api = useApi();
   return useQuery({ queryKey: queryKeys.summary, queryFn: () => api<Summary>('/v1/summary') });
+}
+
+export function useNetWorth() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.netWorth, queryFn: () => api<NetWorth>('/v1/net-worth') });
 }
 
 export function useAccounts() {
@@ -119,8 +125,8 @@ function useInvalidateMoney() {
   return useCallback(
     () =>
       Promise.all(
-        ['summary', 'accounts', 'connections', 'transactions', 'transaction'].map((key) =>
-          client.invalidateQueries({ queryKey: [key] }),
+        ['summary', 'net-worth', 'accounts', 'connections', 'transactions', 'transaction'].map(
+          (key) => client.invalidateQueries({ queryKey: [key] }),
         ),
       ),
     [client],
