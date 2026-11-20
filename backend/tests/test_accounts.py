@@ -304,3 +304,58 @@ def test_upcoming_payments_cover_cumulatively() -> None:
     payments = upcoming_payments([checking, card("B", 600, 9), card("A", 600, 2), past], TODAY)
     assert [(p.account.name, p.covered) for p in payments] == [("A", True), ("B", False)]
     assert upcoming_payments([card("A", 1, 1)], TODAY)[0].covered is None
+
+
+def _snapshot(days_ago: int, assets: int, liabilities: int) -> None:
+    with get_engine().begin() as conn:
+        conn.execute(
+            text(
+                "insert into net_worth_snapshots"
+                " (id, user_id, date, assets_cents, liabilities_cents)"
+                " select gen_random_uuid(), id, :d, :a, :l from users"
+            ),
+            {"d": TODAY - dt.timedelta(days=days_ago), "a": assets, "l": liabilities},
+        )
+
+
+def test_net_worth_breaks_down_by_kind(api: TestClient, provider: FakeProvider) -> None:
+    provider.accounts = [
+        CHECKING,
+        replace(
+            CHECKING,
+            account_id="acc-brokerage",
+            kind="investment",
+            subtype="brokerage",
+            current_cents=1_200_000,
+        ),
+        GOLD,
+        replace(GOLD, account_id="acc-loan", kind="loan", subtype="student", current_cents=300_000),
+    ]
+    connect(api)
+    d = api.get("/v1/net-worth").json()
+    assert (d["cash_cents"], d["investments_cents"]) == (500_000, 1_200_000)
+    assert (d["cards_cents"], d["loans_cents"]) == (68_422, 300_000)
+    assert d["net_cents"] == 500_000 + 1_200_000 - 68_422 - 300_000
+    assert d["tracking_since"] == TODAY.isoformat()
+
+
+def test_net_worth_has_no_changes_before_any_history(api: TestClient) -> None:
+    connect(api)
+    changes = api.get("/v1/net-worth").json()["changes"]
+    assert [c["period"] for c in changes] == ["1W", "1M", "3M", "1Y", "All"]
+    assert all(c["change_cents"] is None for c in changes)
+
+
+def test_net_worth_changes_compare_with_the_snapshot_at_each_period_start(
+    api: TestClient,
+) -> None:
+    connect(api)  # today: 500,000 - 68,422 = 431,578
+    _snapshot(40, 400_000, 50_000)  # 350,000
+    _snapshot(8, 450_000, 60_000)  # 390,000
+    _snapshot(3, 999_999, 0)  # inside the week: ignored for 1W
+    changes = {c["period"]: c for c in api.get("/v1/net-worth").json()["changes"]}
+    assert changes["1W"]["change_cents"] == 431_578 - 390_000
+    assert changes["1W"]["since"] == (TODAY - dt.timedelta(days=8)).isoformat()
+    assert changes["1M"]["change_cents"] == 431_578 - 350_000
+    assert changes["3M"]["change_cents"] is None
+    assert changes["All"]["change_cents"] == 431_578 - 350_000
