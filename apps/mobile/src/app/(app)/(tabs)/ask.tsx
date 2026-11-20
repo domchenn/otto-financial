@@ -1,3 +1,4 @@
+import { useUser } from '@clerk/expo';
 import { router } from 'expo-router';
 import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,6 +11,7 @@ import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
 import { useSpending } from '@/lib/api';
 import { formatCents } from '@/lib/money';
+import { useKeyboardVisible } from '@/lib/useKeyboardVisible';
 // Credits are sample data until the credits feature lands; the Credits screen uses the same.
 import { creditSummary, credits, getCard } from '@/lib/sample';
 import { screen, space } from '@/theme/tokens';
@@ -84,6 +86,8 @@ export default function Ask() {
   const { palette } = useTheme();
   const insets = useSafeAreaInsets();
   const suggestions = useSuggestions();
+  const keyboard = useKeyboardVisible();
+  const name = useUser().user?.firstName;
 
   return (
     <KeyboardAvoidingView
@@ -100,7 +104,7 @@ export default function Ask() {
       >
         <Wordmark size={24} />
         <Text variant="display" style={{ marginTop: space.md, marginBottom: space.xl }}>
-          Hi Dom. What do you want to know?
+          {name ? `Hi ${name}. What do you want to know?` : 'What do you want to know?'}
         </Text>
         <Card style={{ paddingVertical: space.sm }}>
           <Stack>
@@ -110,6 +114,7 @@ export default function Ask() {
                 leading={<s.icon color={palette.ink} size={24} />}
                 title={s.title}
                 subtitle={s.subtitle}
+                titleLines={2}
                 chevron
                 onPress={s.onPress}
               />
@@ -120,7 +125,8 @@ export default function Ask() {
       <View
         style={{
           paddingHorizontal: screen.side,
-          paddingBottom: Math.max(insets.bottom, space.lg) + 100,
+          // Room for the floating tab bar, which the keyboard covers when it's open.
+          paddingBottom: keyboard ? space.md : Math.max(insets.bottom, space.lg) + 100,
         }}
       >
         <AskInput
