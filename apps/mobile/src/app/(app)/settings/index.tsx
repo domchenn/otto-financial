@@ -2,6 +2,7 @@ import { useAuth, useUser } from '@clerk/expo';
 import { router } from 'expo-router';
 import { Alert, StyleSheet, View } from 'react-native';
 
+import { AppearancePicker } from '@/components/AppearancePicker';
 import { Avatar } from '@/components/badges';
 import { TextButton } from '@/components/Button';
 import { StepScreen } from '@/components/layouts';
@@ -89,6 +90,11 @@ export default function Settings() {
             }
           />
         </Stack>
+      </Card>
+
+      <GroupLabel>Appearance</GroupLabel>
+      <Card>
+        <AppearancePicker />
       </Card>
 
       <GroupLabel>Privacy & security</GroupLabel>

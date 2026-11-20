@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 
 import { BiometricGate } from '@/lib/BiometricGate';
 import { config } from '@/lib/config';
+import { loadAppearance } from '@/theme/appearance';
 import { useTheme } from '@/theme/useTheme';
 
 void SplashScreen.preventAutoHideAsync();
@@ -30,17 +31,23 @@ export default function RootLayout() {
     PlusJakartaSans_700Bold,
     PlusJakartaSans_800ExtraBold,
   });
+  const [appearanceLoaded, setAppearanceLoaded] = useState(false);
   const { palette, scheme } = useTheme();
+  const ready = fontsLoaded && appearanceLoaded;
+
+  useEffect(() => {
+    void loadAppearance().finally(() => setAppearanceLoaded(true));
+  }, []);
 
   useEffect(() => {
     void SystemUI.setBackgroundColorAsync(palette.ground);
   }, [palette.ground]);
 
   useEffect(() => {
-    if (fontsLoaded) void SplashScreen.hideAsync();
-  }, [fontsLoaded]);
+    if (ready) void SplashScreen.hideAsync();
+  }, [ready]);
 
-  if (!fontsLoaded) return null;
+  if (!ready) return null;
 
   return (
     <ClerkProvider publishableKey={config.clerkPublishableKey} tokenCache={tokenCache}>

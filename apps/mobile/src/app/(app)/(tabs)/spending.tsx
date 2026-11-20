@@ -1,17 +1,18 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Monogram } from '@/components/badges';
 import { TabScreen } from '@/components/layouts';
 import { Insight } from '@/components/otto';
 import { ProgressBar } from '@/components/ProgressBar';
 import { ListRow, SectionHeader } from '@/components/rows';
+import { SegmentedControl } from '@/components/SegmentedControl';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
 import { formatCents } from '@/lib/money';
 import { categories, week } from '@/lib/sample';
-import { radius, space } from '@/theme/tokens';
+import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -32,31 +33,15 @@ export default function Spending() {
     <TabScreen>
       <View style={styles.header}>
         <Text variant="display">Spending</Text>
-        <View
-          style={[styles.segmented, { backgroundColor: palette.raised }]}
-          accessibilityRole="tablist"
-        >
-          {(['week', 'month'] as const).map((p) => {
-            const on = p === period;
-            return (
-              <Pressable
-                key={p}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: on }}
-                onPress={() => setPeriod(p)}
-                style={[styles.segment, on && { backgroundColor: palette.surface }]}
-              >
-                <Text
-                  variant="row"
-                  weight={on ? 'bold' : 'semibold'}
-                  color={on ? palette.ink : palette.muted}
-                >
-                  {p === 'week' ? 'Week' : 'Month'}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <SegmentedControl
+          label="Period"
+          value={period}
+          onChange={setPeriod}
+          options={[
+            { value: 'week', label: 'Week' },
+            { value: 'month', label: 'Month' },
+          ]}
+        />
       </View>
 
       <Card style={{ marginTop: space.xl }}>
@@ -156,13 +141,6 @@ export default function Spending() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  segmented: { flexDirection: 'row', borderRadius: radius.pill, padding: 5 },
-  segment: {
-    paddingHorizontal: 20,
-    height: 42,
-    borderRadius: radius.pill,
-    justifyContent: 'center',
-  },
   amountRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
