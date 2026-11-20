@@ -14,6 +14,7 @@ jest.mock('@/lib/api', () => {
   return {
     useAccount: () => f.mockResult(f.gold),
     useTransactions: () => f.mockResult([f.sweetgreen]),
+    useBenefits: () => f.mockResult(f.benefits),
   };
 });
 jest.mock('@/lib/useRefresh', () => ({ useRefresh: () => undefined }));
@@ -36,5 +37,20 @@ describe('Card detail', () => {
       pathname: '/transactions',
       params: { account: 'acc-gold' },
     });
+  });
+
+  it("lists the card's credits, says it was guessed, and opens a credit", async () => {
+    await renderScreen(<CardDetail />);
+    expect(screen.getByText('Looks like Gold Card')).toBeOnTheScreen();
+    expect(screen.getByText('Dining credit')).toBeOnTheScreen();
+    expect(screen.getByText('Resy credit')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByText('Dining credit'));
+    expect(mockPush).toHaveBeenCalledWith('/credits/p-dining');
+  });
+
+  it('lets the user change which card this is', async () => {
+    await renderScreen(<CardDetail />);
+    await fireEvent.press(screen.getByText('Change'));
+    expect(mockPush).toHaveBeenCalledWith('/card/acc-gold/product');
   });
 });

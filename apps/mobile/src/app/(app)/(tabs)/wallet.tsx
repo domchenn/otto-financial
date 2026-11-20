@@ -10,7 +10,14 @@ import { ListRow, SectionHeader } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { NetWorthBar } from '@/components/NetWorthBar';
 import { Text } from '@/components/Text';
-import { useAccounts, useLinkBank, useNetWorth, usePrepareLink, useSummary } from '@/lib/api';
+import {
+  useAccounts,
+  useBenefits,
+  useLinkBank,
+  useNetWorth,
+  usePrepareLink,
+  useSummary,
+} from '@/lib/api';
 import {
   agoLabel,
   cardArt,
@@ -21,8 +28,7 @@ import {
   utilizationSentence,
 } from '@/lib/finance';
 import { formatCents } from '@/lib/money';
-// Credits are sample data until M2.
-import { creditSummary } from '@/lib/sample';
+import { allCredits, type Benefits } from '@/lib/credits';
 import { linkAlerts } from '@/lib/linkAlerts';
 import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
@@ -38,6 +44,7 @@ export default function Wallet() {
   usePrepareLink();
   const s = summary.data;
   const netWorth = useNetWorth().data;
+  const credits = useBenefits().data;
   const cards = (accounts.data ?? []).filter((a) => a.kind === 'credit');
   const assets = (accounts.data ?? []).filter(
     (a) => a.kind === 'depository' || a.kind === 'investment',
@@ -172,7 +179,7 @@ export default function Wallet() {
               Card credits
             </Text>
             <Text variant="body" muted>
-              {formatCents(creditSummary.readyThisMonthCents)} ready to use this month
+              {creditsLine(credits)}
             </Text>
           </View>
           <Text variant="row" weight="bold" color={palette.link}>
@@ -182,6 +189,13 @@ export default function Wallet() {
       </Card>
     </TabScreen>
   );
+}
+
+function creditsLine(benefits: Benefits | undefined): string {
+  if (!benefits) return ' ';
+  if (allCredits(benefits).length === 0) return 'Tell Otto which cards you have';
+  if (benefits.remaining_cents === 0) return 'Every credit used for now';
+  return `${formatCents(benefits.remaining_cents)} left to use`;
 }
 
 const styles = StyleSheet.create({
