@@ -24,7 +24,7 @@
       "expo-font",
       "expo-secure-store",
       "expo-web-browser",
-      "@clerk/expo",
+      ["@clerk/expo", { "appleSignIn": false }],
       [
         "expo-splash-screen",
         {
