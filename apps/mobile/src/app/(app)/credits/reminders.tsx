@@ -5,13 +5,14 @@ import { Button } from '@/components/Button';
 import { Footer, StepScreen } from '@/components/layouts';
 import { GroupLabel, ToggleRow } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
-import { credits } from '@/lib/sample';
+import { useBenefits } from '@/lib/api';
 import { space } from '@/theme/tokens';
 
 export default function CreditReminders() {
   const [when, setWhen] = useState({ week: false, three: true, morning: true });
-  const [byCard, setByCard] = useState({ gold: true, platinum: true });
-  const count = (card: string) => credits.filter((c) => c.card === card).length;
+  // Push reminders arrive with APNs (TODO.md); until then these choices stay on this screen.
+  const [off, setOff] = useState<Record<string, boolean>>({});
+  const cards = (useBenefits().data?.cards ?? []).filter((c) => c.credits.length > 0);
 
   return (
     <StepScreen
@@ -28,7 +29,7 @@ export default function CreditReminders() {
         <Stack>
           <ToggleRow
             title="A week before"
-            subtitle="Good for bigger credits like Resy or Saks"
+            subtitle="Good for bigger credits like Resy or a hotel credit"
             value={when.week}
             onValueChange={(v) => setWhen((s) => ({ ...s, week: v }))}
           />
@@ -47,23 +48,22 @@ export default function CreditReminders() {
         </Stack>
       </Card>
 
-      <GroupLabel>Cards</GroupLabel>
-      <Card style={{ paddingVertical: space.xs }}>
-        <Stack>
-          <ToggleRow
-            title="Gold Card"
-            subtitle={`${count('gold')} credits`}
-            value={byCard.gold}
-            onValueChange={(v) => setByCard((s) => ({ ...s, gold: v }))}
-          />
-          <ToggleRow
-            title="Platinum Card"
-            subtitle={`${count('platinum')} credits`}
-            value={byCard.platinum}
-            onValueChange={(v) => setByCard((s) => ({ ...s, platinum: v }))}
-          />
-        </Stack>
-      </Card>
+      {cards.length > 0 ? <GroupLabel>Cards</GroupLabel> : null}
+      {cards.length > 0 ? (
+        <Card style={{ paddingVertical: space.xs }}>
+          <Stack>
+            {cards.map((c) => (
+              <ToggleRow
+                key={c.account_id}
+                title={c.card_name ?? c.account_name}
+                subtitle={`${c.credits.length} ${c.credits.length === 1 ? 'credit' : 'credits'}`}
+                value={!off[c.account_id]}
+                onValueChange={(v) => setOff((s) => ({ ...s, [c.account_id]: !v }))}
+              />
+            ))}
+          </Stack>
+        </Card>
+      ) : null}
     </StepScreen>
   );
 }

@@ -7,7 +7,8 @@ import { ProgressBar } from '@/components/ProgressBar';
 import { ListRow, SectionHeader } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useAccount, useTransactions } from '@/lib/api';
+import { useAccount, useBenefits, useTransactions } from '@/lib/api';
+import { isUrgent, resetsLabel, type BenefitCard } from '@/lib/credits';
 import {
   agoLabel,
   amountLabel,
@@ -33,6 +34,7 @@ export default function CardDetail() {
   const { palette } = useTheme();
   const account = useAccount(id);
   const recent = useTransactions({ account_id: id, limit: 5 });
+  const benefitCard = useBenefits().data?.cards.find((c) => c.account_id === id);
   const refresh = useRefresh();
   const card = account.data;
 
@@ -126,6 +128,8 @@ export default function CardDetail() {
         </Card>
       ) : null}
 
+      {benefitCard ? <CardCredits card={benefitCard} /> : null}
+
       <Card style={{ marginTop: space.lg, paddingTop: space.xs }}>
         <SectionHeader
           title="Recent"
@@ -156,6 +160,55 @@ export default function CardDetail() {
         Balance updated {agoLabel(card.balances_updated_at)}
       </Text>
     </StepScreen>
+  );
+}
+
+function CardCredits({ card }: { card: BenefitCard }) {
+  const { palette } = useTheme();
+  const pick = () => router.push(`/card/${card.account_id}/product`);
+  const known = card.card_id !== null;
+  return (
+    <Card style={{ marginTop: space.lg, paddingTop: space.xs }}>
+      <SectionHeader
+        title="Credits"
+        detail={known && card.source === 'guess' ? `Looks like ${card.card_name}` : undefined}
+        action={known ? 'Change' : undefined}
+        onAction={known ? pick : undefined}
+      />
+      <Stack>
+        {!known ? (
+          <ListRow
+            title="Which card is this?"
+            subtitle="Pick it so Otto can track its credits"
+            chevron
+            onPress={pick}
+          />
+        ) : null}
+        {card.needs_anniversary_month ? (
+          <ListRow
+            title="Add your card anniversary"
+            subtitle="Some credits reset on the month you opened the card"
+            chevron
+            onPress={pick}
+          />
+        ) : null}
+        {card.credits.map((c) => (
+          <ListRow
+            key={c.period_id}
+            title={c.name}
+            subtitle={c.remaining_cents === 0 ? 'Used' : resetsLabel(c)}
+            subtitleColor={isUrgent(c) ? palette.alert : undefined}
+            value={formatCents(c.remaining_cents, { cents: 'auto' })}
+            onPress={() => router.push(`/credits/${c.period_id}`)}
+          />
+        ))}
+        {known && card.credits.length === 0 && !card.needs_anniversary_month ? (
+          <Text variant="body" muted style={{ paddingVertical: space.md }}>
+            No credits Otto can track on this card yet.
+          </Text>
+        ) : null}
+      </Stack>
+    </Card>
   );
 }
 

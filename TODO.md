@@ -16,8 +16,15 @@ or PRD section when there is one.
 
 - [ ] Show net worth in the app: cash and investments vs card balances, the accounts behind
       each, and a history chart from the daily snapshots (1W / 1M / 3M / 1Y / All) (PRD F2)
-- [ ] Benefits and expiring credits: catalog YAML, period generator, "needs attention" on
-      Home, mark used (PRD F4, M2)
+- [ ] Check the benefits slice on the phone: pick the sandbox card as a real one (e.g. Amex
+      Gold) on its card screen, mark a credit used, and see Home and Wallet update
+- [ ] Tune the catalog's `credit_patterns` against real statement-credit lines once real
+      cards are linked (issuers don't publish them)
+- [ ] Recheck the 10 `verified = "secondary"` cards and the missing annual fees in
+      `backend/app/modules/benefits/catalog.toml` against issuer pages
+- [ ] Credits that aren't statement credits: Uber Cash (in the Uber app), Bilt Cash, DoorDash
+      discounts on Sapphire Reserve, and travel-portal credits (Amex Travel, Chase Travel,
+      Capital One Travel, Citi Travel). Need their own detection or a manual-only flow (PRD F4)
 - [ ] Weekly and monthly budgets from real transactions; replace the sample $500 limit and
       the Spending tab's sample data (PRD F5)
 - [ ] Points: quick manual update plus estimate since last confirmed (PRD F3)
@@ -36,6 +43,16 @@ or PRD section when there is one.
 - [ ] Apple Card through FinanceKit (PRD F1 P1)
 - [ ] Issuer alert emails through SES inbound (PRD §06)
 - [ ] Push notifications (APNs) and the 8:00 daily digest (PRD F6)
+- [ ] Credit reminders 7 and 2 days before a credit expires, and the monthly "credits reset"
+      note; the reminder toggles don't save yet (PRD F4, needs APNs)
+- [ ] Credits not in the catalog yet: Global Entry / TSA PreCheck (every four years),
+      per-stay hotel credits, credits unlocked by spending (Adobe, Shops at Chase)
+- [ ] Activation checklist: Freedom Flex quarterly categories, enrollment-required credits
+      (PRD F4 P1)
+- [ ] Annual fee scorecard per card: credits used plus rewards vs the fee (PRD F4 P1)
+- [ ] Onboarding reveal and Ask still use sample credits
+- [ ] ML Model that decides if your cards are worth keeping or not (i.e. whether you're getting the value of it
+      that' you're supposed to)
 
 ## Research
 
