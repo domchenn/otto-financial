@@ -1,2 +1,5 @@
 .DS_Store
 *.log
+
+# Personal backlog, kept locally (see CLAUDE.md)
+TODO.md

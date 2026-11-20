@@ -10,7 +10,7 @@ import { space } from '@/theme/tokens';
 
 export default function CreditReminders() {
   const [when, setWhen] = useState({ week: false, three: true, morning: true });
-  // Push reminders arrive with APNs (TODO.md); until then these choices stay on this screen.
+  // Push reminders arrive with APNs (PRD F4, F6); until then these choices stay on this screen.
   const [off, setOff] = useState<Record<string, boolean>>({});
   const cards = (useBenefits().data?.cards ?? []).filter((c) => c.credits.length > 0);
 
