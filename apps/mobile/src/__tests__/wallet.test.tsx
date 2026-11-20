@@ -88,6 +88,7 @@ describe('Wallet', () => {
     await renderScreen(<Wallet />);
     expect(screen.getByText('$16,315')).toBeOnTheScreen();
     expect(screen.getByText('Up $120 this week.')).toBeOnTheScreen();
+    expect(screen.getByText('Cash')).toBeOnTheScreen(); // the bar's legend
     expect(screen.getByText('Cash & investments')).toBeOnTheScreen();
     expect(screen.getByText('Total Checking')).toBeOnTheScreen();
     expect(screen.getByText('Brokerage')).toBeOnTheScreen();

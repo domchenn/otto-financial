@@ -32,10 +32,12 @@ describe('Net worth', () => {
     expect(screen.getByText(/Otto started tracking/)).toBeOnTheScreen();
   });
 
-  it('has no account toggles or cash-vs-debt bar', async () => {
+  it('shows cash and investments against cards, without account toggles', async () => {
     await renderScreen(<NetWorthScreen />);
+    expect(screen.getByText('Cash')).toBeOnTheScreen(); // the bar's legend
+    expect(screen.getAllByText('$5,000')).toHaveLength(2); // legend and Checking header
+    expect(screen.getAllByText('−$684')).toHaveLength(2); // legend and Credit cards header
     expect(screen.queryByRole('button', { name: 'Investments' })).toBeNull();
-    expect(screen.queryByText('Cash')).toBeNull();
   });
 
   it('lists the accounts behind each part, cards as money owed', async () => {

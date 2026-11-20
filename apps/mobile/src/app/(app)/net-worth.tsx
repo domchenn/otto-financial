@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { CardSwatch, Monogram } from '@/components/badges';
 import { StepScreen } from '@/components/layouts';
+import { NetWorthBar } from '@/components/NetWorthBar';
 import { ListRow, SectionHeader } from '@/components/rows';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { Card, Stack } from '@/components/Surface';
@@ -66,15 +67,20 @@ export default function NetWorthScreen() {
       ) : null}
 
       {n ? (
-        <View style={{ marginTop: space.lg }}>
-          <SegmentedControl
-            label="Period"
-            options={PERIODS}
-            value={period}
-            onChange={setPeriod}
-            stretch
-          />
-        </View>
+        <>
+          <View style={{ marginTop: space.lg }}>
+            <SegmentedControl
+              label="Period"
+              options={PERIODS}
+              value={period}
+              onChange={setPeriod}
+              stretch
+            />
+          </View>
+          <Card style={{ marginTop: space.lg }}>
+            <NetWorthBar netWorth={n} />
+          </Card>
+        </>
       ) : null}
 
       {SECTIONS.map(({ title, view }) => {
