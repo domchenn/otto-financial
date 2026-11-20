@@ -3,7 +3,6 @@ import { describe, expect, it } from '@jest/globals';
 import {
   accountsInView,
   agoLabel,
-  availableViews,
   viewTotal,
   type Account,
   amountLabel,
@@ -152,16 +151,6 @@ describe('account views', () => {
     acct('mm', 'depository', 'money market', 500),
     acct('card', 'credit', 'credit card', 300),
   ];
-
-  it('offers only views that have accounts, Net worth always', () => {
-    expect(availableViews(accounts).map((v) => v.label)).toEqual([
-      'Net worth',
-      'Checking',
-      'Savings',
-      'Cards',
-    ]);
-    expect(availableViews([]).map((v) => v.label)).toEqual(['Net worth']);
-  });
 
   it('puts savings-like accounts under Savings and totals each view', () => {
     expect(accountsInView(accounts, 'savings').map((a) => a.id)).toEqual(['sav', 'mm']);

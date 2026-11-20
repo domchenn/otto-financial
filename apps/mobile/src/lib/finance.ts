@@ -276,14 +276,6 @@ export function netWorthChangeSentence(netWorth: NetWorth, period: NetWorthPerio
 
 export type AccountView = 'networth' | 'checking' | 'savings' | 'investments' | 'cards';
 
-export const ACCOUNT_VIEWS: { view: AccountView; label: string }[] = [
-  { view: 'networth', label: 'Net worth' },
-  { view: 'checking', label: 'Checking' },
-  { view: 'savings', label: 'Savings' },
-  { view: 'investments', label: 'Investments' },
-  { view: 'cards', label: 'Cards' },
-];
-
 /** Which accounts a view covers. Savings includes savings-like accounts (money market, CDs). */
 export function accountsInView(accounts: Account[], view: AccountView): Account[] {
   switch (view) {
@@ -298,13 +290,6 @@ export function accountsInView(accounts: Account[], view: AccountView): Account[
     case 'cards':
       return accounts.filter((a) => a.kind === 'credit');
   }
-}
-
-/** Views worth offering: Net worth always, the rest only when there are accounts for them. */
-export function availableViews(accounts: Account[]): { view: AccountView; label: string }[] {
-  return ACCOUNT_VIEWS.filter(
-    ({ view }) => view === 'networth' || accountsInView(accounts, view).length > 0,
-  );
 }
 
 export function isOwed(account: Pick<Account, 'kind'>): boolean {
