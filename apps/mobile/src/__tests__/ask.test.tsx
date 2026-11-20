@@ -7,10 +7,10 @@ import { renderScreen } from '@/test/fixtures';
 
 jest.mock('@clerk/expo', () => ({ useUser: () => ({ user: { firstName: 'Dominic' } }) }));
 
-let mockKeyboard = false;
-jest.mock('@/lib/useKeyboardVisible', () => ({ useKeyboardVisible: () => mockKeyboard }));
+let mockKeyboardHeight = 0;
+jest.mock('@/lib/useKeyboardHeight', () => ({ useKeyboardHeight: () => mockKeyboardHeight }));
 beforeEach(() => {
-  mockKeyboard = false;
+  mockKeyboardHeight = 0;
 });
 
 const mockPush = jest.fn();
@@ -45,7 +45,7 @@ describe('Ask', () => {
 
   // Regression: the input kept the tab bar's bottom margin with the keyboard open, leaving a
   // big gap above the keyboard.
-  it('drops the tab bar margin while the keyboard is open', async () => {
+  it('sits just above the keyboard while it is open', async () => {
     const inputArea = () => {
       let node = screen.getByLabelText('Ask about your money…').parent;
       while (node && !(StyleSheet.flatten(node.props.style)?.paddingBottom > 0)) node = node.parent;
@@ -53,8 +53,8 @@ describe('Ask', () => {
     };
     await renderScreen(<Ask />);
     expect(inputArea()?.paddingBottom).toBeGreaterThan(100);
-    mockKeyboard = true;
+    mockKeyboardHeight = 336;
     await renderScreen(<Ask />);
-    expect(inputArea()?.paddingBottom).toBeLessThan(20);
+    expect(inputArea()?.paddingBottom).toBe(336 + 12);
   });
 });

@@ -1,6 +1,6 @@
 import { useUser } from '@clerk/expo';
 import { router } from 'expo-router';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AskInput } from '@/components/AskInput';
@@ -11,7 +11,7 @@ import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
 import { useSpending } from '@/lib/api';
 import { formatCents } from '@/lib/money';
-import { useKeyboardVisible } from '@/lib/useKeyboardVisible';
+import { useKeyboardHeight } from '@/lib/useKeyboardHeight';
 // Credits are sample data until the credits feature lands; the Credits screen uses the same.
 import { creditSummary, credits, getCard } from '@/lib/sample';
 import { screen, space } from '@/theme/tokens';
@@ -86,14 +86,11 @@ export default function Ask() {
   const { palette } = useTheme();
   const insets = useSafeAreaInsets();
   const suggestions = useSuggestions();
-  const keyboard = useKeyboardVisible();
+  const keyboardHeight = useKeyboardHeight();
   const name = useUser().user?.firstName;
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: palette.ground }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={{ flex: 1, backgroundColor: palette.ground }}>
       <ScrollView
         contentContainerStyle={{
           paddingTop: Math.max(insets.top + space.lg, 60),
@@ -125,8 +122,12 @@ export default function Ask() {
       <View
         style={{
           paddingHorizontal: screen.side,
-          // Room for the floating tab bar, which the keyboard covers when it's open.
-          paddingBottom: keyboard ? space.md : Math.max(insets.bottom, space.lg) + 100,
+          // Sit just above the keyboard when it's open; otherwise leave room for the floating
+          // tab bar. One layout change, animated on the keyboard's own curve.
+          paddingBottom:
+            keyboardHeight > 0
+              ? keyboardHeight + space.md
+              : Math.max(insets.bottom, space.lg) + 100,
         }}
       >
         <AskInput
@@ -134,6 +135,6 @@ export default function Ask() {
           onSubmit={(text) => router.push({ pathname: '/chat', params: { text } })}
         />
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
