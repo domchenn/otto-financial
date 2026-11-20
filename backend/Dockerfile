@@ -23,7 +23,7 @@ RUN uv export --frozen --no-dev --no-emit-project -o /tmp/requirements.txt \
 COPY alembic.ini ./
 COPY alembic ./alembic
 COPY app ./app
-RUN useradd --create-home porter
-USER porter
+RUN useradd --create-home otto
+USER otto
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]

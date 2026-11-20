@@ -1,9 +1,8 @@
 # Otto
 
 A private, iPhone-first personal finance app: credit cards, points, expiring card credits,
-weekly budgets and an assistant that explains it all in plain sentences. Otto was called
-Porter; code identifiers (repo, bundle ID, URL scheme, backend package, database, infra)
-still use `porter`. Product requirements: [`docs/prd.html`](docs/prd.html).
+weekly budgets and an assistant that explains it all in plain sentences. Otto was previously
+called Porter. Product requirements: [`docs/prd.html`](docs/prd.html).
 
 ## Repository
 
@@ -58,7 +57,7 @@ CI runs all of these plus `terraform validate` on every pull request.
 1. `cd infra/shared && terraform init && terraform apply -var github_repository=<owner>/<repo> -var budget_email=<you>`
 2. In GitHub, add the repository variables listed at the top of `.github/workflows/deploy.yml`.
 3. Create a free Neon project (one branch per environment), then store each connection string:
-   `aws ssm put-parameter --name /porter/staging/database_url --type SecureString --overwrite --value 'postgresql+psycopg://…'`
+   `aws ssm put-parameter --name /otto/staging/database_url --type SecureString --overwrite --value 'postgresql+psycopg://…'`
 4. Push to `main`. CI builds the image, deploys staging, runs migrations, smoke-tests, then
    waits for approval on the `prod` environment before promoting the same image.
 

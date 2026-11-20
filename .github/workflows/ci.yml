@@ -22,14 +22,14 @@ jobs:
       postgres:
         image: postgres:16
         env:
-          POSTGRES_USER: porter
-          POSTGRES_PASSWORD: porter
-          POSTGRES_DB: porter_test
+          POSTGRES_USER: otto
+          POSTGRES_PASSWORD: otto
+          POSTGRES_DB: otto_test
         ports: ["5432:5432"]
         options: >-
-          --health-cmd "pg_isready -U porter" --health-interval 5s --health-timeout 5s --health-retries 10
+          --health-cmd "pg_isready -U otto" --health-interval 5s --health-timeout 5s --health-retries 10
     env:
-      PORTER_TEST_DATABASE_URL: postgresql+psycopg://porter:porter@localhost:5432/porter_test
+      OTTO_TEST_DATABASE_URL: postgresql+psycopg://otto:otto@localhost:5432/otto_test
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
