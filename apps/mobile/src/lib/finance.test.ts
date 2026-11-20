@@ -43,6 +43,7 @@ describe('dayLabel', () => {
     expect(dayLabel('2026-11-18', today)).toBe('Yesterday');
     expect(dayLabel('2026-11-16', today)).toBe('Monday');
     expect(dayLabel('2026-11-01', today)).toBe('Nov 1');
+    expect(dayLabel('2025-11-01', today)).toBe('Nov 1, 2025');
   });
 });
 

@@ -10,7 +10,7 @@ import { Chip } from '@/components/selection';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
 import { useAccounts, useTransactions } from '@/lib/api';
-import { amountLabel, categoryName, dayLabel, merchantName, type Transaction } from '@/lib/finance';
+import { amountLabel, categoryName, groupByDay, merchantName } from '@/lib/finance';
 import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -22,17 +22,6 @@ function useDebounced<T>(value: T, ms = 300): T {
     return () => clearTimeout(id);
   }, [value, ms]);
   return debounced;
-}
-
-function groupByDay(items: Transaction[]): { day: string; items: Transaction[] }[] {
-  const groups: { day: string; items: Transaction[] }[] = [];
-  for (const t of items) {
-    const day = dayLabel(t.date);
-    const last = groups[groups.length - 1];
-    if (last && last.day === day) last.items.push(t);
-    else groups.push({ day, items: [t] });
-  }
-  return groups;
 }
 
 export default function Transactions() {
@@ -87,7 +76,7 @@ export default function Transactions() {
       ) : null}
 
       {groups.map((g) => (
-        <View key={g.day} style={{ marginTop: space.lg }}>
+        <View key={g.key} style={{ marginTop: space.lg }}>
           <Text variant="row" weight="bold" muted style={{ marginBottom: space.sm }}>
             {g.day}
           </Text>

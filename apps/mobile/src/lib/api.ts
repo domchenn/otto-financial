@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 
 import { config } from './config';
 import type { Account, Connection, Summary, Transaction } from './finance';
-import { openPlaidLink } from './plaid';
+import { preparePlaidLink, type PlaidOutcome, type PreparedLink } from './plaid';
 
 export class ApiError extends Error {
   constructor(
@@ -149,20 +149,64 @@ export function useDisconnect() {
 
 export type LinkResult = { status: 'connected' } | { status: 'exited' } | { status: 'failed' };
 
+const preparedLinkKey = ['plaid-link'] as const;
+// Link tokens last four hours; refresh well before that.
+const PREPARED_LINK_MS = 30 * 60_000;
+
+function useFetchPreparedLink() {
+  const api = useApi();
+  return useCallback(
+    async (connectionId?: string): Promise<PreparedLink> => {
+      const { link_token } = await api<{ link_token: string }>('/v1/link-token', {
+        method: 'POST',
+        body: JSON.stringify(connectionId ? { connection_id: connectionId } : {}),
+      });
+      return preparePlaidLink(link_token);
+    },
+    [api],
+  );
+}
+
+/**
+ * Load Plaid Link in the background so tapping "connect" opens it instantly. Call it on any
+ * screen with a connect button. Failures stay quiet here; the tap surfaces them.
+ */
+export function usePrepareLink() {
+  const fetchPreparedLink = useFetchPreparedLink();
+  useQuery({
+    queryKey: preparedLinkKey,
+    queryFn: () => fetchPreparedLink(),
+    staleTime: PREPARED_LINK_MS,
+    gcTime: PREPARED_LINK_MS,
+    retry: false,
+  });
+}
+
 /**
  * Open Plaid Link and finish the connection. With a connectionId, Link opens in update mode
  * to fix an expired login, and the result is a fresh sync of that bank.
  */
 export function useLinkBank() {
   const api = useApi();
+  const client = useQueryClient();
+  const fetchPreparedLink = useFetchPreparedLink();
   const invalidate = useInvalidateMoney();
   return useMutation({
     mutationFn: async (connectionId?: string): Promise<LinkResult> => {
-      const { link_token } = await api<{ link_token: string }>('/v1/link-token', {
-        method: 'POST',
-        body: JSON.stringify(connectionId ? { connection_id: connectionId } : {}),
-      });
-      const outcome = await openPlaidLink(link_token);
+      let outcome: PlaidOutcome;
+      try {
+        const link = connectionId
+          ? await fetchPreparedLink(connectionId)
+          : await client.fetchQuery({
+              queryKey: preparedLinkKey,
+              queryFn: () => fetchPreparedLink(),
+              staleTime: PREPARED_LINK_MS,
+            });
+        outcome = await link.open();
+      } finally {
+        // A session is single-use, and preparing another replaces it: always start fresh.
+        client.removeQueries({ queryKey: preparedLinkKey });
+      }
       if (outcome.status !== 'success') return { status: outcome.status };
       if (connectionId) {
         await api('/v1/sync', { method: 'POST' });

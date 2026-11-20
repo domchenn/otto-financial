@@ -13,6 +13,7 @@ export function IconButton({
   badge,
   size = 52,
   translucent,
+  disabled,
   children,
 }: {
   icon?: Icon;
@@ -22,6 +23,7 @@ export function IconButton({
   size?: number;
   /** For use on the indigo hero. */
   translucent?: boolean;
+  disabled?: boolean;
   children?: ReactNode;
 }) {
   const { palette } = useTheme();
@@ -30,7 +32,9 @@ export function IconButton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled: !!disabled, busy: !!disabled }}
       onPress={onPress}
+      disabled={disabled}
       hitSlop={6}
       style={({ pressed }) => [
         styles.btn,
