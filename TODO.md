@@ -9,12 +9,9 @@ or PRD section when there is one.
 
 ## Now: finish the MVP slice
 
-- [ ] Add Plaid sandbox keys to `backend/.env`, connect a sandbox bank on the phone
-      (`user_good` / `pass_good`) and check Home, Wallet and a card against Plaid's numbers
-- [ ] Turn on Google and Apple in Clerk (Configure → SSO connections), allow
-      `otto://sso-callback`, and test both sign-ins on the phone
-- [ ] Open the stacked PRs in order: `rename-to-otto` → `plaid-accounts` → `plaid-mobile`
-      → `appearance-setting`
+- [ ] Connect a Plaid sandbox bank on the phone (`user_good` / `pass_good`) and check Home,
+      Wallet and a card against Plaid's numbers. Blocked: `/v1/link-token` returns an error
+      from the phone
 
 ## Next
 
