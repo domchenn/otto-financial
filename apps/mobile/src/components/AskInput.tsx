@@ -5,7 +5,7 @@ import { ArrowUpIcon } from './icons';
 import { radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-/** Floating "Ask about your money…" field with the indigo send button. */
+/** Floating "Ask about your money…" field. The send button turns indigo once there's text. */
 export function AskInput({
   placeholder,
   onSubmit,
@@ -15,6 +15,7 @@ export function AskInput({
 }) {
   const { palette } = useTheme();
   const [text, setText] = useState('');
+  const ready = text.trim().length > 0;
   const send = () => {
     const value = text.trim();
     if (!value) return;
@@ -35,14 +36,19 @@ export function AskInput({
       />
       <Pressable
         onPress={send}
+        disabled={!ready}
         accessibilityRole="button"
         accessibilityLabel="Send"
+        accessibilityState={{ disabled: !ready }}
         style={({ pressed }) => [
           styles.send,
-          { backgroundColor: palette.action, opacity: pressed ? 0.85 : 1 },
+          {
+            backgroundColor: ready ? palette.action : palette.raised,
+            opacity: pressed ? 0.85 : 1,
+          },
         ]}
       >
-        <ArrowUpIcon color={palette.actionText} size={24} />
+        <ArrowUpIcon color={ready ? palette.actionText : palette.faint} size={18} />
       </Pressable>
     </View>
   );
@@ -54,7 +60,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: radius.pill,
     paddingLeft: space.xl,
-    paddingRight: 6,
+    paddingRight: 12,
     height: 66,
     shadowOpacity: 0.06,
     shadowRadius: 18,
@@ -62,5 +68,5 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   input: { flex: 1, height: '100%' },
-  send: { width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center' },
+  send: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
 });

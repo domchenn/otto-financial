@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { config } from './config';
-import type { Account, Connection, NetWorth, Summary, Transaction } from './finance';
+import type { BudgetPeriod } from './budget';
+import type { Account, Connection, NetWorth, Spending, Summary, Transaction } from './finance';
 import { preparePlaidLink, type PlaidOutcome, type PreparedLink } from './plaid';
 
 export class ApiError extends Error {
@@ -52,6 +53,7 @@ export function useMe() {
 export const queryKeys = {
   summary: ['summary'] as const,
   netWorth: ['net-worth'] as const,
+  spending: (period: BudgetPeriod) => ['spending', period] as const,
   accounts: ['accounts'] as const,
   account: (id: string) => ['accounts', id] as const,
   connections: ['connections'] as const,
@@ -75,6 +77,15 @@ function toQuery(params: TransactionParams): string {
 export function useSummary() {
   const api = useApi();
   return useQuery({ queryKey: queryKeys.summary, queryFn: () => api<Summary>('/v1/summary') });
+}
+
+/** Discretionary spend for this week or month. Home and Spending both read this. */
+export function useSpending(period: BudgetPeriod) {
+  const api = useApi();
+  return useQuery({
+    queryKey: queryKeys.spending(period),
+    queryFn: () => api<Spending>(`/v1/spending?period=${period}`),
+  });
 }
 
 export function useNetWorth() {
@@ -125,9 +136,15 @@ function useInvalidateMoney() {
   return useCallback(
     () =>
       Promise.all(
-        ['summary', 'net-worth', 'accounts', 'connections', 'transactions', 'transaction'].map(
-          (key) => client.invalidateQueries({ queryKey: [key] }),
-        ),
+        [
+          'summary',
+          'net-worth',
+          'spending',
+          'accounts',
+          'connections',
+          'transactions',
+          'transaction',
+        ].map((key) => client.invalidateQueries({ queryKey: [key] })),
       ),
     [client],
   );
