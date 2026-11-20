@@ -9,9 +9,9 @@ import { StepScreen } from '@/components/layouts';
 import { GroupLabel, SettingRow, ToggleRow } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useMe } from '@/lib/api';
+import { useMe, useSummary } from '@/lib/api';
 import { formatCents } from '@/lib/money';
-import { institutions, points, trip, week } from '@/lib/sample';
+import { points, trip, week } from '@/lib/sample';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
@@ -22,7 +22,7 @@ export default function Settings() {
   const me = useMe();
   const name = user?.fullName ?? user?.firstName ?? 'You';
   const email = user?.primaryEmailAddress?.emailAddress ?? '';
-  const attention = institutions.filter((i) => i.status === 'attention').length;
+  const attention = useSummary().data?.attention.length ?? 0;
 
   const confirmSignOut = () =>
     Alert.alert('Sign out of Otto?', undefined, [

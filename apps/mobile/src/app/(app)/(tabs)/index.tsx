@@ -13,8 +13,12 @@ import { ListRow, SectionHeader } from '@/components/rows';
 import { StatTile, TileGrid } from '@/components/StatTile';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
+import { useSummary, useTransactions } from '@/lib/api';
+import { amountLabel, categoryName, dueLabel, merchantName } from '@/lib/finance';
 import { formatCents, formatNumber } from '@/lib/money';
-import { creditSummary, getCard, nextPayment, points, transactions, week } from '@/lib/sample';
+// Budgets, points and credits are still sample data until their milestones land.
+import { creditSummary, points, week } from '@/lib/sample';
+import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
@@ -36,11 +40,17 @@ export default function Home() {
   const { user } = useUser();
   const firstName = user?.firstName ?? 'there';
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
-  const leftCents = week.limitCents - week.spentCents;
-  const recent = transactions.slice(0, 2);
+  const summary = useSummary();
+  const recent = useTransactions({ limit: 3 });
+  const refresh = useRefresh();
+  const s = summary.data;
+  const spentCents = s?.week_spent_cents ?? 0;
+  const leftCents = week.limitCents - spentCents;
+  const next = s?.upcoming_payments[0];
+  const connected = s?.has_connections ?? true;
 
   return (
-    <TabScreen>
+    <TabScreen refreshControl={refresh}>
       <View style={styles.header}>
         <Pressable
           style={styles.who}
@@ -69,15 +79,27 @@ export default function Home() {
       <Text variant="display" style={styles.hero}>
         You have{' '}
         <Text variant="display" color={palette.link} tabular>
-          {formatCents(leftCents)}
+          {s ? formatCents(Math.max(leftCents, 0)) : '…'}
         </Text>{' '}
         left to spend this week.
       </Text>
       <Text variant="body" muted style={styles.heroSub}>
-        {formatCents(week.underPaceCents)} under your usual pace. Nice.
+        {summary.isError
+          ? "Otto couldn't reach your data. Pull down to try again."
+          : leftCents < 0
+            ? `You're ${formatCents(-leftCents)} over this week's budget.`
+            : `You've spent ${formatCents(spentCents)} since Monday.`}
       </Text>
 
-      {!nudgeDismissed ? (
+      {!connected ? (
+        <View style={{ marginTop: space.xl }}>
+          <OttoNoticed
+            primary={{ title: 'Connect cards', onPress: () => router.push('/onboarding/connect') }}
+          >
+            Connect your cards and Otto will fill this in with your real balances and purchases.
+          </OttoNoticed>
+        </View>
+      ) : !nudgeDismissed ? (
         <View style={{ marginTop: space.xl }}>
           <OttoNoticed
             primary={{ title: 'Show me where', onPress: () => router.push('/credits/gold-dining') }}
@@ -94,13 +116,13 @@ export default function Home() {
           <StatTile
             tone="mint"
             label="This week"
-            value={formatCents(week.spentCents)}
+            value={formatCents(spentCents)}
             suffix={`of ${formatCents(week.limitCents)}`}
             onPress={() => router.push('/spending')}
           >
             <View style={{ marginTop: space.md }}>
               <ProgressBar
-                value={week.spentCents / week.limitCents}
+                value={Math.min(spentCents / week.limitCents, 1)}
                 color={palette.tones.mint.accent}
                 track={palette.tones.mint.track}
               />
@@ -123,29 +145,38 @@ export default function Home() {
           <StatTile
             tone="sky"
             label="Next payment"
-            value={formatCents(nextPayment.cents)}
-            caption={`${nextPayment.card} · ${nextPayment.due}`}
-            onPress={() => router.push('/card/freedom-unlimited')}
+            value={next ? formatCents(next.amount_cents) : '—'}
+            caption={next ? `${next.name} · ${dueLabel(next.due_date).text}` : 'Nothing due'}
+            onPress={() =>
+              next ? router.push(`/card/${next.account_id}`) : router.push('/wallet')
+            }
           />
         </TileGrid>
       </View>
 
       <Card style={{ marginTop: space.xl, paddingTop: space.xs }}>
-        <SectionHeader title="Recent" action="See all" onAction={() => router.push('/spending')} />
+        <SectionHeader
+          title="Recent"
+          action="See all"
+          onAction={() => router.push('/transactions')}
+        />
         <Stack>
-          {recent.map((t) => {
-            const card = getCard(t.card);
-            return (
-              <ListRow
-                key={t.id}
-                leading={<Monogram label={t.merchant.charAt(0)} size={48} />}
-                title={t.merchant}
-                subtitle={`${card?.issuer ?? ''} ${card?.shortName ?? ''} · earned ${t.multiplier}`}
-                value={formatCents(t.cents, { cents: true })}
-                onPress={() => router.push(`/transaction/${t.id}`)}
-              />
-            );
-          })}
+          {(recent.data ?? []).map((t) => (
+            <ListRow
+              key={t.id}
+              leading={<Monogram label={merchantName(t).charAt(0)} size={48} />}
+              title={merchantName(t)}
+              subtitle={`${t.account_name} · ${t.pending ? 'Pending' : categoryName(t.category)}`}
+              value={amountLabel(t.amount_cents)}
+              valueColor={t.amount_cents < 0 ? palette.moneyIn : undefined}
+              onPress={() => router.push(`/transaction/${t.id}`)}
+            />
+          ))}
+          {recent.data?.length === 0 ? (
+            <Text variant="body" muted style={{ paddingVertical: space.md }}>
+              No purchases yet.
+            </Text>
+          ) : null}
         </Stack>
       </Card>
     </TabScreen>

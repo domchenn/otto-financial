@@ -1,178 +1,158 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Alert, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { IconTile } from '@/components/badges';
-import { IconButton } from '@/components/IconButton';
-import { CheckIcon, MoreIcon, SpendingIcon } from '@/components/icons';
+import { Monogram, Pill } from '@/components/badges';
 import { StepScreen } from '@/components/layouts';
 import { ProgressBar } from '@/components/ProgressBar';
-import { ListRow } from '@/components/rows';
-import { Tag } from '@/components/selection';
+import { ListRow, SectionHeader } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { formatCents, formatNumber } from '@/lib/money';
-import { credits, getCard, goldValue } from '@/lib/sample';
+import { useAccount, useTransactions } from '@/lib/api';
+import {
+  agoLabel,
+  amountLabel,
+  cardArt,
+  categoryName,
+  dayLabel,
+  dueLabel,
+  formatShortDate,
+  merchantName,
+  utilizationLabel,
+} from '@/lib/finance';
+import { formatCents } from '@/lib/money';
+import { useRefresh } from '@/lib/useRefresh';
 import { radius, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
+
+function money(cents: number | null): string {
+  return cents === null ? '—' : formatCents(cents, { cents: 'auto' });
+}
 
 export default function CardDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { palette } = useTheme();
-  const card = getCard(id);
+  const account = useAccount(id);
+  const recent = useTransactions({ account_id: id, limit: 5 });
+  const refresh = useRefresh();
+  const card = account.data;
 
-  if (!card) {
+  if (account.isError) {
     return <StepScreen heading="Card not found" subheading="This card isn't in your wallet." />;
   }
+  if (!card) return <StepScreen title="Card" />;
 
-  const cardCredits = credits.filter((c) => c.card === card.id && c.group !== 'year').slice(0, 1);
-  const annual = credits.filter((c) => c.card === card.id && c.group === 'year').slice(0, 1);
-  const lilac = palette.tones.lilac;
-  const butter = palette.tones.butter;
-  const bonus = card.signupBonus;
-  const net = goldValue.creditsUsedCents + goldValue.extraPointsCents - goldValue.feeCents;
+  const art = cardArt(card);
+  const due = dueLabel(card.next_due_date);
+  const balance = card.current_cents ?? 0;
+  const pct =
+    card.limit_cents && card.limit_cents > 0
+      ? Math.round((balance * 100) / card.limit_cents)
+      : null;
+  const util = utilizationLabel(pct);
+  const sky = palette.tones.sky;
 
   return (
-    <StepScreen
-      title={card.name}
-      right={
-        <IconButton
-          icon={MoreIcon}
-          label="More"
-          onPress={() =>
-            Alert.alert(card.name, 'Card options arrive with connected accounts in M1.')
-          }
-        />
-      }
-    >
-      <View style={[styles.art, { backgroundColor: card.color, shadowColor: palette.shadow }]}>
+    <StepScreen title={card.name} refreshControl={refresh}>
+      <View style={[styles.art, { backgroundColor: art.color, shadowColor: palette.shadow }]}>
         <View style={styles.artTop}>
-          <View style={[styles.chip, { backgroundColor: card.chip }]} />
-          <Text variant="row" weight="bold" color={card.ink}>
-            •• {card.last4}
-          </Text>
+          <View style={[styles.chip, { backgroundColor: art.chip }]} />
+          {card.mask ? (
+            <Text variant="row" weight="bold" color={art.ink}>
+              •• {card.mask}
+            </Text>
+          ) : null}
         </View>
         <View style={styles.artBottom}>
           <View>
-            <Text variant="body" weight="semibold" color={card.ink} style={{ opacity: 0.8 }}>
+            <Text variant="body" weight="semibold" color={art.ink} style={{ opacity: 0.8 }}>
               Balance
             </Text>
-            <Text variant="hero" tabular color={card.ink}>
-              {formatCents(card.balanceCents, { cents: true })}
+            <Text variant="hero" tabular color={art.ink}>
+              {formatCents(balance, { cents: true })}
             </Text>
           </View>
-          <Text variant="heading" weight="extrabold" color={card.ink}>
-            {card.shortName}
+          <Text variant="row" weight="bold" color={art.ink} style={{ opacity: 0.8 }}>
+            {card.institution_name ?? ''}
           </Text>
         </View>
       </View>
 
-      <Card style={styles.facts}>
-        <Fact label="Statement due" value={card.dueSoon ? 'Nov 12' : card.due} />
-        {card.pointsThisMonth !== undefined ? (
-          <Fact label="Points this month" value={formatNumber(card.pointsThisMonth)} />
-        ) : null}
-        {card.annualFeeCents !== undefined ? (
-          <Fact label="Annual fee" value={formatCents(card.annualFeeCents)} />
+      <Card tone="sky" style={{ marginTop: space.lg }}>
+        <Text variant="row" weight="bold" color={sky.text} style={{ fontSize: 18 }}>
+          {card.next_due_date ? due.text : 'No statement due'}
+        </Text>
+        {card.statement_balance_cents !== null ? (
+          <Text variant="body" color={sky.text} style={{ marginTop: space.xs }}>
+            Pay {formatCents(card.statement_balance_cents, { cents: 'auto' })} to avoid interest
+            {card.minimum_due_cents !== null
+              ? `. The minimum is ${formatCents(card.minimum_due_cents, { cents: 'auto' })}.`
+              : '.'}
+          </Text>
         ) : null}
       </Card>
 
-      {card.bestFor ? (
-        <View style={styles.bestFor}>
-          <Text variant="row" weight="semibold" muted>
-            Best for
-          </Text>
-          {card.bestFor.map((b) => (
-            <Tag key={b} label={b} />
-          ))}
-        </View>
-      ) : null}
+      <Card style={styles.facts}>
+        <Fact label="Statement" value={money(card.statement_balance_cents)} />
+        <Fact label="Limit" value={money(card.limit_cents)} />
+        <Fact
+          label="Last payment"
+          value={money(card.last_payment_cents)}
+          note={card.last_payment_date ? formatShortDate(card.last_payment_date) : undefined}
+        />
+      </Card>
 
-      {bonus ? (
-        <Card tone="lilac" style={{ marginTop: space.lg }}>
+      {pct !== null ? (
+        <Card style={{ marginTop: space.lg }}>
           <View style={styles.spread}>
-            <Text variant="row" weight="bold" color={lilac.text} style={{ fontSize: 18 }}>
-              Sign-up bonus
-            </Text>
-            <Text variant="row" weight="bold" color={palette.moneyIn}>
-              On pace
+            <Pill tone={util.tone} label={util.text} />
+            <Text variant="body" muted>
+              {formatCents(card.available_cents ?? (card.limit_cents ?? 0) - balance)} available
             </Text>
           </View>
-          <View style={styles.amountRow}>
-            <Text
-              variant="heading"
-              weight="extrabold"
-              tabular
-              color={lilac.text}
-              style={{ fontSize: 28 }}
-            >
-              {formatCents(bonus.spentCents)}
-            </Text>
-            <Text variant="row" weight="semibold" color={lilac.text}>
-              {' '}
-              of {formatCents(bonus.targetCents)} spent
-            </Text>
-          </View>
-          <View style={{ marginVertical: space.md }}>
+          <View style={{ marginTop: space.md }}>
             <ProgressBar
-              value={bonus.spentCents / bonus.targetCents}
-              color={lilac.accent}
-              track={lilac.track}
-              height={10}
+              value={Math.min(pct / 100, 1)}
+              color={palette.tones.mint.accent}
+              track={palette.tones.mint.track}
             />
           </View>
-          <Text variant="body" color={lilac.text}>
-            {bonus.daysLeft} days left · about {formatCents(bonus.perDayCents)} a day gets you there
-          </Text>
         </Card>
       ) : null}
 
-      {cardCredits.length + annual.length > 0 ? (
-        <Card tone="butter" style={{ marginTop: space.lg, paddingVertical: space.sm }}>
-          <Stack>
-            {[...cardCredits, ...annual].map((c) => (
-              <ListRow
-                key={c.id}
-                title={c.name}
-                subtitle={
-                  c.group === 'year'
-                    ? `${formatCents(c.amountCents)} left · ${c.resets.toLowerCase()}`
-                    : c.resets
-                }
-                subtitleColor={c.urgent ? palette.alert : butter.text}
-                value={formatCents(c.amountCents)}
-                valueColor={butter.text}
-                onPress={() => router.push(`/credits/${c.id}`)}
-              />
-            ))}
-            {card.id === 'gold' ? (
-              <ListRow
-                title="Uber Cash"
-                subtitle="Used this month"
-                subtitleColor={palette.moneyIn}
-                trailing={<CheckIcon color={palette.moneyIn} size={24} />}
-              />
-            ) : null}
-          </Stack>
-        </Card>
-      ) : null}
+      <Card style={{ marginTop: space.lg, paddingTop: space.xs }}>
+        <SectionHeader
+          title="Recent"
+          action="See all"
+          onAction={() => router.push({ pathname: '/transactions', params: { account: card.id } })}
+        />
+        <Stack>
+          {(recent.data ?? []).map((t) => (
+            <ListRow
+              key={t.id}
+              leading={<Monogram label={merchantName(t).charAt(0)} size={44} />}
+              title={merchantName(t)}
+              subtitle={`${dayLabel(t.date)} · ${t.pending ? 'Pending' : categoryName(t.category)}`}
+              value={amountLabel(t.amount_cents)}
+              valueColor={t.amount_cents < 0 ? palette.moneyIn : undefined}
+              onPress={() => router.push(`/transaction/${t.id}`)}
+            />
+          ))}
+          {recent.data?.length === 0 ? (
+            <Text variant="body" muted style={{ paddingVertical: space.md }}>
+              No purchases on this card yet.
+            </Text>
+          ) : null}
+        </Stack>
+      </Card>
 
-      {card.id === 'gold' ? (
-        <Card style={{ marginTop: space.lg, paddingVertical: space.sm }}>
-          <ListRow
-            leading={<IconTile icon={SpendingIcon} tone="mint" size={52} />}
-            title={`Worth the ${formatCents(goldValue.feeCents)} fee?`}
-            subtitle={`Yes, by about ${formatCents(net)} this year`}
-            subtitleColor={palette.moneyIn}
-            chevron
-            onPress={() => router.push(`/card/${card.id}/value`)}
-          />
-        </Card>
-      ) : null}
+      <Text variant="caption" muted center style={{ marginTop: space.lg }}>
+        Balance updated {agoLabel(card.balances_updated_at)}
+      </Text>
     </StepScreen>
   );
 }
 
-function Fact({ label, value }: { label: string; value: string }) {
+function Fact({ label, value, note }: { label: string; value: string; note?: string }) {
   return (
     <View style={{ flex: 1 }}>
       <Text variant="body" muted style={{ fontSize: 14 }}>
@@ -181,6 +161,11 @@ function Fact({ label, value }: { label: string; value: string }) {
       <Text variant="row" weight="extrabold" tabular style={{ fontSize: 19 }}>
         {value}
       </Text>
+      {note ? (
+        <Text variant="caption" muted>
+          {note}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -201,18 +186,5 @@ const styles = StyleSheet.create({
   chip: { width: 50, height: 38, borderRadius: 9 },
   artBottom: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
   facts: { flexDirection: 'row', gap: space.sm, marginTop: space.lg, paddingVertical: space.lg },
-  bestFor: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: space.sm,
-    marginTop: space.lg,
-  },
   spread: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  amountRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    flexWrap: 'wrap',
-    marginTop: space.sm,
-  },
 });

@@ -9,7 +9,6 @@ import { Footer, StepScreen } from '@/components/layouts';
 import { Checkbox } from '@/components/selection';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { institutions } from '@/lib/sample';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
@@ -18,7 +17,7 @@ export default function DeleteAccount() {
   const [understood, setUnderstood] = useState(false);
   const points = [
     {
-      text: `Your ${institutions.length} banks are disconnected and their data is deleted from Otto.`,
+      text: 'Your connected banks are disconnected and their data is deleted from Otto.',
       danger: true,
     },
     { text: 'Your budgets, goals, reminders and Ask Otto history are erased.', danger: true },

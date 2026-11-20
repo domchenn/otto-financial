@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  type RefreshControlProps,
   ScrollView,
   StyleSheet,
   View,
@@ -25,7 +26,13 @@ function useInsets() {
 }
 
 /** A tab root: scrolling content on the ground, with room for the floating tab bar. */
-export function TabScreen({ children }: { children: ReactNode }) {
+export function TabScreen({
+  children,
+  refreshControl,
+}: {
+  children: ReactNode;
+  refreshControl?: ReactElement<RefreshControlProps>;
+}) {
   const { palette } = useTheme();
   const pad = useInsets();
   return (
@@ -37,6 +44,7 @@ export function TabScreen({ children }: { children: ReactNode }) {
         paddingHorizontal: screen.side,
       }}
       showsVerticalScrollIndicator={false}
+      refreshControl={refreshControl}
     >
       {children}
     </ScrollView>
@@ -112,6 +120,7 @@ type StepScreenProps = StepHeaderProps & {
   keyboard?: boolean;
   scroll?: boolean;
   hideHeader?: boolean;
+  refreshControl?: ReactElement<RefreshControlProps>;
 };
 
 /**
@@ -127,6 +136,7 @@ export function StepScreen({
   keyboard,
   scroll = true,
   hideHeader,
+  refreshControl,
   ...header
 }: StepScreenProps) {
   const { palette } = useTheme();
@@ -164,6 +174,7 @@ export function StepScreen({
           contentContainerStyle={{ paddingHorizontal: screen.side, paddingBottom: space.xl }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
+          refreshControl={refreshControl}
         >
           {content}
         </ScrollView>
