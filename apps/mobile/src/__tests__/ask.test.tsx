@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
@@ -6,12 +6,6 @@ import Ask from '@/app/(app)/(tabs)/ask';
 import { renderScreen } from '@/test/fixtures';
 
 jest.mock('@clerk/expo', () => ({ useUser: () => ({ user: { firstName: 'Dominic' } }) }));
-
-let mockKeyboardHeight = 0;
-jest.mock('@/lib/useKeyboardHeight', () => ({ useKeyboardHeight: () => mockKeyboardHeight }));
-beforeEach(() => {
-  mockKeyboardHeight = 0;
-});
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({ router: { push: (...args: unknown[]) => mockPush(...args) } }));
@@ -43,18 +37,14 @@ describe('Ask', () => {
     expect(mockPush).toHaveBeenLastCalledWith({ pathname: '/chat', params: { q: 'week' } });
   });
 
-  // Regression: the input kept the tab bar's bottom margin with the keyboard open, leaving a
-  // big gap above the keyboard.
-  it('sits just above the keyboard while it is open', async () => {
-    const inputArea = () => {
-      let node = screen.getByLabelText('Ask about your money…').parent;
-      while (node && !(StyleSheet.flatten(node.props.style)?.paddingBottom > 0)) node = node.parent;
-      return StyleSheet.flatten(node?.props.style);
-    };
+  // Regression: the input trailed the keyboard. It now rides on the keyboard (sticky view),
+  // resting 12pt above it when open and above the tab bar when closed.
+  it('rides on the keyboard, 12pt above it when open', async () => {
     await renderScreen(<Ask />);
-    expect(inputArea()?.paddingBottom).toBeGreaterThan(100);
-    mockKeyboardHeight = 336;
-    await renderScreen(<Ask />);
-    expect(inputArea()?.paddingBottom).toBe(336 + 12);
+    let node = screen.getByLabelText('Ask about your money…').parent;
+    while (node && !node.props.offset) node = node.parent;
+    const closedGap = StyleSheet.flatten(node?.props.style)?.paddingBottom as number;
+    expect(closedGap).toBeGreaterThan(100); // clears the floating tab bar
+    expect(node?.props.offset).toEqual({ closed: 0, opened: closedGap - 12 });
   });
 });
