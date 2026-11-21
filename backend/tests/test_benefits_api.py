@@ -210,3 +210,50 @@ def test_card_products_lists_the_catalog(client: TestClient, auth: dict[str, str
     products = client.get("/v1/card-products", headers=auth).json()
     ids = {p["id"] for p in products}
     assert {"amex-gold", "chase-sapphire-reserve", "bilt-palladium"} <= ids
+
+
+def test_history_shows_this_years_used_and_missed_credits(
+    client: TestClient, auth: dict[str, str]
+) -> None:
+    gold = _add_card("Gold Card")
+    _add_txn(gold, -1_000, "AMEX Dining Credit", dt.date(2026, 3, 13))
+    _add_txn(gold, -700, "Dunkin' Donuts", dt.date(2026, 2, 26))  # posts under the merchant
+
+    body = client.get("/v1/benefits", headers=auth).json()
+    by_period = {(c["credit_id"], c["start_date"]): c for c in body["history"]}
+
+    march = by_period[("dining", "2026-03-01")]
+    assert (march["used_value_cents"], march["missed_cents"], march["confirmed"]) == (
+        1000,
+        0,
+        True,
+    )
+    assert by_period[("dining", "2026-02-01")]["missed_cents"] == 1000
+    assert by_period[("dunkin", "2026-02-01")]["used_value_cents"] == 700
+    # The current month and the open half-year Resy credit aren't missed yet.
+    assert by_period[("dining", "2026-11-01")]["missed_cents"] == 0
+    assert by_period[("resy", "2026-07-01")]["missed_cents"] == 0
+
+    assert body["used_this_year_cents"] == 1_700
+    # Dining and Dunkin' Jan-Oct, less the two used months, plus the first-half Resy credit.
+    assert body["missed_this_year_cents"] == 9 * 1_000 + 9 * 700 + 5_000
+    # Newest first, and the card's own list still holds only the open periods.
+    assert body["history"][0]["end_date"] >= body["history"][-1]["end_date"]
+    assert {c["start_date"] for c in body["cards"][0]["credits"]} == {"2026-11-01", "2026-07-01"}
+
+
+def test_marking_a_past_credit_used_moves_it_from_missed_to_used(
+    client: TestClient, auth: dict[str, str]
+) -> None:
+    _add_card("Gold Card")
+    body = client.get("/v1/benefits", headers=auth).json()
+    january = next(
+        c for c in body["history"] if (c["credit_id"], c["start_date"]) == ("dining", "2026-01-01")
+    )
+    before = body["missed_this_year_cents"]
+
+    body = client.post(
+        f"/v1/benefit-periods/{january['period_id']}/used", json={"used": True}, headers=auth
+    ).json()
+    assert body["missed_this_year_cents"] == before - 1_000
+    assert body["used_this_year_cents"] == 1_000

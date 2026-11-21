@@ -1,4 +1,4 @@
-"""Benefits: assign cards, keep current periods up to date, and rank what needs attention."""
+"""Benefits: assign cards, keep this year's periods up to date, and rank what needs attention."""
 
 import datetime as dt
 import uuid
@@ -12,7 +12,7 @@ from app.modules.accounts.service import local_today
 from app.modules.benefits.catalog import CardProduct, Catalog, CreditDefinition, get_catalog
 from app.modules.benefits.matching import Txn, usage
 from app.modules.benefits.models import BenefitMatch, BenefitPeriod, CardAssignment
-from app.modules.benefits.periods import Window, amount_for, current_window
+from app.modules.benefits.periods import Window, amount_for, windows_between
 from app.modules.identity.models import User
 
 ATTENTION_DAYS = 10  # PRD F4: unused credits expiring within 10 days
@@ -45,6 +45,22 @@ class PeriodView:
         """Value times urgency (PRD F4): more money and fewer days rank higher."""
         return self.remaining_cents / max(self.days_left, 1)
 
+    @property
+    def is_current(self) -> bool:
+        return self.period.start_date <= self.today <= self.period.end_date
+
+    @property
+    def used_value_cents(self) -> int:
+        """What this period gave back: the whole credit once marked used by hand."""
+        if self.period.marked_used_at is not None:
+            return self.period.amount_cents
+        return min(self.period.used_cents, self.period.amount_cents)
+
+    @property
+    def missed_cents(self) -> int:
+        """Left unused when the period ended (zero while it's still open)."""
+        return self.remaining_cents if self.period.end_date < self.today else 0
+
 
 @dataclass(frozen=True)
 class CardView:
@@ -52,7 +68,12 @@ class CardView:
     institution_name: str | None
     assignment: CardAssignment
     card: CardProduct | None
-    periods: list[PeriodView]
+    # Every period that overlaps this year, oldest first; `periods` is the open ones.
+    history: list[PeriodView]
+
+    @property
+    def periods(self) -> list[PeriodView]:
+        return [p for p in self.history if p.is_current]
 
     @property
     def needs_anniversary_month(self) -> bool:
@@ -71,6 +92,18 @@ class BenefitsView:
     @property
     def periods(self) -> list[PeriodView]:
         return [p for c in self.cards for p in c.periods]
+
+    @property
+    def history(self) -> list[PeriodView]:
+        return [p for c in self.cards for p in c.history]
+
+    @property
+    def used_this_year_cents(self) -> int:
+        return sum(p.used_value_cents for p in self.history)
+
+    @property
+    def missed_this_year_cents(self) -> int:
+        return sum(p.missed_cents for p in self.history)
 
     @property
     def needs_attention(self) -> list[PeriodView]:
@@ -132,42 +165,65 @@ def _txns(session: Session, account: Account, since: dt.date) -> list[Txn]:
     return [Txn(t.id, t.amount_cents, t.date, t.name, t.merchant_name, t.category) for t in rows]
 
 
-def _refresh_period(
+def _refresh_card(
     session: Session,
     user: User,
     account: Account,
     card: CardProduct,
-    credit: CreditDefinition,
-    window: Window,
-    txns: list[Txn],
-) -> BenefitPeriod:
-    period = session.scalar(
-        select(BenefitPeriod).where(
-            BenefitPeriod.account_id == account.id,
-            BenefitPeriod.card_id == card.id,
-            BenefitPeriod.credit_id == credit.id,
-            BenefitPeriod.start_date == window.start,
-        )
-    )
-    amount = amount_for(credit, window)
-    if period is None:
-        period = BenefitPeriod(
-            user_id=user.id,
-            account_id=account.id,
-            card_id=card.id,
-            credit_id=credit.id,
-            start_date=window.start,
-        )
-        session.add(period)
-    period.end_date = window.end
-    period.amount_cents = amount
+    assignment: CardAssignment,
+    today: dt.date,
+) -> list[PeriodView]:
+    """Create or update every period of this card's tracked credits that overlaps this year.
 
-    result = usage(credit, window, amount, txns)
-    period.used_cents = result.used_cents
-    period.confirmed = result.confirmed
+    Existing periods and the card's transactions are loaded once, so a year of monthly
+    credits costs a few queries rather than one per period.
+    """
+    year_start = today.replace(month=1, day=1)
+    plan = [
+        (credit, window)
+        for credit in card.credits
+        if credit.tracked
+        for window in windows_between(credit, year_start, today, assignment.anniversary_month)
+    ]
+    if not plan:
+        return []
+
+    existing = {
+        (p.credit_id, p.start_date): p
+        for p in session.scalars(
+            select(BenefitPeriod).where(
+                BenefitPeriod.account_id == account.id, BenefitPeriod.card_id == card.id
+            )
+        )
+    }
+    txns = _txns(session, account, min(w.start for _, w in plan))
+
+    views: list[PeriodView] = []
+    results = []
+    for credit, window in plan:
+        period = existing.get((credit.id, window.start))
+        if period is None:
+            period = BenefitPeriod(
+                user_id=user.id,
+                account_id=account.id,
+                card_id=card.id,
+                credit_id=credit.id,
+                start_date=window.start,
+            )
+            session.add(period)
+        amount = amount_for(credit, window)
+        result = usage(credit, window, amount, txns)
+        period.end_date = window.end
+        period.amount_cents = amount
+        period.used_cents = result.used_cents
+        period.confirmed = result.confirmed
+        results.append((period, result))
+        views.append(PeriodView(period, credit, card, account, today))
     session.flush()
 
-    session.execute(delete(BenefitMatch).where(BenefitMatch.period_id == period.id))
+    # Matches are rebuilt from scratch each time: the rules may have changed.
+    period_ids = [period.id for period, _ in results]
+    session.execute(delete(BenefitMatch).where(BenefitMatch.period_id.in_(period_ids)))
     session.add_all(
         BenefitMatch(
             period_id=period.id,
@@ -175,13 +231,14 @@ def _refresh_period(
             kind=m.kind,
             amount_cents=m.amount_cents,
         )
+        for period, result in results
         for m in result.matches
     )
-    return period
+    return views
 
 
 def refresh(session: Session, user: User, today: dt.date | None = None) -> BenefitsView:
-    """Make sure every assigned card has its current periods, recount usage, and return them.
+    """Bring every assigned card's periods for this year up to date and return them.
 
     Cheap at one user's scale, so it runs on every read instead of on a schedule.
     """
@@ -192,20 +249,8 @@ def refresh(session: Session, user: User, today: dt.date | None = None) -> Benef
     for account, institution in _credit_accounts(session, user):
         assignment = _assignment(session, user, account, institution, catalog)
         card = catalog.card(assignment.card_id) if assignment.card_id else None
-        periods: list[PeriodView] = []
-        if card is not None:
-            windows = [
-                (credit, window)
-                for credit in card.credits
-                if credit.tracked
-                and (window := current_window(credit, today, assignment.anniversary_month))
-            ]
-            since = min((w.start for _, w in windows), default=today)
-            txns = _txns(session, account, since)
-            for credit, window in windows:
-                period = _refresh_period(session, user, account, card, credit, window, txns)
-                periods.append(PeriodView(period, credit, card, account, today))
-        cards.append(CardView(account, institution, assignment, card, periods))
+        history = _refresh_card(session, user, account, card, assignment, today) if card else []
+        cards.append(CardView(account, institution, assignment, card, history))
 
     session.flush()
     return BenefitsView(cards, today)

@@ -35,6 +35,9 @@ class CreditOut(BaseModel):
     amount_cents: int
     used_cents: int
     remaining_cents: int
+    # What it gave back (the whole credit once marked used) and what expired unused.
+    used_value_cents: int
+    missed_cents: int
     confirmed: bool
     marked_used: bool
     start_date: dt.date
@@ -61,8 +64,12 @@ class BenefitsOut(BaseModel):
     remaining_cents: int
     expiring_this_month_cents: int
     expiring_this_month_count: int
+    used_this_year_cents: int
+    missed_this_year_cents: int
     needs_attention: list[CreditOut]
     cards: list[CardOut]
+    # Every period this year across all cards, newest first (for "used" and "missed").
+    history: list[CreditOut]
 
 
 class AssignCardIn(BaseModel):
@@ -89,6 +96,8 @@ def _credit_out(p: service.PeriodView) -> CreditOut:
         amount_cents=p.period.amount_cents,
         used_cents=p.period.used_cents,
         remaining_cents=p.remaining_cents,
+        used_value_cents=p.used_value_cents,
+        missed_cents=p.missed_cents,
         confirmed=p.period.confirmed,
         marked_used=p.period.marked_used_at is not None,
         start_date=p.period.start_date,
@@ -103,7 +112,15 @@ def _benefits_out(view: service.BenefitsView) -> BenefitsOut:
         remaining_cents=view.remaining_cents,
         expiring_this_month_cents=view.expiring_this_month_cents,
         expiring_this_month_count=view.expiring_this_month_count,
+        used_this_year_cents=view.used_this_year_cents,
+        missed_this_year_cents=view.missed_this_year_cents,
         needs_attention=[_credit_out(p) for p in view.needs_attention],
+        history=[
+            _credit_out(p)
+            for p in sorted(
+                view.history, key=lambda p: (p.period.end_date, p.credit.name), reverse=True
+            )
+        ],
         cards=[
             CardOut(
                 account_id=c.account.id,
