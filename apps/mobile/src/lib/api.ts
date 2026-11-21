@@ -3,7 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
 import { config } from './config';
-import type { BudgetPeriod } from './budget';
+import type { Budget, BudgetDraft, BudgetPeriod } from './budget';
+import { draftBody } from './budget';
 import type { Benefits, CardProduct } from './credits';
 import type { Account, Connection, NetWorth, Spending, Summary, Transaction } from './finance';
 import { preparePlaidLink, type PlaidOutcome, type PreparedLink } from './plaid';
@@ -61,6 +62,7 @@ export const queryKeys = {
   transactions: (params: TransactionParams = {}) => ['transactions', params] as const,
   transaction: (id: string) => ['transaction', id] as const,
   benefits: ['benefits'] as const,
+  budget: ['budget'] as const,
   cardProducts: ['card-products'] as const,
 };
 
@@ -148,6 +150,7 @@ function useInvalidateMoney() {
           'transactions',
           'transaction',
           'benefits',
+          'budget',
         ].map((key) => client.invalidateQueries({ queryKey: [key] })),
       ),
     [client],
@@ -302,5 +305,27 @@ export function useMarkCreditUsed() {
         body: JSON.stringify({ used: body.used }),
       }),
     onSuccess: setBenefits,
+  });
+}
+
+// --- budgets -------------------------------------------------------------------------------
+
+export function useBudget() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.budget, queryFn: () => api<Budget>('/v1/budget') });
+}
+
+/** Save budgets; excluded categories change spend everywhere, so refetch it too. */
+export function useSaveBudget() {
+  const api = useApi();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (draft: BudgetDraft) =>
+      api<Budget>('/v1/budget', { method: 'PUT', body: JSON.stringify(draftBody(draft)) }),
+    onSuccess: (data) => {
+      client.setQueryData(queryKeys.budget, data);
+      void client.invalidateQueries({ queryKey: ['summary'] });
+      void client.invalidateQueries({ queryKey: ['spending'] });
+    },
   });
 }
