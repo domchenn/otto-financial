@@ -32,7 +32,7 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0
 cd apps/mobile
 cp .env.example .env          # API URL = your Mac's LAN IP, plus the Clerk publishable key
 npm install
-npx expo run:ios --device
+npx expo run:ios --device     # or `npx expo run:ios` (`make sim`) for the iOS Simulator
 ```
 
 ### Clerk setup (one time)

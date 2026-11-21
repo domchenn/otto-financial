@@ -2,9 +2,10 @@
 #
 #   make dev     database + API + Metro together; Ctrl-C stops all of them
 #   make ios     rebuild and install the dev build on your iPhone (after native changes)
+#   make sim     rebuild and run the dev build in the iOS Simulator
 
 .DEFAULT_GOAL := help
-.PHONY: help dev db api app ios migrate test check check-backend check-mobile check-infra
+.PHONY: help dev db api app ios sim migrate test check check-backend check-mobile check-infra
 
 # The test database lives in the Docker container. OrbStack names it this way, which avoids
 # the Homebrew Postgres that other projects use on localhost:5432.
@@ -16,7 +17,7 @@ help: ## List commands
 dev: db migrate ## Start the database, API and Metro together (Ctrl-C stops all)
 	@trap 'kill 0' INT TERM EXIT; \
 	(cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0) & \
-	(cd apps/mobile && npx expo start); \
+	(cd apps/mobile && npx expo start --dev-client); \
 	wait
 
 db: ## Start Postgres (starts OrbStack first if needed)
@@ -27,10 +28,13 @@ api: db migrate ## Run only the API on :8000
 	cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0
 
 app: ## Run only Metro for the installed dev build
-	cd apps/mobile && npx expo start
+	cd apps/mobile && npx expo start --dev-client
 
 ios: ## Rebuild and install the dev build on your iPhone (after native changes)
 	cd apps/mobile && npx expo run:ios --device
+
+sim: ## Rebuild and run the dev build in the iOS Simulator
+	cd apps/mobile && npx expo run:ios
 
 migrate: ## Apply database migrations
 	@cd backend && uv run alembic upgrade head
