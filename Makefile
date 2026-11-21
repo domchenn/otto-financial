@@ -3,19 +3,36 @@
 #   make dev     database + API + Metro together; Ctrl-C stops all of them
 #   make ios     rebuild and install the dev build on your iPhone (after native changes)
 #   make sim     rebuild and run the dev build in the iOS Simulator
+#   make dev-live  like dev, but with real bank data (Plaid Production, database otto_live)
 
 .DEFAULT_GOAL := help
-.PHONY: help dev db api app ios sim migrate test check check-backend check-mobile check-infra
+.PHONY: help dev dev-live db api app ios sim migrate test check check-backend check-mobile check-infra
 
 # The test database lives in the Docker container. OrbStack names it this way, which avoids
 # the Homebrew Postgres that other projects use on localhost:5432.
 TEST_DB := postgresql+psycopg://otto:otto@otto-financial-postgres-1.orb.local:5432/otto_test
+
+# Real-data settings (Plaid Production secret, otto_live database), layered over backend/.env.
+LIVE_ENV := backend/.env.live
+LOAD_LIVE := set -a; . ./$(LIVE_ENV); set +a
 
 help: ## List commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "} {printf "  make %-14s %s\n", $$1, $$2}'
 
 dev: db migrate ## Start the database, API and Metro together (Ctrl-C stops all)
 	@trap 'kill 0' INT TERM EXIT; \
+	(cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0) & \
+	(cd apps/mobile && npx expo start --dev-client); \
+	wait
+
+dev-live: db ## Like dev, but with real bank data (needs backend/.env.live)
+	@test -f $(LIVE_ENV) || { echo "Copy backend/.env.live.example to backend/.env.live and add the Production secret."; exit 1; }
+	@grep -q '^OTTO_PLAID_SECRET=.' $(LIVE_ENV) || { echo "Add the Plaid Production secret to backend/.env.live."; exit 1; }
+	@docker compose exec -T postgres psql -U otto -d postgres -tAc \
+		"select 1 from pg_database where datname = 'otto_live'" | grep -q 1 \
+		|| docker compose exec -T postgres createdb -U otto otto_live
+	@$(LOAD_LIVE); cd backend && uv run alembic upgrade head
+	@$(LOAD_LIVE); trap 'kill 0' INT TERM EXIT; \
 	(cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0) & \
 	(cd apps/mobile && npx expo start --dev-client); \
 	wait
