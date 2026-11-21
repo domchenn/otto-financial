@@ -69,6 +69,8 @@ class ProviderTransaction:
     category: str | None
     pending: bool
     pending_transaction_id: str | None
+    # Plaid's detailed category (FOOD_AND_DRINK_RESTAURANT), for earn rates (PRD F3).
+    category_detailed: str | None = None
 
 
 @dataclass(frozen=True)
