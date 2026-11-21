@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
 import Home from '@/app/(app)/(tabs)/index';
 import type { Benefits } from '@/lib/credits';
@@ -14,7 +15,8 @@ import {
   weekSpending,
 } from '@/test/fixtures';
 
-jest.mock('@clerk/expo', () => ({ useUser: () => ({ user: { firstName: 'Dominic' } }) }));
+let mockFirstName = 'Dominic';
+jest.mock('@clerk/expo', () => ({ useUser: () => ({ user: { firstName: mockFirstName } }) }));
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({ router: { push: (...args: unknown[]) => mockPush(...args) } }));
@@ -36,6 +38,7 @@ jest.mock('@/lib/api', () => ({
 jest.mock('@/lib/useRefresh', () => ({ useRefresh: () => undefined }));
 
 beforeEach(() => {
+  mockFirstName = 'Dominic';
   mockSummary = summary;
   mockSummaryError = false;
   mockTransactions = [sweetgreen, refund];
@@ -139,5 +142,25 @@ describe('Home', () => {
     expect(screen.getByText('Up $120 this week.')).toBeOnTheScreen();
     await fireEvent.press(screen.getByText('Net worth'));
     expect(mockPush).toHaveBeenCalledWith('/net-worth');
+  });
+
+  it('shrinks a longer greeting to fit beside the bell instead of cutting it off', async () => {
+    mockFirstName = 'Maximiliana';
+    await renderScreen(<Home />);
+    const greeting = screen.getByText(/Maximiliana/);
+    expect(greeting.props).toMatchObject({
+      numberOfLines: 1,
+      adjustsFontSizeToFit: true,
+      minimumFontScale: 0.75,
+    });
+    // The block holding the date and greeting takes the space left of the bell.
+    expect(StyleSheet.flatten(greeting.parent?.props.style)).toMatchObject({ flex: 1 });
+    expect(screen.getByRole('button', { name: 'Notifications' })).toBeOnTheScreen();
+  });
+
+  it('lets a very long name use a second line rather than truncating it', async () => {
+    mockFirstName = 'Maximiliana-Alexandra';
+    await renderScreen(<Home />);
+    expect(screen.getByText(/Maximiliana-Alexandra/).props.numberOfLines).toBe(2);
   });
 });

@@ -37,6 +37,16 @@ function greeting(date = new Date()): string {
   return 'Good evening';
 }
 
+/**
+ * The greeting shrinks (to 75%) to stay on one line beside the bell. About 28 characters fit
+ * that way on a phone; a longer line gets a second line instead of being cut off.
+ */
+const ONE_LINE_GREETING_CHARS = 28;
+
+function greetingLines(text: string): 1 | 2 {
+  return text.length <= ONE_LINE_GREETING_CHARS ? 1 : 2;
+}
+
 const dateLabel = new Intl.DateTimeFormat('en-US', {
   weekday: 'long',
   month: 'short',
@@ -47,6 +57,7 @@ export default function Home() {
   const { palette } = useTheme();
   const { user } = useUser();
   const firstName = user?.firstName ?? 'there';
+  const greetingText = `${greeting()}, ${firstName}`;
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
   const summary = useSummary();
   const recent = useTransactions({ limit: 3 });
@@ -75,12 +86,19 @@ export default function Home() {
           accessibilityLabel="Settings"
         >
           <Avatar letter={firstName.charAt(0).toUpperCase()} />
-          <View>
-            <Text variant="body" muted>
+          <View style={styles.greeting}>
+            <Text variant="body" muted numberOfLines={1}>
               {dateLabel.format(new Date())}
             </Text>
-            <Text variant="row" weight="bold" style={{ fontSize: 20 }}>
-              {greeting()}, {firstName}
+            <Text
+              variant="row"
+              weight="bold"
+              style={{ fontSize: 20 }}
+              numberOfLines={greetingLines(greetingText)}
+              adjustsFontSizeToFit
+              minimumFontScale={0.75}
+            >
+              {greetingText}
             </Text>
           </View>
         </Pressable>
@@ -224,8 +242,15 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: space.md,
+  },
   who: { flexDirection: 'row', alignItems: 'center', gap: space.md, flex: 1 },
+  // Takes the space left of the bell; the greeting shrinks to fit it.
+  greeting: { flex: 1 },
   hero: { marginTop: space.xxl, fontSize: 40, lineHeight: 46 },
   heroSub: { marginTop: space.sm, fontSize: 17 },
 });
