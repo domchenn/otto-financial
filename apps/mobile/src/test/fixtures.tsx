@@ -4,6 +4,7 @@ import { render } from '@testing-library/react-native';
 import type { ReactElement } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import type { Budget, PeriodBudget } from '@/lib/budget';
 import type { Benefits, CreditPeriod } from '@/lib/credits';
 import type { Account, Connection, NetWorth, Spending, Summary, Transaction } from '@/lib/finance';
 
@@ -277,4 +278,33 @@ export const weekSpending: Spending = {
       top_account_share: 1,
     },
   ],
+};
+
+export function periodBudget(overrides: Partial<PeriodBudget> = {}): PeriodBudget {
+  return {
+    start: '2026-11-23',
+    end: '2026-11-29',
+    limit_cents: 50000,
+    spent_cents: 12000,
+    remaining_cents: 38000,
+    ...overrides,
+  };
+}
+
+/** A weekly $500 budget with $120 spent this week, and $2,000 a month with $640 spent. */
+export const budget: Budget = {
+  configured: true,
+  style: 'weekly',
+  weekly_cents: 50000,
+  monthly_cents: 200000,
+  excluded_categories: [],
+  excludable_categories: ['FOOD_AND_DRINK', 'GENERAL_MERCHANDISE', 'TRAVEL'],
+  week: periodBudget(),
+  month: periodBudget({
+    start: '2026-11-01',
+    end: '2026-11-30',
+    limit_cents: 200000,
+    spent_cents: 64000,
+    remaining_cents: 136000,
+  }),
 };

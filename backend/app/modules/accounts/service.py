@@ -17,6 +17,7 @@ from app.modules.accounts.provider import (
     ProviderItemError,
     ProviderTransaction,
 )
+from app.modules.budgets.models import excluded_categories
 from app.modules.identity.models import User
 
 log = logging.getLogger(__name__)
@@ -24,9 +25,6 @@ log = logging.getLogger(__name__)
 ASSET_KINDS = ("depository", "investment")
 LIABILITY_KINDS = ("credit", "loan")
 # Plaid personal-finance categories that never count as discretionary spend (PRD F5).
-NON_DISCRETIONARY = frozenset(
-    {"INCOME", "TRANSFER_IN", "TRANSFER_OUT", "LOAN_PAYMENTS", "RENT_AND_UTILITIES"}
-)
 _MAX_SYNC_PAGES = 50
 
 
@@ -361,14 +359,20 @@ def week_start(today: dt.date) -> dt.date:
     return today - dt.timedelta(days=today.weekday())  # Monday
 
 
-def _discretionary(user: User, start: dt.date, end: dt.date) -> list[ColumnElement[bool]]:
-    """Filters for discretionary spend from start to end inclusive (PRD F5 exclusions)."""
+def _discretionary(
+    session: Session, user: User, start: dt.date, end: dt.date
+) -> list[ColumnElement[bool]]:
+    """Filters for discretionary spend from start to end inclusive.
+
+    Leaves out rent, payments and transfers (PRD F5) plus any category the user excluded.
+    """
+    excluded = excluded_categories(session, user.id)
     return [
         Transaction.user_id == user.id,
         Transaction.date >= start,
         Transaction.date <= end,
         Account.kind.in_(("credit", "depository")),
-        or_(Transaction.category.is_(None), Transaction.category.not_in(NON_DISCRETIONARY)),
+        or_(Transaction.category.is_(None), Transaction.category.not_in(excluded)),
     ]
 
 
@@ -377,7 +381,7 @@ def discretionary_spend(session: Session, user: User, start: dt.date, end: dt.da
     total = session.scalar(
         select(func.coalesce(func.sum(Transaction.amount_cents), 0))
         .join(Account, Account.id == Transaction.account_id)
-        .where(*_discretionary(user, start, end))
+        .where(*_discretionary(session, user, start, end))
     )
     return int(total or 0)
 
@@ -549,7 +553,7 @@ def spending(session: Session, user: User, period: str, today: dt.date | None = 
     """
     today = today or local_today(user)
     start = week_start(today) if period == "week" else today.replace(day=1)
-    filters = _discretionary(user, start, today)
+    filters = _discretionary(session, user, start, today)
 
     by_day: dict[dt.date, int] = {
         day: int(cents)
