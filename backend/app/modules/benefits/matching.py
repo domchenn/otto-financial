@@ -49,12 +49,25 @@ def _text(t: Txn) -> str:
     return f"{t.merchant_name or ''} {t.name}".lower()
 
 
-def is_issuer_credit(credit: CreditDefinition, t: Txn) -> bool:
+# Credits that post under the merchant's name can include tax ("up to $12.95 plus tax").
+_MERCHANT_POSTED_SLACK = 1.2
+
+
+def is_issuer_credit(credit: CreditDefinition, t: Txn, amount_cents: int) -> bool:
+    """Money back on the card that is the issuer paying the credit.
+
+    Usually the line names the credit ("AMEX Dining Credit"). Some credits post under the
+    merchant's name instead ("Dunkin' Donuts -$7.00"); for those a matching line counts when
+    it's no bigger than the credit, so a large merchant refund still doesn't.
+    """
     if t.amount_cents >= 0:
         return False
     text = _text(t)
-    # A plain refund from a listed merchant (a returned lululemon order) is not the credit.
-    return "credit" in text and any(p in text for p in credit.credit_patterns)
+    if not any(p in text for p in credit.credit_patterns):
+        return False
+    if "credit" in text:
+        return True
+    return credit.posts_as_merchant and -t.amount_cents <= amount_cents * _MERCHANT_POSTED_SLACK
 
 
 def is_qualifying_purchase(credit: CreditDefinition, t: Txn) -> bool:
@@ -75,7 +88,7 @@ def usage(credit: CreditDefinition, window: Window, amount_cents: int, txns: lis
     in_window = [t for t in txns if window.start <= t.date <= window.end]
     matches: list[Match] = []
     for t in in_window:
-        if is_issuer_credit(credit, t):
+        if is_issuer_credit(credit, t, amount_cents):
             matches.append(Match(t.id, "issuer_credit", -t.amount_cents))
         elif is_qualifying_purchase(credit, t):
             matches.append(Match(t.id, "purchase", t.amount_cents))
