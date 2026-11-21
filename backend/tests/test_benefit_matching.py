@@ -107,3 +107,51 @@ def test_transactions_outside_the_window_are_ignored() -> None:
 def test_category_match() -> None:
     result = usage(RESTAURANTS, NOV, 2500, [txn(1_800, "Joe's Diner", category="FOOD_AND_DRINK")])
     assert result.used_cents == 1800
+
+
+DUNKIN = CreditDefinition(
+    id="dunkin",
+    name="Dunkin' credit",
+    amount_cents=700,
+    cadence="monthly",
+    delivery="statement_credit",
+    enrollment=True,
+    merchants=("dunkin",),
+    credit_patterns=("dunkin",),
+    posts_as_merchant=True,
+)
+WALMART_PLUS = CreditDefinition(
+    id="walmart-plus",
+    name="Walmart+ credit",
+    amount_cents=1295,
+    cadence="monthly",
+    delivery="statement_credit",
+    enrollment=False,
+    merchants=("walmart+",),
+    credit_patterns=("walmart",),
+    posts_as_merchant=True,
+)
+
+
+def test_credit_posted_under_the_merchant_name_counts() -> None:
+    # Real Amex Gold line: the Dunkin' credit shows as "Dunkin' Donuts -$7.00".
+    result = usage(DUNKIN, NOV, 700, [txn(-700, "Dunkin' Donuts", merchant="Dunkin'")])
+    assert (result.used_cents, result.confirmed) == (700, True)
+
+
+def test_merchant_posted_credit_allows_tax() -> None:
+    # "up to $12.95 plus applicable taxes": a real line was Walmart -$13.76.
+    result = usage(WALMART_PLUS, NOV, 1295, [txn(-1376, "Walmart")])
+    assert (result.used_cents, result.confirmed) == (1295, True)
+
+
+def test_large_merchant_refund_is_still_not_a_credit() -> None:
+    result = usage(WALMART_PLUS, NOV, 1295, [txn(-8_999, "Walmart")])
+    assert result.used_cents == 0
+
+
+def test_named_credit_lines_from_real_statements() -> None:
+    assert usage(DINING, NOV, 1000, [txn(-1000, "AMEX Dining Credit")]).confirmed
+    assert usage(LULULEMON, NOV, 7500, [txn(-7500, "Platinum Lululemon Credit")]).confirmed
+    # A plain lululemon return on the same card stays a refund.
+    assert not usage(LULULEMON, NOV, 7500, [txn(-2000, "LULULEMON CHESTNUT H")]).confirmed

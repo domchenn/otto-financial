@@ -15,8 +15,10 @@
 #   merchants           lowercase text matched against a purchase's merchant or name
 #   categories          Plaid personal finance categories (primary) that qualify
 #   credit_patterns     lowercase text matched against the issuer's statement-credit line.
-#                       Issuer descriptors aren't published; these are first guesses to tune
-#                       against real statements.
+#                       Amex lines were checked against real statements (Nov 2026); others
+#                       are first guesses to tune.
+#   posts_as_merchant   the credit line shows the merchant's name with no "credit" in it
+#                       ("Dunkin' Donuts -$7.00"); it counts when no bigger than the credit
 #   channel             where it has to be booked or bought, when that matters
 #   ends                last day the credit is offered (inclusive), when the issuer states one
 #
@@ -84,6 +86,7 @@ sources = ["https://www.americanexpress.com/us/credit-cards/card/platinum/"]
   enrollment = false
   merchants = ["walmart+", "walmart plus"]
   credit_patterns = ["walmart"]
+  posts_as_merchant = true
 
   [[cards.credits]]
   id = "uber-one"
@@ -114,6 +117,39 @@ sources = ["https://www.americanexpress.com/us/credit-cards/card/platinum/"]
   enrollment = false
   merchants = ["clear"]
   credit_patterns = ["clear"]
+
+  [[cards.credits]]
+  id = "oura"
+  name = "Oura Ring credit"
+  amount_cents = 20000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["ouraring", "oura"]
+  credit_patterns = ["oura"]
+
+  [[cards.credits]]
+  id = "equinox"
+  name = "Equinox credit"
+  amount_cents = 30000
+  cadence = "calendar_year"
+  delivery = "statement_credit"
+  enrollment = true
+  merchants = ["equinox"]
+  credit_patterns = ["equinox"]
+  posts_as_merchant = true
+
+  # No longer on the issuer page (Nov 2026); seen on a statement for Jan-Jun 2026 only.
+  [[cards.credits]]
+  id = "saks"
+  name = "Saks credit"
+  amount_cents = 5000
+  cadence = "semiannual"
+  delivery = "statement_credit"
+  enrollment = true
+  ends = 2026-06-30
+  merchants = ["saks"]
+  credit_patterns = ["saks"]
 
   [[cards.credits]]
   id = "uber-cash"
@@ -162,6 +198,7 @@ sources = ["https://www.americanexpress.com/us/credit-cards/card/gold-card/"]
   enrollment = true
   merchants = ["dunkin"]
   credit_patterns = ["dunkin"]
+  posts_as_merchant = true
 
   [[cards.credits]]
   id = "uber-cash"
@@ -289,6 +326,7 @@ sources = ["https://awardwallet.com/credit-cards/use-statement-credits/"]
   enrollment = false
   merchants = ["walmart+", "walmart plus"]
   credit_patterns = ["walmart"]
+  posts_as_merchant = true
 
   [[cards.credits]]
   id = "squarespace"

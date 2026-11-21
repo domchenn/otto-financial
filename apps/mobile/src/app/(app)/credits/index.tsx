@@ -14,6 +14,8 @@ import { useBenefits } from '@/lib/api';
 import {
   allCredits,
   expiringSections,
+  historyByMonth,
+  historyLabel,
   isUrgent,
   isUsed,
   resetsLabel,
@@ -26,7 +28,7 @@ import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-type Mode = 'expiring' | 'card' | 'used';
+type Mode = 'expiring' | 'card' | 'year';
 
 export default function Credits() {
   const [mode, setMode] = useState<Mode>('expiring');
@@ -46,9 +48,8 @@ export default function Credits() {
               title: `${c.card_name ?? c.account_name}${c.account_mask ? ` •• ${c.account_mask}` : ''}`,
               items: c.credits,
             }))
-        : [{ title: 'Used this period', items: credits.filter(isUsed) }].filter(
-            (s) => s.items.length > 0,
-          );
+        : [];
+  const months = data && mode === 'year' ? historyByMonth(data.history, todayIso()) : [];
 
   return (
     <StepScreen
@@ -70,13 +71,17 @@ export default function Credits() {
         ) : (
           <>
             <Text variant="body" weight="extrabold" style={{ fontSize: 17 }} tabular>
+              {formatCents(data?.used_this_year_cents ?? 0)}
+            </Text>{' '}
+            used this year ·{' '}
+            <Text variant="body" weight="extrabold" style={{ fontSize: 17 }} tabular>
+              {formatCents(data?.missed_this_year_cents ?? 0)}
+            </Text>{' '}
+            missed ·{' '}
+            <Text variant="body" weight="extrabold" style={{ fontSize: 17 }} tabular>
               {formatCents(data?.remaining_cents ?? 0)}
             </Text>{' '}
-            left to use ·{' '}
-            <Text variant="body" weight="extrabold" style={{ fontSize: 17 }} tabular>
-              {formatCents(data?.expiring_this_month_cents ?? 0)}
-            </Text>{' '}
-            resets this month
+            left to use now
           </>
         )}
       </Text>
@@ -108,13 +113,13 @@ export default function Credits() {
           onPress={() => setMode('expiring')}
         />
         <Chip label="By card" selected={mode === 'card'} onPress={() => setMode('card')} />
-        <Chip label="Used" selected={mode === 'used'} onPress={() => setMode('used')} />
+        <Chip label="This year" selected={mode === 'year'} onPress={() => setMode('year')} />
       </View>
 
-      {data && sections.length === 0 ? (
+      {data && (mode === 'year' ? months.length === 0 : sections.length === 0) ? (
         <Text variant="body" muted style={{ marginTop: space.xl }}>
-          {mode === 'used'
-            ? 'Nothing used yet this period.'
+          {mode === 'year'
+            ? 'Nothing used or missed yet this year.'
             : credits.length === 0
               ? 'No credits to track yet. Tell Otto which cards you have.'
               : 'Every credit is used for now.'}
@@ -128,12 +133,7 @@ export default function Credits() {
               {s.title}
             </Text>
             <Text variant="body" weight="semibold" muted tabular>
-              {formatCents(
-                s.items.reduce(
-                  (sum, c) => sum + (mode === 'used' ? c.amount_cents : c.remaining_cents),
-                  0,
-                ),
-              )}
+              {formatCents(s.items.reduce((sum, c) => sum + c.remaining_cents, 0))}
             </Text>
           </View>
           <Card style={styles.list}>
@@ -145,7 +145,48 @@ export default function Credits() {
           </Card>
         </View>
       ))}
+
+      {months.map((m) => (
+        <View key={m.key}>
+          <View style={styles.groupHead}>
+            <Text variant="row" weight="bold" style={{ fontSize: 18 }}>
+              {m.title}
+            </Text>
+            <Text variant="body" weight="semibold" muted tabular>
+              {formatCents(m.usedCents)} used
+              {m.missedCents > 0 ? ` · ${formatCents(m.missedCents)} missed` : ''}
+            </Text>
+          </View>
+          <Card style={styles.list}>
+            <Stack>
+              {m.items.map((c) => (
+                <HistoryRow key={c.period_id} credit={c} />
+              ))}
+            </Stack>
+          </Card>
+        </View>
+      ))}
     </StepScreen>
+  );
+}
+
+function todayIso(): string {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function HistoryRow({ credit: c }: { credit: CreditPeriod }) {
+  const { palette } = useTheme();
+  const missedOnly = c.used_value_cents === 0;
+  return (
+    <ListRow
+      leading={<Swatch name={c.card_name} />}
+      title={c.name}
+      subtitle={`${c.card_name} · ${historyLabel(c)}`}
+      value={formatCents(missedOnly ? c.missed_cents : c.used_value_cents, { cents: 'auto' })}
+      valueColor={missedOnly ? palette.muted : palette.moneyIn}
+      onPress={() => router.push(`/credits/${c.period_id}`)}
+    />
   );
 }
 
