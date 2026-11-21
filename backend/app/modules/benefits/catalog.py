@@ -38,6 +38,8 @@ class CreditDefinition(_Strict):
     merchants: tuple[str, ...] = ()
     categories: tuple[str, ...] = ()
     credit_patterns: tuple[str, ...] = ()
+    # The issuer's credit line shows the merchant's name, not the word "credit".
+    posts_as_merchant: bool = False
     ends: dt.date | None = None
 
     @model_validator(mode="after")

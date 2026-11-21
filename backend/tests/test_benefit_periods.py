@@ -3,7 +3,13 @@ import datetime as dt
 import pytest
 
 from app.modules.benefits.catalog import CreditDefinition
-from app.modules.benefits.periods import Window, amount_for, current_window, window_for
+from app.modules.benefits.periods import (
+    Window,
+    amount_for,
+    current_window,
+    window_for,
+    windows_between,
+)
 
 D = dt.date
 
@@ -81,3 +87,35 @@ def test_december_amount() -> None:
     rideshare = credit(amount_cents=800, december_amount_cents=1200)
     assert amount_for(rideshare, Window(D(2026, 11, 1), D(2026, 11, 30))) == 800
     assert amount_for(rideshare, Window(D(2026, 12, 1), D(2026, 12, 31))) == 1200
+
+
+def test_windows_between_covers_the_year_so_far() -> None:
+    monthly = credit()
+    windows = windows_between(monthly, D(2026, 1, 1), D(2026, 11, 20))
+    assert len(windows) == 11
+    assert windows[0] == Window(D(2026, 1, 1), D(2026, 1, 31))
+    assert windows[-1] == Window(D(2026, 11, 1), D(2026, 11, 30))
+
+    quarterly = credit(cadence="quarterly")
+    assert [w.start for w in windows_between(quarterly, D(2026, 1, 1), D(2026, 11, 20))] == [
+        D(2026, 1, 1),
+        D(2026, 4, 1),
+        D(2026, 7, 1),
+        D(2026, 10, 1),
+    ]
+
+
+def test_windows_between_starts_with_the_card_year_containing_jan_1() -> None:
+    yearly = credit(cadence="cardmember_year")
+    windows = windows_between(yearly, D(2026, 1, 1), D(2026, 11, 20), anniversary_month=3)
+    assert windows == [
+        Window(D(2025, 3, 1), D(2026, 2, 28)),
+        Window(D(2026, 3, 1), D(2027, 2, 28)),
+    ]
+
+
+def test_windows_between_stops_at_the_end_date() -> None:
+    saks = credit(cadence="semiannual", ends=D(2026, 6, 30))
+    assert windows_between(saks, D(2026, 1, 1), D(2026, 11, 20)) == [
+        Window(D(2026, 1, 1), D(2026, 6, 30))
+    ]

@@ -76,3 +76,26 @@ def current_window(
 def amount_for(credit: CreditDefinition, window: Window) -> int:
     """The credit's value in this window (monthly credits can be larger in December)."""
     return credit.amount_for_month(window.start.month)
+
+
+def windows_between(
+    credit: CreditDefinition, start: dt.date, today: dt.date, anniversary_month: int | None = None
+) -> list[Window]:
+    """Every window of this credit that overlaps start..today, oldest first.
+
+    Used to rebuild history (this year's periods), so past windows can show as used or
+    missed. Windows after the credit's end date are left out; the last one is cut short.
+    """
+    windows: list[Window] = []
+    day = start
+    while day <= today:
+        if credit.ends is not None and day > credit.ends:
+            break
+        window = window_for(credit.cadence, day, anniversary_month)
+        if window is None:
+            break
+        if credit.ends is not None and credit.ends < window.end:
+            window = Window(window.start, credit.ends)
+        windows.append(window)
+        day = window.end + dt.timedelta(days=1)
+    return windows
