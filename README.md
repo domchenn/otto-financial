@@ -58,6 +58,18 @@ with code `123456` (or skip that step). Then pick any non-OAuth bank and sign in
 (eduroam) usually blocks the phone from reaching the Mac.
 Pull to refresh on Home, Wallet or a card to sync again (webhooks come later).
 
+### Real bank data (Plaid Trial)
+
+`make dev` always uses the sandbox. For your real accounts:
+
+1. `cp backend/.env.live.example backend/.env.live` and paste the **Production** secret
+   (Dashboard → Developers → Keys). The file is gitignored.
+2. `make dev-live`. It creates the `otto_live` database on first run, migrates it and starts
+   everything with Plaid Production. Sandbox data stays in `otto`; the two never mix.
+3. Connect banks from the + on Wallet. Plaid's free Trial allows 20 connections.
+
+Apple Card isn't available through Plaid; it needs FinanceKit (see the PRD).
+
 If tests can't connect with `role "otto" does not exist`, another Postgres (e.g. Homebrew) is
 holding `localhost:5432`. Stop it (`brew services stop postgresql@15`) or point
 `OTTO_DATABASE_URL` / `OTTO_TEST_DATABASE_URL` at the container.
