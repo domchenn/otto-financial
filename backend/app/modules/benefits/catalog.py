@@ -53,7 +53,7 @@ class CreditDefinition(_Strict):
 
     @property
     def tracked(self) -> bool:
-        """Statement credits are tracked now; other deliveries come later (see TODO.md)."""
+        """Statement credits are tracked now; other deliveries come later (PRD F4)."""
         return self.delivery == "statement_credit"
 
     def amount_for_month(self, month: int) -> int:
