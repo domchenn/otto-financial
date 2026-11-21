@@ -7,6 +7,7 @@ from app.modules.accounts import models as _accounts  # noqa: F401  (register ta
 from app.modules.benefits import models as _benefits  # noqa: F401  (register tables)
 from app.modules.budgets import models as _budgets  # noqa: F401  (register tables)
 from app.modules.identity import models as _identity  # noqa: F401  (register tables)
+from app.modules.points import models as _points  # noqa: F401  (register tables)
 
 target_metadata = Base.metadata
 
