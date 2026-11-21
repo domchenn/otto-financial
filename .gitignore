@@ -6,3 +6,8 @@ TODO.md
 
 # Personal editor settings
 .vscode/
+
+# Environment files hold secrets; only the *.example templates are committed.
+.env
+.env.*
+!.env*.example
