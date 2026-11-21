@@ -64,14 +64,23 @@ describe('Credits', () => {
     expect(mockPush).toHaveBeenCalledWith('/card/acc-plaid/product');
   });
 
-  it('shows used credits under Used', async () => {
-    const used = creditPeriod({ remaining_cents: 0, used_cents: 1000, marked_used: true });
-    mockBenefits = { ...benefits, cards: [{ ...benefits.cards[0]!, credits: [used] }] };
+  it('shows what was used and missed this year', async () => {
     await renderScreen(<Credits />);
-    expect(screen.queryByText('Dining credit')).toBeNull();
-    await fireEvent.press(screen.getByRole('button', { name: 'Used' }));
-    expect(screen.getByText('Dining credit')).toBeOnTheScreen();
-    expect(screen.getByText('Gold Card · Marked used')).toBeOnTheScreen();
+    expect(
+      screen.getByText('$17 used this year · $10 missed · $67 left to use now'),
+    ).toBeOnTheScreen();
+  });
+
+  it('lists this year by month with used and missed credits', async () => {
+    await renderScreen(<Credits />);
+    await fireEvent.press(screen.getByRole('button', { name: 'This year' }));
+    expect(screen.getByText('October')).toBeOnTheScreen();
+    expect(screen.getByText('$17 used')).toBeOnTheScreen();
+    expect(screen.getByText('September')).toBeOnTheScreen();
+    expect(screen.getByText('$0 used · $10 missed')).toBeOnTheScreen();
+    expect(screen.getByText('Gold Card · Missed')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByText('Gold Card · Missed'));
+    expect(mockPush).toHaveBeenCalledWith('/credits/p-dining-sep');
   });
 });
 
@@ -107,6 +116,19 @@ describe('Credit detail', () => {
   });
 });
 
+describe('Past credit', () => {
+  it('opens from history, says when it ended and can still be marked used', async () => {
+    mockParams = { id: 'p-dining-sep' };
+    await renderScreen(<CreditDetail />);
+    expect(screen.getByText('Ended Sep 30')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Mark as used' }));
+    expect(mockMark).toHaveBeenCalledWith(
+      { periodId: 'p-dining-sep', used: true },
+      expect.anything(),
+    );
+  });
+});
+
 describe('Card picker', () => {
   beforeEach(() => {
     mockParams = { id: 'acc-plaid' };
@@ -133,5 +155,31 @@ describe('Card picker', () => {
       { accountId: 'acc-plaid', cardId: 'chase-sapphire-reserve', anniversaryMonth: 3 },
       expect.anything(),
     );
+  });
+
+  it("lists the account's own bank first", async () => {
+    await renderScreen(<CardProductPicker />);
+    // acc-plaid is at First Platypus Bank, so the catalog order stays as is.
+    const radios = screen.getAllByRole('radio').map((r) => r.props.accessibilityLabel);
+    expect(radios.slice(0, 2)).toEqual(['Gold Card', 'Sapphire Reserve']);
+  });
+
+  it('puts Chase cards first for a Chase account', async () => {
+    mockParams = { id: 'acc-chase' };
+    mockBenefits = {
+      ...benefits,
+      cards: [
+        ...benefits.cards,
+        {
+          ...benefits.cards[1]!,
+          account_id: 'acc-chase',
+          account_name: 'CREDIT CARD',
+          institution_name: 'Chase',
+        },
+      ],
+    };
+    await renderScreen(<CardProductPicker />);
+    const radios = screen.getAllByRole('radio').map((r) => r.props.accessibilityLabel);
+    expect(radios[0]).toBe('Sapphire Reserve');
   });
 });

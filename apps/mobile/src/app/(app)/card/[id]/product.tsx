@@ -28,7 +28,7 @@ export default function CardProductPicker() {
   const product = products.find((p) => p.id === selected);
   const needsMonth = product?.needs_anniversary ?? false;
 
-  const issuers = groupByIssuer(products);
+  const issuers = groupByIssuer(products, current?.institution_name ?? null);
 
   const save = () =>
     assign.mutate(
@@ -108,10 +108,20 @@ export default function CardProductPicker() {
   );
 }
 
-function groupByIssuer(products: CardProduct[]): [string, CardProduct[]][] {
+/**
+ * Catalog cards by issuer, with the account's own bank first: some banks (Chase) give every
+ * card the same generic name, so Otto can't guess which one it is.
+ */
+function groupByIssuer(
+  products: CardProduct[],
+  institution: string | null,
+): [string, CardProduct[]][] {
   const groups = new Map<string, CardProduct[]>();
   for (const p of products) groups.set(p.issuer, [...(groups.get(p.issuer) ?? []), p]);
-  return [...groups.entries()];
+  const own = institution?.toLowerCase() ?? '';
+  const isOwn = (issuer: string) =>
+    own !== '' && (own.includes(issuer.toLowerCase()) || issuer.toLowerCase().includes(own));
+  return [...groups.entries()].sort(([a], [b]) => Number(isOwn(b)) - Number(isOwn(a)));
 }
 
 const styles = StyleSheet.create({
