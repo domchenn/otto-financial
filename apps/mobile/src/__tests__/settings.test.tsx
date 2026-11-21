@@ -21,6 +21,10 @@ let mockSummary: Summary = summary;
 jest.mock('@/lib/api', () => ({
   useSummary: () => ({ data: mockSummary, isError: false }),
   useMe: () => ({ data: undefined, isError: false }),
+  useBudget: () => ({
+    data: jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures').budget,
+    isError: false,
+  }),
 }));
 
 beforeEach(() => {
@@ -50,5 +54,12 @@ describe('Settings', () => {
     expect(screen.getByText('1 needs attention')).toBeOnTheScreen();
     await fireEvent.press(screen.getByText('Connected accounts'));
     expect(mockPush).toHaveBeenCalledWith('/settings/accounts');
+  });
+
+  it('shows the budget and opens its settings', async () => {
+    await renderScreen(<Settings />);
+    expect(screen.getByText('$500 a week')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByText('Budget'));
+    expect(mockPush).toHaveBeenCalledWith('/settings/budget');
   });
 });

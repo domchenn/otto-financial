@@ -13,8 +13,9 @@ import { ListRow, SectionHeader } from '@/components/rows';
 import { StatTile, TileGrid } from '@/components/StatTile';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useBenefits, useNetWorth, useSpending, useSummary, useTransactions } from '@/lib/api';
-import { budgetLimitCents } from '@/lib/budget';
+import { TextButton } from '@/components/Button';
+import { useBenefits, useBudget, useNetWorth, useSummary, useTransactions } from '@/lib/api';
+import { leadPeriod, periodBudget, spentShare, type Budget, type BudgetPeriod } from '@/lib/budget';
 import { noticeSentence } from '@/lib/credits';
 import {
   amountLabel,
@@ -65,14 +66,14 @@ export default function Home() {
   const netWorth = useNetWorth().data;
   const credits = useBenefits().data;
   const nudge = credits?.needs_attention[0];
-  const spending = useSpending('week');
+  const budgetQuery = useBudget();
   // Never show stale or made-up numbers next to an error: no data means "—".
   const s = summary.isError ? undefined : summary.data;
-  const weekData = spending.isError ? undefined : spending.data;
-  const failed = summary.isError || spending.isError;
-  const limitCents = budgetLimitCents.week;
-  const spentCents = weekData?.spent_cents ?? 0;
-  const leftCents = limitCents - spentCents;
+  const budget = budgetQuery.isError ? undefined : budgetQuery.data;
+  const failed = summary.isError || budgetQuery.isError;
+  const lead = leadPeriod(budget);
+  const tilePeriod: BudgetPeriod = lead ?? 'week';
+  const tile = budget ? periodBudget(budget, tilePeriod) : undefined;
   const next = s?.upcoming_payments[0];
   const connected = summary.data?.has_connections ?? true;
 
@@ -110,22 +111,7 @@ export default function Home() {
         />
       </View>
 
-      <Text variant="display" style={styles.hero}>
-        You have{' '}
-        <Text variant="display" color={palette.link} tabular>
-          {weekData ? formatCents(Math.max(leftCents, 0)) : '—'}
-        </Text>{' '}
-        left to spend this week.
-      </Text>
-      <Text variant="body" muted style={styles.heroSub}>
-        {failed
-          ? "Otto couldn't reach your data. Pull down to try again."
-          : !weekData
-            ? ' '
-            : leftCents < 0
-              ? `You're ${formatCents(-leftCents)} over this week's budget.`
-              : `You've spent ${formatCents(spentCents)} since Monday.`}
-      </Text>
+      <Hero budget={budget} failed={failed} />
 
       {!connected ? (
         <View style={{ marginTop: space.xl }}>
@@ -153,18 +139,20 @@ export default function Home() {
         <TileGrid>
           <StatTile
             tone="mint"
-            label="This week"
-            value={weekData ? formatCents(spentCents) : '—'}
-            suffix={`of ${formatCents(limitCents)}`}
+            label={tilePeriod === 'week' ? 'This week' : 'This month'}
+            value={tile ? formatCents(tile.spent_cents) : '—'}
+            suffix={tile?.limit_cents ? `of ${formatCents(tile.limit_cents)}` : undefined}
             onPress={() => router.push('/spending')}
           >
-            <View style={{ marginTop: space.md }}>
-              <ProgressBar
-                value={weekData ? Math.min(spentCents / limitCents, 1) : 0}
-                color={palette.tones.mint.accent}
-                track={palette.tones.mint.track}
-              />
-            </View>
+            {tile?.limit_cents ? (
+              <View style={{ marginTop: space.md }}>
+                <ProgressBar
+                  value={spentShare(tile)}
+                  color={palette.tones.mint.accent}
+                  track={palette.tones.mint.track}
+                />
+              </View>
+            ) : null}
           </StatTile>
           <StatTile
             tone="lilac"
@@ -241,6 +229,77 @@ export default function Home() {
   );
 }
 
+const SINCE: Record<BudgetPeriod, string> = { week: 'since Monday', month: 'since the 1st' };
+
+/** "You have $X left to spend this week." and the line under it, for every budget state. */
+function Hero({ budget, failed }: { budget: Budget | undefined; failed: boolean }) {
+  const { palette } = useTheme();
+  const amount = (cents: number | null) => (
+    <Text variant="display" color={palette.link} tabular>
+      {cents === null ? '—' : formatCents(cents)}
+    </Text>
+  );
+
+  if (failed || !budget) {
+    return (
+      <>
+        <Text variant="display" style={styles.hero}>
+          You have {amount(null)} left to spend this week.
+        </Text>
+        <Text variant="body" muted style={styles.heroSub}>
+          {failed ? "Otto couldn't reach your data. Pull down to try again." : ' '}
+        </Text>
+      </>
+    );
+  }
+
+  const lead = leadPeriod(budget);
+  if (lead === null) {
+    // Not set up yet, or "just show me what I spend".
+    return (
+      <>
+        <Text variant="display" style={styles.hero}>
+          You&apos;ve spent {amount(budget.week.spent_cents)} this week.
+        </Text>
+        {budget.configured ? (
+          <Text variant="body" muted style={styles.heroSub}>
+            No limit set. {formatCents(budget.month.spent_cents)} so far this month.
+          </Text>
+        ) : (
+          <View style={styles.heroAction}>
+            <TextButton
+              title="Set a budget to see what's left"
+              onPress={() => router.push('/settings/budget')}
+            />
+          </View>
+        )}
+      </>
+    );
+  }
+
+  const p = periodBudget(budget, lead);
+  const left = p.remaining_cents ?? 0;
+  const spent = `You've spent ${formatCents(p.spent_cents)} ${SINCE[lead]}.`;
+  return (
+    <>
+      <Text variant="display" style={styles.hero}>
+        {left < 0 ? (
+          <>
+            You&apos;re {amount(-left)} over budget this {lead}.
+          </>
+        ) : (
+          <>
+            You have {amount(left)} left to spend this {lead}.
+          </>
+        )}
+      </Text>
+      <Text variant="body" muted style={styles.heroSub}>
+        {spent}
+      </Text>
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
@@ -253,4 +312,5 @@ const styles = StyleSheet.create({
   greeting: { flex: 1 },
   hero: { marginTop: space.xxl, fontSize: 40, lineHeight: 46 },
   heroSub: { marginTop: space.sm, fontSize: 17 },
+  heroAction: { marginTop: space.sm, alignItems: 'flex-start' },
 });

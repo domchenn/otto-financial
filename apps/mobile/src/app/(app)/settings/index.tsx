@@ -9,9 +9,9 @@ import { StepScreen } from '@/components/layouts';
 import { GroupLabel, SettingRow, ToggleRow } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useMe, useSummary } from '@/lib/api';
-import { formatCents } from '@/lib/money';
-import { points, trip, week } from '@/lib/sample';
+import { useBudget, useMe, useSummary } from '@/lib/api';
+import { budgetSummary } from '@/lib/budget';
+import { points, trip } from '@/lib/sample';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
@@ -23,6 +23,7 @@ export default function Settings() {
   const name = user?.fullName ?? user?.firstName ?? 'You';
   const email = user?.primaryEmailAddress?.emailAddress ?? '';
   const attention = useSummary().data?.attention.length ?? 0;
+  const budget = useBudget().data;
 
   const confirmSignOut = () =>
     Alert.alert('Sign out of Otto?', undefined, [
@@ -54,9 +55,9 @@ export default function Settings() {
             onPress={() => router.push('/settings/accounts')}
           />
           <SettingRow
-            label="Weekly budget"
-            value={formatCents(week.limitCents)}
-            onPress={() => router.push('/onboarding/budget')}
+            label="Budget"
+            value={budgetSummary(budget)}
+            onPress={() => router.push('/settings/budget')}
           />
           <SettingRow
             label="Trip goal"
