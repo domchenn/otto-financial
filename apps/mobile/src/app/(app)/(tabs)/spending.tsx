@@ -10,8 +10,8 @@ import { ListRow, SectionHeader } from '@/components/rows';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useSpending } from '@/lib/api';
-import { budgetLimitCents, type BudgetPeriod } from '@/lib/budget';
+import { useBudget, useSpending } from '@/lib/api';
+import { periodBudget, remainingLabel, spentShare, type BudgetPeriod } from '@/lib/budget';
 import { categoryName, parseDate, spendingInsight } from '@/lib/finance';
 import { formatCents } from '@/lib/money';
 import { useRefresh } from '@/lib/useRefresh';
@@ -25,12 +25,15 @@ export default function Spending() {
   const { palette } = useTheme();
   const [period, setPeriod] = useState<BudgetPeriod>('week');
   const spending = useSpending(period);
+  const budgetQuery = useBudget();
   const refresh = useRefresh();
   // Never show stale or made-up numbers next to an error.
   const data = spending.isError ? undefined : spending.data;
-  const limit = budgetLimitCents[period];
+  const budget = budgetQuery.isError ? undefined : budgetQuery.data;
+  // The budget's own spend uses the same filters as this screen, so they always agree.
+  const limit = budget ? periodBudget(budget, period) : undefined;
   const spent = data?.spent_cents ?? 0;
-  const left = limit - spent;
+  const left = limit?.remaining_cents ?? null;
   // One color for every progress bar on this screen: the Home "This week" green.
   const barColor = palette.tones.mint.accent;
   const insight = data ? spendingInsight(data) : null;
@@ -58,14 +61,16 @@ export default function Spending() {
           <Text variant="hero" tabular>
             {data ? formatCents(spent, { cents: true }) : '—'}
           </Text>
-          <Text variant="body" muted style={{ fontSize: 20 }}>
-            {' '}
-            of {formatCents(limit)}
-          </Text>
+          {limit?.limit_cents ? (
+            <Text variant="body" muted style={{ fontSize: 20 }}>
+              {' '}
+              of {formatCents(limit.limit_cents)}
+            </Text>
+          ) : null}
         </View>
         <View style={{ marginTop: space.md }}>
           <ProgressBar
-            value={data ? Math.min(spent / limit, 1) : 0}
+            value={data && limit ? spentShare(limit) : 0}
             color={barColor}
             track={palette.raised}
             height={10}
@@ -74,16 +79,18 @@ export default function Spending() {
         <Text
           variant="row"
           weight="bold"
-          color={spending.isError ? palette.alert : left < 0 ? palette.alert : palette.ink}
+          color={spending.isError || (left !== null && left < 0) ? palette.alert : palette.ink}
           style={{ marginTop: space.md }}
         >
           {spending.isError
             ? "Otto couldn't load your spending. Pull down to try again."
             : !data
               ? ' '
-              : left < 0
-                ? `${formatCents(-left)} over`
-                : `${formatCents(left)} left`}
+              : limit && limit.limit_cents !== null
+                ? remainingLabel(limit)
+                : budget?.configured
+                  ? `No ${period}ly limit set`
+                  : 'No budget set yet'}
         </Text>
 
         {period === 'week' && data ? <WeekChart days={data.days} /> : null}
