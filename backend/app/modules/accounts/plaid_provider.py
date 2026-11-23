@@ -38,6 +38,23 @@ _KINDS: set[str] = {"depository", "credit", "loan", "investment"}
 _UNSUPPORTED = {"PRODUCTS_NOT_SUPPORTED", "PRODUCT_NOT_ENABLED", "NO_LIABILITY_ACCOUNTS"}
 
 
+# All-caps words that are names, not shouting: kept as they are.
+_ACRONYMS = {"USAA", "HSBC", "TIAA", "PNC", "BMO", "TD", "IRA", "HSA", "CD", "SEP", "401K"}
+
+
+def display_name(name: str) -> str:
+    """Banks often send account names in all caps ("CHASE COLLEGE"). Show long all-caps
+    words in title case ("Chase College"); leave mixed case ("BofA"), short words, words
+    with digits and known acronyms alone."""
+
+    def word(w: str) -> str:
+        if w.upper() in _ACRONYMS or len(w) < 4 or not w.isalpha() or not w.isupper():
+            return w
+        return w.capitalize()
+
+    return " ".join(word(w) for w in name.split(" "))
+
+
 class PlaidNotConfiguredError(RuntimeError):
     pass
 
@@ -112,7 +129,7 @@ class PlaidProvider:
             accounts.append(
                 ProviderAccount(
                     account_id=a["account_id"],
-                    name=a["name"],
+                    name=display_name(a["name"]),
                     official_name=_str(a.get("official_name")),
                     mask=_str(a.get("mask")),
                     kind=cast(AccountKind, kind if kind in _KINDS else "other"),
