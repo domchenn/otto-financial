@@ -182,4 +182,5 @@ def _transaction(t: Any) -> ProviderTransaction:
         category=_str(category["primary"]) if category else None,
         pending=bool(t["pending"]),
         pending_transaction_id=_str(t.get("pending_transaction_id")),
+        category_detailed=_str(category["detailed"]) if category else None,
     )

@@ -8,6 +8,7 @@ import { draftBody } from './budget';
 import type { Benefits, CardProduct } from './credits';
 import type { Account, Connection, NetWorth, Spending, Summary, Transaction } from './finance';
 import { preparePlaidLink, type PlaidOutcome, type PreparedLink } from './plaid';
+import type { Points } from './points';
 
 export class ApiError extends Error {
   constructor(
@@ -64,6 +65,7 @@ export const queryKeys = {
   benefits: ['benefits'] as const,
   budget: ['budget'] as const,
   cardProducts: ['card-products'] as const,
+  points: ['points'] as const,
 };
 
 export type TransactionParams = {
@@ -151,6 +153,7 @@ function useInvalidateMoney() {
           'transaction',
           'benefits',
           'budget',
+          'points',
         ].map((key) => client.invalidateQueries({ queryKey: [key] })),
       ),
     [client],
@@ -280,6 +283,7 @@ function useSetBenefits() {
 
 export function useAssignCard() {
   const api = useApi();
+  const client = useQueryClient();
   const setBenefits = useSetBenefits();
   return useMutation({
     mutationFn: (body: {
@@ -291,7 +295,11 @@ export function useAssignCard() {
         method: 'PUT',
         body: JSON.stringify({ card_id: body.cardId, anniversary_month: body.anniversaryMonth }),
       }),
-    onSuccess: setBenefits,
+    onSuccess: (data) => {
+      setBenefits(data);
+      // The card decides which points program it earns into.
+      void client.invalidateQueries({ queryKey: queryKeys.points });
+    },
   });
 }
 
@@ -327,5 +335,24 @@ export function useSaveBudget() {
       void client.invalidateQueries({ queryKey: ['summary'] });
       void client.invalidateQueries({ queryKey: ['spending'] });
     },
+  });
+}
+
+export function usePoints() {
+  const api = useApi();
+  return useQuery({ queryKey: queryKeys.points, queryFn: () => api<Points>('/v1/points') });
+}
+
+/** Save the balance the user sees in their bank's app; returns the refreshed points. */
+export function useConfirmPoints() {
+  const api = useApi();
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ programId, points }: { programId: string; points: number }) =>
+      api<Points>(`/v1/points/${programId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ points }),
+      }),
+    onSuccess: (data) => client.setQueryData(queryKeys.points, data),
   });
 }

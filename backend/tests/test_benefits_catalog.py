@@ -123,3 +123,33 @@ sources = ["https://example.com"]
     )
     with pytest.raises(ValidationError):
         load_catalog(bad)
+
+
+def test_pooled_cards_share_a_program() -> None:
+    catalog = get_catalog()
+    programs = {c.id: c.points.program for c in catalog.cards if c.points is not None}
+    assert programs["chase-sapphire-preferred"] == programs["chase-freedom-unlimited"] == "chase-ur"
+    assert programs["amex-gold"] == programs["amex-platinum"] == "amex-mr"
+    assert all(catalog.program(p) is not None for p in programs.values())
+
+
+def test_rejects_a_card_earning_into_an_unknown_program(tmp_path: Path) -> None:
+    path = tmp_path / "catalog.toml"
+    path.write_text(
+        """
+[[cards]]
+id = "x"
+issuer = "X"
+name = "X"
+aliases = ["x"]
+verified = "issuer"
+last_verified = 2026-11-20
+sources = ["https://example.com"]
+
+  [cards.points]
+  program = "nope"
+  base = 1
+"""
+    )
+    with pytest.raises(ValidationError, match="unknown points program"):
+        load_catalog(path)

@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Budget, PeriodBudget } from '@/lib/budget';
 import type { Benefits, CreditPeriod } from '@/lib/credits';
+import type { Points } from '@/lib/points';
 import type { Account, Connection, NetWorth, Spending, Summary, Transaction } from '@/lib/finance';
 
 export function renderScreen(ui: ReactElement) {
@@ -350,4 +351,35 @@ export const budget: Budget = {
     spent_cents: 64000,
     remaining_cents: 136000,
   }),
+};
+
+/** Amex MR confirmed and estimated; Chase UR (two pooled cards) waiting for a balance. */
+export const points: Points = {
+  total_points: 122_220,
+  confirmed_count: 1,
+  programs: [
+    {
+      id: 'amex-mr',
+      name: 'Membership Rewards',
+      short_name: 'MR',
+      cards: [{ account_id: 'acc-gold', card_name: 'Gold Card', account_mask: '1007' }],
+      confirmed_points: 120_000,
+      confirmed_at: new Date().toISOString(),
+      earned_since: 2_220,
+      estimated_points: 122_220,
+    },
+    {
+      id: 'chase-ur',
+      name: 'Ultimate Rewards',
+      short_name: 'UR',
+      cards: [
+        { account_id: 'acc-csp', card_name: 'Sapphire Preferred', account_mask: '4421' },
+        { account_id: 'acc-cfu', card_name: 'Freedom Unlimited', account_mask: '8810' },
+      ],
+      confirmed_points: null,
+      confirmed_at: null,
+      earned_since: 0,
+      estimated_points: null,
+    },
+  ],
 };

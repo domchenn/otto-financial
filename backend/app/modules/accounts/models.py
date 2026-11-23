@@ -77,6 +77,7 @@ class Transaction(TimestampMixin, Base):
     name: Mapped[str] = mapped_column(String(512), nullable=False)
     merchant_name: Mapped[str | None] = mapped_column(String(256))
     category: Mapped[str | None] = mapped_column(String(64))
+    category_detailed: Mapped[str | None] = mapped_column(String(128))
     pending: Mapped[bool] = mapped_column(nullable=False, default=False)
 
 

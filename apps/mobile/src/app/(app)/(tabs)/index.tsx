@@ -14,7 +14,14 @@ import { StatTile, TileGrid } from '@/components/StatTile';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
 import { TextButton } from '@/components/Button';
-import { useBenefits, useBudget, useNetWorth, useSummary, useTransactions } from '@/lib/api';
+import {
+  useBenefits,
+  useBudget,
+  useNetWorth,
+  usePoints,
+  useSummary,
+  useTransactions,
+} from '@/lib/api';
 import { leadPeriod, periodBudget, spentShare, type Budget, type BudgetPeriod } from '@/lib/budget';
 import { noticeSentence } from '@/lib/credits';
 import {
@@ -25,8 +32,7 @@ import {
   netWorthChangeSentence,
 } from '@/lib/finance';
 import { formatCents, formatNumber } from '@/lib/money';
-// Points are still sample data until their milestone lands.
-import { points } from '@/lib/sample';
+import { pointsCaption } from '@/lib/points';
 import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -65,6 +71,7 @@ export default function Home() {
   const refresh = useRefresh();
   const netWorth = useNetWorth().data;
   const credits = useBenefits().data;
+  const points = usePoints().data;
   const nudge = credits?.needs_attention[0];
   const budgetQuery = useBudget();
   // Never show stale or made-up numbers next to an error: no data means "—".
@@ -157,9 +164,9 @@ export default function Home() {
           <StatTile
             tone="lilac"
             label="Points"
-            value={formatNumber(points.total)}
-            caption={`≈ ${formatCents(points.travelValueCents)} in travel`}
-            onPress={() => router.push({ pathname: '/chat', params: { q: 'japan' } })}
+            value={points && points.confirmed_count > 0 ? formatNumber(points.total_points) : '—'}
+            caption={points ? pointsCaption(points) : ' '}
+            onPress={() => router.push('/points')}
           />
           <StatTile
             tone="butter"

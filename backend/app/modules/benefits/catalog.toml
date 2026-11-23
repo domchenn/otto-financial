@@ -26,6 +26,27 @@
 # spend-unlocked credits (Adobe, Shops at Chase, Southwest), and Global Entry / TSA PreCheck
 # (every four years, anchored to the last use).
 
+# Points programs. Cards that pool (Chase UR, Amex MR) share one program.
+#
+# Card earn fields ([cards.points])
+#   program     the program's id below
+#   base        points per dollar on everything else
+#   rates       bonus rates; a purchase earns the highest one it matches. categories are Plaid
+#               personal finance categories, detailed (FOOD_AND_DRINK_RESTAURANT) or primary
+#               (TRAVEL); merchants are lowercase text matched against the merchant or name.
+#               Annual caps (Gold: $50k restaurants, $25k supermarkets) aren't modelled.
+# Only cards with a [cards.points] block count toward points; the rest come later.
+
+[[programs]]
+id = "amex-mr"
+name = "Membership Rewards"
+short_name = "MR"
+
+[[programs]]
+id = "chase-ur"
+name = "Ultimate Rewards"
+short_name = "UR"
+
 # ---------------------------------------------------------------- American Express
 
 [[cards]]
@@ -37,6 +58,21 @@ aliases = ["platinum card"]
 verified = "issuer"
 last_verified = 2026-11-20
 sources = ["https://www.americanexpress.com/us/credit-cards/card/platinum/"]
+
+  [cards.points]
+  program = "amex-mr"
+  base = 1
+
+  [[cards.points.rates]]
+  multiplier = 5
+  label = "Flights booked with the airline or Amex Travel"
+  categories = ["TRAVEL_FLIGHTS"]
+  merchants = ["amex travel", "amextravel"]
+
+  [[cards.points.rates]]
+  multiplier = 5
+  label = "Prepaid hotels through Amex Travel"
+  merchants = ["amex fine hotels", "hotel collection"]
 
   [[cards.credits]]
   id = "hotel"
@@ -168,6 +204,31 @@ aliases = ["gold card", "american express gold"]
 verified = "issuer"
 last_verified = 2026-11-20
 sources = ["https://www.americanexpress.com/us/credit-cards/card/gold-card/"]
+
+  [cards.points]
+  program = "amex-mr"
+  base = 1
+
+  [[cards.points.rates]]
+  multiplier = 5
+  label = "Prepaid hotels through Amex Travel"
+  merchants = ["amex travel hotel", "amextravel hotel"]
+
+  [[cards.points.rates]]
+  multiplier = 4
+  label = "Restaurants worldwide"
+  categories = ["FOOD_AND_DRINK_RESTAURANT", "FOOD_AND_DRINK_FAST_FOOD", "FOOD_AND_DRINK_COFFEE"]
+
+  [[cards.points.rates]]
+  multiplier = 4
+  label = "U.S. supermarkets"
+  categories = ["FOOD_AND_DRINK_GROCERIES"]
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Flights booked with the airline or Amex Travel"
+  categories = ["TRAVEL_FLIGHTS"]
+  merchants = ["amex travel", "amextravel"]
 
   [[cards.credits]]
   id = "dining"
@@ -658,6 +719,52 @@ verified = "issuer"
 last_verified = 2026-11-20
 sources = ["https://creditcards.chase.com/rewards-credit-cards/sapphire/preferred"]
 
+  [cards.points]
+  program = "chase-ur"
+  base = 1
+
+  [[cards.points.rates]]
+  multiplier = 5
+  label = "Chase Travel"
+  merchants = ["chase travel"]
+
+  [[cards.points.rates]]
+  multiplier = 5
+  label = "Lyft"
+  merchants = ["lyft"]
+  ends = 2027-09-30
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Dining"
+  categories = ["FOOD_AND_DRINK_RESTAURANT", "FOOD_AND_DRINK_FAST_FOOD", "FOOD_AND_DRINK_COFFEE"]
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Gas and EV charging"
+  categories = ["TRANSPORTATION_GAS"]
+  merchants = ["chargepoint", "electrify america", "evgo", "tesla supercharger"]
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Vacation homes"
+  merchants = ["airbnb", "vrbo", "plum guide", "homeaway", "homestay", "vacasa"]
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Streaming"
+  merchants = ["netflix", "hulu", "disney plus", "disney+", "hbo max", "spotify", "youtube tv", "peacock", "paramount+", "apple tv", "sling"]
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Online groceries"
+  merchants = ["instacart", "amazon fresh", "whole foods market online", "freshdirect"]
+
+  [[cards.points.rates]]
+  multiplier = 2
+  label = "Other travel"
+  categories = ["TRAVEL", "TRANSPORTATION_TAXIS_AND_RIDE_SHARES", "TRANSPORTATION_PUBLIC_TRANSIT", "TRANSPORTATION_PARKING", "TRANSPORTATION_TOLLS"]
+
   [[cards.credits]]
   id = "hotel"
   name = "Chase Travel hotel credit"
@@ -810,6 +917,26 @@ verified = "issuer"
 last_verified = 2026-11-20
 sources = ["https://creditcards.chase.com/cash-back-credit-cards/freedom/flex"]
 
+  # 5% rotating categories need activation each quarter; not counted yet.
+  [cards.points]
+  program = "chase-ur"
+  base = 1
+
+  [[cards.points.rates]]
+  multiplier = 5
+  label = "Chase Travel"
+  merchants = ["chase travel"]
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Dining"
+  categories = ["FOOD_AND_DRINK_RESTAURANT", "FOOD_AND_DRINK_FAST_FOOD", "FOOD_AND_DRINK_COFFEE"]
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Drugstores"
+  categories = ["MEDICAL_PHARMACIES_AND_SUPPLEMENTS"]
+
 [[cards]]
 id = "chase-freedom-unlimited"
 issuer = "Chase"
@@ -819,6 +946,25 @@ aliases = ["freedom unlimited"]
 verified = "issuer"
 last_verified = 2026-11-20
 sources = ["https://creditcards.chase.com/cash-back-credit-cards/freedom/unlimited"]
+
+  [cards.points]
+  program = "chase-ur"
+  base = 1.5
+
+  [[cards.points.rates]]
+  multiplier = 5
+  label = "Chase Travel"
+  merchants = ["chase travel"]
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Dining"
+  categories = ["FOOD_AND_DRINK_RESTAURANT", "FOOD_AND_DRINK_FAST_FOOD", "FOOD_AND_DRINK_COFFEE"]
+
+  [[cards.points.rates]]
+  multiplier = 3
+  label = "Drugstores"
+  categories = ["MEDICAL_PHARMACIES_AND_SUPPLEMENTS"]
 
 [[cards]]
 id = "chase-prime-visa"

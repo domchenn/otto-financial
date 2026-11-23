@@ -6,10 +6,12 @@ import Home from '@/app/(app)/(tabs)/index';
 import type { Benefits } from '@/lib/credits';
 import type { Budget } from '@/lib/budget';
 import type { Summary, Transaction } from '@/lib/finance';
+import type { Points } from '@/lib/points';
 import {
   benefits,
   budget,
   periodBudget,
+  points,
   refund,
   renderScreen,
   mockResult,
@@ -29,11 +31,13 @@ let mockTransactions: Transaction[] | undefined;
 let mockBenefits: Benefits | undefined;
 let mockBudget: Budget | undefined;
 let mockBudgetError = false;
+let mockPoints: Points | undefined;
 jest.mock('@/lib/api', () => ({
   useSummary: () => mockResult(mockSummary, { isError: mockSummaryError }),
   useTransactions: () => mockResult(mockTransactions),
   useBenefits: () => mockResult(mockBenefits),
   useBudget: () => mockResult(mockBudget, { isError: mockBudgetError }),
+  usePoints: () => mockResult(mockPoints),
   useNetWorth: () =>
     mockResult(jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures').netWorth),
 }));
@@ -47,6 +51,7 @@ beforeEach(() => {
   mockBenefits = benefits;
   mockBudget = budget;
   mockBudgetError = false;
+  mockPoints = points;
   mockPush.mockClear();
 });
 
@@ -202,5 +207,20 @@ describe('Home', () => {
     mockFirstName = 'Maximiliana-Alexandra';
     await renderScreen(<Home />);
     expect(screen.getByText(/Maximiliana-Alexandra/).props.numberOfLines).toBe(2);
+  });
+
+  it('shows the estimated points total and opens Points', async () => {
+    await renderScreen(<Home />);
+    expect(screen.getByText('122,220')).toBeOnTheScreen();
+    expect(screen.getByText('Add 1 more balance')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByText('122,220'));
+    expect(mockPush).toHaveBeenCalledWith('/points');
+  });
+
+  it('asks for a points balance before showing a number', async () => {
+    mockPoints = { ...points, total_points: 0, confirmed_count: 0 };
+    await renderScreen(<Home />);
+    expect(screen.getByText('Add your balance')).toBeOnTheScreen();
+    expect(screen.queryByText('122,220')).toBeNull();
   });
 });

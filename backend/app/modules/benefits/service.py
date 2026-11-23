@@ -158,6 +158,16 @@ def _assignment(
     return assignment
 
 
+def assigned_cards(session: Session, user: User) -> list[tuple[Account, CardProduct | None]]:
+    """Each linked credit account with its catalog card (guessed the first time it's seen)."""
+    catalog = get_catalog()
+    out: list[tuple[Account, CardProduct | None]] = []
+    for account, institution in _credit_accounts(session, user):
+        assignment = _assignment(session, user, account, institution, catalog)
+        out.append((account, catalog.card(assignment.card_id) if assignment.card_id else None))
+    return out
+
+
 def _txns(session: Session, account: Account, since: dt.date) -> list[Txn]:
     rows = session.scalars(
         select(Transaction).where(Transaction.account_id == account.id, Transaction.date >= since)

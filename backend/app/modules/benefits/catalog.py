@@ -64,6 +64,47 @@ class CreditDefinition(_Strict):
         return self.amount_cents
 
 
+class Program(_Strict):
+    """A points currency, e.g. Chase Ultimate Rewards. Cards that pool share one program."""
+
+    id: str = Field(pattern=_ID)
+    name: str
+    short_name: str
+
+
+class EarnRate(_Strict):
+    """Points per dollar on purchases that match a category or a merchant.
+
+    categories are Plaid personal finance categories: a detailed one
+    (FOOD_AND_DRINK_RESTAURANT) or a primary one (TRAVEL, which covers every detailed TRAVEL_*).
+    merchants are lowercase text matched against the merchant or the transaction name.
+    """
+
+    multiplier: float = Field(gt=0)
+    label: str
+    categories: tuple[str, ...] = ()
+    merchants: tuple[str, ...] = ()
+    ends: dt.date | None = None
+
+    @model_validator(mode="after")
+    def _check(self) -> "EarnRate":
+        if not (self.categories or self.merchants):
+            raise ValueError(f"{self.label}: an earn rate needs a category or a merchant")
+        if any(m != m.lower() or not m.strip() for m in self.merchants):
+            raise ValueError(f"{self.label}: merchants must be non-empty lowercase")
+        if any(c != c.upper() for c in self.categories):
+            raise ValueError(f"{self.label}: categories are uppercase Plaid categories")
+        return self
+
+
+class CardPoints(_Strict):
+    """How a card earns: its program, the base rate, and bonus rates (the highest match wins)."""
+
+    program: str
+    base: float = Field(gt=0)
+    rates: tuple[EarnRate, ...] = ()
+
+
 class CardProduct(_Strict):
     id: str = Field(pattern=_ID)
     issuer: str
@@ -74,6 +115,7 @@ class CardProduct(_Strict):
     last_verified: dt.date
     sources: tuple[str, ...] = Field(min_length=1)
     credits: tuple[CreditDefinition, ...] = ()
+    points: CardPoints | None = None
 
     @model_validator(mode="after")
     def _check(self) -> "CardProduct":
@@ -93,6 +135,7 @@ class CardProduct(_Strict):
 
 
 class Catalog(_Strict):
+    programs: tuple[Program, ...] = ()
     cards: tuple[CardProduct, ...]
 
     @model_validator(mode="after")
@@ -100,7 +143,16 @@ class Catalog(_Strict):
         ids = [c.id for c in self.cards]
         if len(ids) != len(set(ids)):
             raise ValueError("duplicate card ids")
+        program_ids = [p.id for p in self.programs]
+        if len(program_ids) != len(set(program_ids)):
+            raise ValueError("duplicate program ids")
+        for card in self.cards:
+            if card.points and card.points.program not in program_ids:
+                raise ValueError(f"{card.id}: unknown points program {card.points.program!r}")
         return self
+
+    def program(self, program_id: str) -> Program | None:
+        return next((p for p in self.programs if p.id == program_id), None)
 
     def card(self, card_id: str) -> CardProduct | None:
         return next((c for c in self.cards if c.id == card_id), None)

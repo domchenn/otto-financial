@@ -237,6 +237,7 @@ def _upsert_transaction(
         "name": t.name,
         "merchant_name": t.merchant_name,
         "category": t.category,
+        "category_detailed": t.category_detailed,
         "pending": t.pending,
     }
     stmt = insert(Transaction).values(id=uuid.uuid4(), **values)
