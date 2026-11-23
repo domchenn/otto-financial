@@ -1,12 +1,13 @@
-# Otto
+# Porter
 
-Otto (formerly Porter) is a personal, iPhone-first finance app. Dominic is the only user and the only contributor.
+Porter (briefly called Otto) is a personal, iPhone-first finance app. Dominic is the only user and the only contributor.
 
-Everything uses the Otto name: repo `otto-financial`, bundle ID `com.dominicchen.otto`, URL scheme `otto`, backend package `otto-backend`, `OTTO_*` settings, the `otto` database and `otto-*` AWS resources. Only historical records (ADRs) still say Porter. Changing the bundle ID or scheme again affects Clerk redirects and installed builds, and renaming applied Terraform resources recreates them, so ask first.
+Everything users see says Porter. Infrastructure identifiers keep the Otto name: repo `otto-financial`, bundle ID `com.dominicchen.otto`, URL scheme `otto`, backend package `otto-backend`, `OTTO_*` settings, the `otto` database and `otto-*` AWS resources. `RENAME_NOTES.md` lists every name intentionally left. Changing the bundle ID or scheme affects Clerk redirects and installed builds, and renaming applied Terraform resources recreates them, so ask first.
 
 ## Key docs
 
-- `docs/prd.html`: product spec (source of truth for scope and UI)
+- `docs/Porter-handoff/PORTER_HANDOFF.md`: product spec, design language and build order (source of truth for scope and UI); screens in `docs/Porter-handoff/png/` and `html/`
+- `docs/prd.html`: the Otto v1 PRD, superseded but kept for history
 - `README.md`: setup and commands
 - `docs/adr/`: architecture decisions
 - `TODO.md`: the backlog, in priority order. Local only (gitignored), so it never conflicts

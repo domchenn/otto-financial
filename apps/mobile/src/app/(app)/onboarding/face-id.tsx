@@ -26,7 +26,7 @@ export default function FaceIdPrompt() {
           <FaceIdIcon color={palette.link} size={100} />
         </View>
         <Text variant="display" center style={{ marginTop: space.xxl }}>
-          Keep Otto private
+          Keep Porter private
         </Text>
         <Text
           variant="body"

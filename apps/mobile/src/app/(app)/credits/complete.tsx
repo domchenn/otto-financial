@@ -69,7 +69,7 @@ export default function CreditsComplete() {
         center
         style={{ fontSize: 17, lineHeight: 25, marginTop: space.md }}
       >
-        You got {formatCents(month)} back in {monthName}. Otto will line up next month&apos;s
+        You got {formatCents(month)} back in {monthName}. Porter will line up next month&apos;s
         credits when they reset.
       </Text>
     </MomentScreen>

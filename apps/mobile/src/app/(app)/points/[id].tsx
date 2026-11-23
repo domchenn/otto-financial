@@ -13,7 +13,7 @@ import { space } from '@/theme/tokens';
 
 const confirmedDate = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' });
 
-/** Enter the balance shown in the bank's app; Otto estimates from there. */
+/** Enter the balance shown in the bank's app; Porter estimates from there. */
 export default function ConfirmPoints() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const program = findProgram(usePoints().data, id);
@@ -36,7 +36,7 @@ export default function ConfirmPoints() {
   return (
     <StepScreen
       heading={`Add your current ${program.short_name} balance`}
-      subheading={`Open your bank's app and enter the ${program.name} balance it shows. Otto adds the points you earn on ${cardNames(program)} from today.`}
+      subheading={`Open your bank's app and enter the ${program.name} balance it shows. Porter adds the points you earn on ${cardNames(program)} from today.`}
       footer={
         <Footer>
           <Button
@@ -66,7 +66,7 @@ export default function ConfirmPoints() {
       {program.confirmed_points !== null && program.confirmed_at !== null ? (
         <Text variant="body" muted style={{ marginTop: space.lg }}>
           You entered {formatNumber(program.confirmed_points)} on{' '}
-          {confirmedDate.format(new Date(program.confirmed_at))}. Otto estimates{' '}
+          {confirmedDate.format(new Date(program.confirmed_at))}. Porter estimates{' '}
           {formatNumber(program.estimated_points ?? program.confirmed_points)} now.
         </Text>
       ) : null}

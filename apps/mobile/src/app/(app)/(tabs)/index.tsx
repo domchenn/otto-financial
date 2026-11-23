@@ -7,7 +7,7 @@ import { Avatar, Monogram } from '@/components/badges';
 import { IconButton } from '@/components/IconButton';
 import { BellIcon } from '@/components/icons';
 import { TabScreen } from '@/components/layouts';
-import { OttoNoticed } from '@/components/otto';
+import { PorterNoticed } from '@/components/porter';
 import { ProgressBar } from '@/components/ProgressBar';
 import { ListRow, SectionHeader } from '@/components/rows';
 import { StatTile, TileGrid } from '@/components/StatTile';
@@ -122,15 +122,15 @@ export default function Home() {
 
       {!connected ? (
         <View style={{ marginTop: space.xl }}>
-          <OttoNoticed
+          <PorterNoticed
             primary={{ title: 'Connect cards', onPress: () => router.push('/onboarding/connect') }}
           >
-            Connect your cards and Otto will fill this in with your real balances and purchases.
-          </OttoNoticed>
+            Connect your cards and Porter will fill this in with your real balances and purchases.
+          </PorterNoticed>
         </View>
       ) : nudge && !nudgeDismissed ? (
         <View style={{ marginTop: space.xl }}>
-          <OttoNoticed
+          <PorterNoticed
             primary={{
               title: 'Show me how',
               onPress: () => router.push(`/credits/${nudge.period_id}`),
@@ -138,7 +138,7 @@ export default function Home() {
             secondary={{ title: 'Later', onPress: () => setNudgeDismissed(true) }}
           >
             {noticeSentence(nudge)}
-          </OttoNoticed>
+          </PorterNoticed>
         </View>
       ) : null}
 
@@ -254,7 +254,7 @@ function Hero({ budget, failed }: { budget: Budget | undefined; failed: boolean 
           You have {amount(null)} left to spend this week.
         </Text>
         <Text variant="body" muted style={styles.heroSub}>
-          {failed ? "Otto couldn't reach your data. Pull down to try again." : ' '}
+          {failed ? "Porter couldn't reach your data. Pull down to try again." : ' '}
         </Text>
       </>
     );

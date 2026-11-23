@@ -1,6 +1,6 @@
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { OttoAvatar } from './otto';
+import { PorterAvatar } from './porter';
 import { Text } from './Text';
 import { radius, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -32,7 +32,7 @@ export function NotificationPreview({
         style,
       ]}
     >
-      <OttoAvatar size={46} square />
+      <PorterAvatar size={46} square />
       <View style={{ flex: 1 }}>
         <View style={styles.titleRow}>
           <Text variant="row" weight="bold" style={{ flex: 1 }} numberOfLines={1}>

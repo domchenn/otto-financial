@@ -74,7 +74,7 @@ export default function Transactions() {
 
       {transactions.isError ? (
         <Text variant="body" color={palette.alert} style={{ marginTop: space.lg }}>
-          Otto couldn&apos;t load your purchases. Pull down to try again.
+          Porter couldn&apos;t load your purchases. Pull down to try again.
         </Text>
       ) : null}
       {transactions.data?.length === 0 ? (

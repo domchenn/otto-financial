@@ -12,7 +12,7 @@ import { radius, screen, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 /**
- * Opens Plaid Link over this backdrop. Plaid shows its own UI; Otto only receives a public
+ * Opens Plaid Link over this backdrop. Plaid shows its own UI; Porter only receives a public
  * token and never sees bank credentials.
  */
 export default function PlaidLink() {
@@ -65,7 +65,7 @@ export default function PlaidLink() {
           center
           style={{ marginTop: space.md, fontSize: 17, lineHeight: 25 }}
         >
-          You search for your bank, sign in and choose accounts inside Plaid. Otto receives
+          You search for your bank, sign in and choose accounts inside Plaid. Porter receives
           read-only access and never sees the password.
         </Text>
       </View>

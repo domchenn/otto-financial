@@ -29,7 +29,7 @@ export default function NotificationSettings() {
 
   return (
     <StepScreen title="Notifications">
-      <GroupLabel>How often Otto checks in</GroupLabel>
+      <GroupLabel>How often Porter checks in</GroupLabel>
       <Card style={styles.group}>
         <Stack>
           {CADENCES.map((c) => (

@@ -1,8 +1,11 @@
-# Otto
+# Porter
 
 A private, iPhone-first personal finance app: credit cards, points, expiring card credits,
-weekly budgets and an assistant that explains it all in plain sentences. Otto was previously
-called Porter. Product requirements: [`docs/prd.html`](docs/prd.html).
+weekly budgets and an assistant that explains it all in plain sentences. Porter was briefly
+called Otto, so the repo, bundle ID, database and AWS resources still say `otto` (see
+[`RENAME_NOTES.md`](RENAME_NOTES.md)). Spec and designs:
+[`docs/Porter-handoff/PORTER_HANDOFF.md`](docs/Porter-handoff/PORTER_HANDOFF.md); the Otto v1 PRD
+([`docs/prd.html`](docs/prd.html)) is kept for history.
 
 ## Repository
 

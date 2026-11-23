@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Footer, StepScreen } from '@/components/layouts';
-import { OttoBubble } from '@/components/otto';
+import { PorterBubble } from '@/components/porter';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
 import { formatCents, formatNumber } from '@/lib/money';
@@ -60,10 +60,10 @@ export default function CardValue() {
       </Card>
 
       <View style={{ marginTop: space.xl }}>
-        <OttoBubble>
+        <PorterBubble>
           Use the {formatCents(v.resyLeftCents)} Resy credit before Dec 31 and you&apos;ll come out{' '}
           {formatCents(net + v.resyLeftCents)} ahead.
-        </OttoBubble>
+        </PorterBubble>
       </View>
 
       <Text variant="body" muted style={{ marginTop: space.lg, fontSize: 14 }}>

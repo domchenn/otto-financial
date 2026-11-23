@@ -8,27 +8,27 @@ import { Text } from './Text';
 import { fonts, radius, space, type ToneName } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-/** The otto wordmark: Plus Jakarta Sans ExtraBold, always lowercase, −6% tracking. */
+/** The porter wordmark: Plus Jakarta Sans ExtraBold, always lowercase, −3.5% tracking (−0.7 at 20). */
 export function Wordmark({ size = 22, color }: { size?: number; color?: string }) {
   const { palette } = useTheme();
   return (
     <Text
-      accessibilityLabel="Otto"
+      accessibilityLabel="Porter"
       style={{
         fontFamily: fonts.extrabold,
         fontSize: size,
         lineHeight: size * 1.15,
-        letterSpacing: -size * 0.06,
+        letterSpacing: -size * 0.035,
         color: color ?? palette.ink,
       }}
     >
-      otto
+      porter
     </Text>
   );
 }
 
 /** Indigo circle (or rounded square) holding the white wordmark. */
-export function OttoAvatar({ size = 40, square }: { size?: number; square?: boolean }) {
+export function PorterAvatar({ size = 40, square }: { size?: number; square?: boolean }) {
   const { palette } = useTheme();
   return (
     <View
@@ -47,12 +47,12 @@ export function OttoAvatar({ size = 40, square }: { size?: number; square?: bool
   );
 }
 
-/** One friendly line from Otto after an answer. */
-export function OttoBubble({ children }: { children: ReactNode }) {
+/** One friendly line from Porter after an answer. */
+export function PorterBubble({ children }: { children: ReactNode }) {
   const { palette } = useTheme();
   return (
     <View style={styles.bubbleRow}>
-      <OttoAvatar size={40} />
+      <PorterAvatar size={40} />
       <View style={[styles.bubble, { backgroundColor: palette.surface }]}>
         {typeof children === 'string' ? (
           <Text variant="body" style={styles.bubbleText}>
@@ -66,8 +66,8 @@ export function OttoBubble({ children }: { children: ReactNode }) {
   );
 }
 
-/** Proactive nudge card: "Otto noticed" + a sentence + small actions. */
-export function OttoNoticed({
+/** Proactive nudge card: "Porter noticed" + a sentence + small actions. */
+export function PorterNoticed({
   children,
   primary,
   secondary,
@@ -82,7 +82,7 @@ export function OttoNoticed({
       <View style={styles.noticedHead}>
         <SparkleIcon color={palette.link} size={18} />
         <Text variant="row" weight="bold" color={palette.link}>
-          Otto noticed
+          Porter noticed
         </Text>
       </View>
       <Text variant="body" style={styles.noticedBody}>

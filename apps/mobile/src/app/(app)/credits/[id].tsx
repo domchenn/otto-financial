@@ -110,8 +110,8 @@ export default function CreditDetail() {
         {credit.confirmed
           ? 'The statement credit has posted.'
           : used
-            ? 'Otto saw a qualifying purchase. The statement credit usually posts within a few days.'
-            : 'Otto marks this as used on its own once it sees a qualifying purchase or the statement credit. You can also mark it yourself.'}
+            ? 'Porter saw a qualifying purchase. The statement credit usually posts within a few days.'
+            : 'Porter marks this as used on its own once it sees a qualifying purchase or the statement credit. You can also mark it yourself.'}
       </Text>
     </StepScreen>
   );

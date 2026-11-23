@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Monogram, Pill } from '@/components/badges';
 import { StepScreen } from '@/components/layouts';
-import { Insight } from '@/components/otto';
+import { Insight } from '@/components/porter';
 import { ListRow } from '@/components/rows';
 import { Card } from '@/components/Surface';
 import { Text } from '@/components/Text';

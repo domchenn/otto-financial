@@ -26,7 +26,7 @@ export default function PointsScreen() {
       </Text>
       {points.isError ? (
         <Text variant="body" muted style={{ fontSize: 17, marginTop: space.xs }}>
-          Otto couldn&apos;t load your points. Pull down to try again.
+          Porter couldn&apos;t load your points. Pull down to try again.
         </Text>
       ) : (
         <>
@@ -35,15 +35,15 @@ export default function PointsScreen() {
           </Text>
           <Text variant="body" muted style={{ fontSize: 17, marginTop: space.xs }}>
             {confirmed
-              ? 'Total across your programs. An estimate: Otto adds what you earn after each balance you enter.'
-              : 'Banks don’t share points balances yet. Add each one from your bank’s app, and Otto keeps it up to date from your purchases.'}
+              ? 'Total across your programs. An estimate: Porter adds what you earn after each balance you enter.'
+              : 'Banks don’t share points balances yet. Add each one from your bank’s app, and Porter keeps it up to date from your purchases.'}
           </Text>
         </>
       )}
 
       {data && data.programs.length === 0 ? (
         <Text variant="body" muted style={{ marginTop: space.xl }}>
-          None of your linked cards earn points Otto knows about yet.
+          None of your linked cards earn points Porter knows about yet.
         </Text>
       ) : null}
 

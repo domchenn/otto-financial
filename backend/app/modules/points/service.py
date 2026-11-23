@@ -1,6 +1,6 @@
 """Points balances (PRD F3): the last confirmed balance plus an estimate of what's been earned.
 
-No API exposes points balances, so the user confirms each program's balance by hand. Otto
+No API exposes points balances, so the user confirms each program's balance by hand. Porter
 then adds the points earned on posted purchases from that day on, using each card's earn
 rates. Issuers add points at statement close, so the estimate runs ahead of the issuer's
 number mid-cycle; confirming again resets it.
@@ -30,7 +30,7 @@ class ProgramView:
 
     @property
     def estimated_points(self) -> int | None:
-        """None until the user confirms a balance: Otto doesn't guess a starting point."""
+        """None until the user confirms a balance: Porter doesn't guess a starting point."""
         return None if self.balance is None else self.balance.points + self.earned_since
 
 

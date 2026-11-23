@@ -11,7 +11,7 @@ class PointsBalance(TimestampMixin, Base):
     """The last balance the user confirmed for one points program (PRD F3).
 
     No API exposes points balances, so this is entered by hand (source "manual"); emails
-    can update it later. Otto's estimate adds what was earned after confirmed_at.
+    can update it later. Porter's estimate adds what was earned after confirmed_at.
     """
 
     __tablename__ = "points_balances"

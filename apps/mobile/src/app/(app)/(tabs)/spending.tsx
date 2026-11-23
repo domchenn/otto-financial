@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { TabScreen } from '@/components/layouts';
-import { OttoNoticed } from '@/components/otto';
+import { PorterNoticed } from '@/components/porter';
 import { ProgressBar } from '@/components/ProgressBar';
 import { ListRow, SectionHeader } from '@/components/rows';
 import { SegmentedControl } from '@/components/SegmentedControl';
@@ -83,7 +83,7 @@ export default function Spending() {
           style={{ marginTop: space.md }}
         >
           {spending.isError
-            ? "Otto couldn't load your spending. Pull down to try again."
+            ? "Porter couldn't load your spending. Pull down to try again."
             : !data
               ? ' '
               : limit && limit.limit_cents !== null
@@ -98,7 +98,7 @@ export default function Spending() {
 
       {insight ? (
         <View style={{ marginTop: space.lg }}>
-          <OttoNoticed>{insight}</OttoNoticed>
+          <PorterNoticed>{insight}</PorterNoticed>
         </View>
       ) : null}
 

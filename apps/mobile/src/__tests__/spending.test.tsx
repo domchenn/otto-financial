@@ -49,9 +49,9 @@ describe('Spending', () => {
     expect(screen.queryByText(/Nicely done/)).toBeNull();
   });
 
-  it('puts a factual insight in the Otto noticed card', async () => {
+  it('puts a factual insight in the Porter noticed card', async () => {
     await renderScreen(<Spending />);
-    expect(screen.getByText('Otto noticed')).toBeOnTheScreen();
+    expect(screen.getByText('Porter noticed')).toBeOnTheScreen();
     expect(
       screen.getByText('Dining is 68% of your week, almost all on your Gold Card.'),
     ).toBeOnTheScreen();
@@ -92,6 +92,6 @@ describe('Spending', () => {
     await renderScreen(<Spending />);
     expect(screen.getByText('—')).toBeOnTheScreen();
     expect(screen.getByText(/couldn't load your spending/)).toBeOnTheScreen();
-    expect(screen.queryByText('Otto noticed')).toBeNull();
+    expect(screen.queryByText('Porter noticed')).toBeNull();
   });
 });

@@ -138,7 +138,7 @@ describe('netWorthChangeSentence', () => {
 
   it('explains missing history instead of showing zero', () => {
     expect(netWorthChangeSentence(base, '1Y')).toBe(
-      'Otto started tracking Nov 19. Changes appear as days go by.',
+      'Porter started tracking Nov 19. Changes appear as days go by.',
     );
     expect(netWorthChangeSentence({ ...base, tracking_since: null }, '1Y')).toMatch(
       /Connect an account/,

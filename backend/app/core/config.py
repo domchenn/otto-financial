@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     plaid_client_id: str = ""
     plaid_secret: str = ""
     plaid_env: Literal["sandbox", "production"] = "sandbox"
+    # The app name Plaid Link shows the user ("Porter uses Plaid to connect your bank").
+    plaid_client_name: str = "Porter"
     # Fernet key that encrypts provider access tokens at rest (see .env.example to generate).
     token_encryption_key: str = ""
 

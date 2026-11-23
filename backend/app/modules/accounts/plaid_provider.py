@@ -68,6 +68,7 @@ class PlaidProvider:
             api_key={"clientId": settings.plaid_client_id, "secret": settings.plaid_secret},
         )
         self._client = plaid_api.PlaidApi(plaid.ApiClient(configuration))
+        self._client_name = settings.plaid_client_name
 
     def _call(self, fn: Any, request: Any) -> Any:
         try:
@@ -79,7 +80,7 @@ class PlaidProvider:
 
     def create_link_token(self, user_id: str, access_token: str | None = None) -> str:
         args: dict[str, Any] = {
-            "client_name": "Otto",
+            "client_name": self._client_name,
             "language": "en",
             "country_codes": [CountryCode("US")],
             "user": LinkTokenCreateRequestUser(client_user_id=user_id),

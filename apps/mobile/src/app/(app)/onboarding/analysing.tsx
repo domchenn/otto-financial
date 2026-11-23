@@ -6,7 +6,7 @@ import Svg, { Circle } from 'react-native-svg';
 import { Button } from '@/components/Button';
 import { CheckIcon } from '@/components/icons';
 import { Footer, StepScreen } from '@/components/layouts';
-import { Wordmark } from '@/components/otto';
+import { Wordmark } from '@/components/porter';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
 import { space } from '@/theme/tokens';
@@ -43,7 +43,7 @@ export default function Analysing() {
       footer={
         <Footer>
           <Button
-            title="See what Otto found"
+            title="See what Porter found"
             disabled={done < STEPS.length}
             onPress={() => router.replace('/onboarding/reveal')}
           />

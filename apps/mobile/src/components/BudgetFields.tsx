@@ -76,7 +76,7 @@ export function BudgetFields({ value, onChange, excludable }: Props) {
             <Round icon={PlusIcon} label="Increase" onPress={() => bump(step)} />
           </View>
           <Text variant="body" color={mint.text} center>
-            A rough number is fine. Otto will suggest a better one after a few weeks.
+            A rough number is fine. Porter will suggest a better one after a few weeks.
           </Text>
         </Card>
       ) : null}

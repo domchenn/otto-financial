@@ -42,7 +42,7 @@ export default function HomeEmpty() {
         Let&apos;s get your money in one place.
       </Text>
       <Text variant="body" muted style={{ marginTop: space.md, fontSize: 18, lineHeight: 26 }}>
-        Connect your cards and Otto will track spending, points and credits for you.
+        Connect your cards and Porter will track spending, points and credits for you.
       </Text>
 
       <Card style={{ marginTop: space.xl }}>

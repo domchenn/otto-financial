@@ -89,7 +89,7 @@ describe('Add your points balance', () => {
     mockParams = { id: 'amex-mr' };
     await renderScreen(<ConfirmPoints />);
     expect(
-      screen.getByText(/You entered 120,000 on .*Otto estimates 122,220 now\./),
+      screen.getByText(/You entered 120,000 on .*Porter estimates 122,220 now\./),
     ).toBeOnTheScreen();
   });
 });

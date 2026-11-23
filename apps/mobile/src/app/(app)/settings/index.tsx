@@ -26,7 +26,7 @@ export default function Settings() {
   const budget = useBudget().data;
 
   const confirmSignOut = () =>
-    Alert.alert('Sign out of Otto?', undefined, [
+    Alert.alert('Sign out of Porter?', undefined, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Sign out', style: 'destructive', onPress: () => void signOut() },
     ]);
@@ -67,7 +67,7 @@ export default function Settings() {
         </Stack>
       </Card>
 
-      <GroupLabel>Otto</GroupLabel>
+      <GroupLabel>Porter</GroupLabel>
       <Card style={styles.group}>
         <Stack>
           <SettingRow
@@ -155,10 +155,10 @@ export default function Settings() {
         />
         <Text variant="caption" weight="medium" muted>
           {me.isSuccess
-            ? 'Connected to the Otto API'
+            ? 'Connected to the Porter API'
             : me.isError
-              ? 'Can’t reach the Otto API'
-              : 'Connecting to the Otto API…'}
+              ? 'Can’t reach the Porter API'
+              : 'Connecting to the Porter API…'}
         </Text>
       </View>
     </StepScreen>

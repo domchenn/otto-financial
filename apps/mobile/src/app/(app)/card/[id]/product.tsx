@@ -14,7 +14,7 @@ import { space } from '@/theme/tokens';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const NONE = 'none';
 
-/** Tell Otto which card a linked account is, so it can track that card's credits. */
+/** Tell Porter which card a linked account is, so it can track that card's credits. */
 export default function CardProductPicker() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const products = useCardProducts().data ?? [];
@@ -48,8 +48,8 @@ export default function CardProductPicker() {
       heading="Which card is this?"
       subheading={
         current
-          ? `${current.account_name}${current.account_mask ? ` •• ${current.account_mask}` : ''}. Otto tracks the credits that come with it.`
-          : 'Otto tracks the credits that come with it.'
+          ? `${current.account_name}${current.account_mask ? ` •• ${current.account_mask}` : ''}. Porter tracks the credits that come with it.`
+          : 'Porter tracks the credits that come with it.'
       }
       footer={
         <Footer>
@@ -99,7 +99,7 @@ export default function CardProductPicker() {
       <View style={styles.options}>
         <OptionRow
           title="Not listed"
-          subtitle="Otto won't track credits for this card"
+          subtitle="Porter won't track credits for this card"
           selected={selected === NONE}
           onPress={() => setCardId(NONE)}
         />
@@ -110,7 +110,7 @@ export default function CardProductPicker() {
 
 /**
  * Catalog cards by issuer, with the account's own bank first: some banks (Chase) give every
- * card the same generic name, so Otto can't guess which one it is.
+ * card the same generic name, so Porter can't guess which one it is.
  */
 function groupByIssuer(
   products: CardProduct[],

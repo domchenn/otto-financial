@@ -29,7 +29,7 @@ describe('Net worth', () => {
     await fireEvent.press(screen.getByRole('tab', { name: '1M' }));
     expect(screen.getByText('Down $45 this month.')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('tab', { name: '1Y' }));
-    expect(screen.getByText(/Otto started tracking/)).toBeOnTheScreen();
+    expect(screen.getByText(/Porter started tracking/)).toBeOnTheScreen();
   });
 
   it('shows cash and investments against cards, without account toggles', async () => {

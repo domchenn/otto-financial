@@ -4,7 +4,7 @@ import { View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Footer, StepScreen } from '@/components/layouts';
-import { OttoBubble } from '@/components/otto';
+import { PorterBubble } from '@/components/porter';
 import { Chip, ChipWrap } from '@/components/selection';
 import { Text } from '@/components/Text';
 import { space } from '@/theme/tokens';
@@ -27,7 +27,7 @@ const REACTIONS: Record<string, string> = {
   'Mexico & Caribbean':
     'Short flights mean fewer points. You may already be closer than you think.',
   'A US city': 'Domestic trips are cheap on points. I will flag the best card to book with.',
-  'Somewhere else': 'Tell me more later in Ask Otto and I will track it.',
+  'Somewhere else': 'Tell me more later in Ask Porter and I will track it.',
 };
 
 export default function Trip() {
@@ -40,7 +40,7 @@ export default function Trip() {
       step={{ index: 1, total: 5 }}
       trailing={{ title: 'Skip', onPress: next }}
       heading="Any trip on your radar?"
-      subheading="Otto will show how close your points get you."
+      subheading="Porter will show how close your points get you."
       footer={
         <Footer>
           <Button title="Continue" onPress={next} />
@@ -69,7 +69,7 @@ export default function Trip() {
       ) : null}
       {REACTIONS[place] ? (
         <View style={{ marginTop: space.xl }}>
-          <OttoBubble>{REACTIONS[place]}</OttoBubble>
+          <PorterBubble>{REACTIONS[place]}</PorterBubble>
         </View>
       ) : null}
     </StepScreen>

@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AskInput } from '@/components/AskInput';
 import { CardIcon, ClockIcon, GiftIcon, SpendingIcon, type Icon } from '@/components/icons';
-import { Wordmark } from '@/components/otto';
+import { Wordmark } from '@/components/porter';
 import { ListRow } from '@/components/rows';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
@@ -24,7 +24,7 @@ const monthEnd = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeri
   new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
 );
 
-/** Suggestions from the user's own numbers where Otto has them, generic text otherwise. */
+/** Suggestions from the user's own numbers where Porter has them, generic text otherwise. */
 function useSuggestions(): Suggestion[] {
   const week = useSpending('week');
   const spent = week.isError ? undefined : week.data?.spent_cents;

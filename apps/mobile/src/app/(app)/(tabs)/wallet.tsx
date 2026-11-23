@@ -193,7 +193,7 @@ export default function Wallet() {
 
 function creditsLine(benefits: Benefits | undefined): string {
   if (!benefits) return ' ';
-  if (allCredits(benefits).length === 0) return 'Tell Otto which cards you have';
+  if (allCredits(benefits).length === 0) return 'Tell Porter which cards you have';
   if (benefits.remaining_cents === 0) return 'Every credit used for now';
   return `${formatCents(benefits.remaining_cents)} left to use`;
 }
