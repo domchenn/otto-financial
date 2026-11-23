@@ -34,7 +34,7 @@ import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-export default function Wallet() {
+export default function Accounts() {
   const { palette } = useTheme();
   const alert = palette.tones.alert;
   const summary = useSummary();
@@ -56,7 +56,7 @@ export default function Wallet() {
   return (
     <TabScreen refreshControl={refresh}>
       <View style={styles.header}>
-        <Text variant="display">Wallet</Text>
+        <Text variant="display">Accounts</Text>
         <IconButton
           icon={PlusIcon}
           label="Connect another account"
@@ -170,7 +170,7 @@ export default function Wallet() {
 
       <Card
         style={{ marginTop: space.lg }}
-        onPress={() => router.push('/credits')}
+        onPress={() => router.push('/benefits')}
         accessibilityLabel="Credits"
       >
         <View style={styles.creditsRow}>

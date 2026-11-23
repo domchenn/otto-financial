@@ -179,7 +179,7 @@ export default function Home() {
                   : `${credits.expiring_this_month_count} expire this month`
                 : ' '
             }
-            onPress={() => router.push('/credits')}
+            onPress={() => router.push('/benefits')}
           />
           <StatTile
             tone="sky"
@@ -189,7 +189,7 @@ export default function Home() {
               next ? `${next.name} · ${dueLabel(next.due_date).text}` : s ? 'Nothing due' : ' '
             }
             onPress={() =>
-              next ? router.push(`/card/${next.account_id}`) : router.push('/wallet')
+              next ? router.push(`/card/${next.account_id}`) : router.push('/accounts')
             }
           />
         </TileGrid>
