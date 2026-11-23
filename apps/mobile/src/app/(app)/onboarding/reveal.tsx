@@ -46,18 +46,18 @@ export default function Reveal() {
       artHeight={250}
       art={
         <View style={{ flex: 1, paddingHorizontal: screen.side, justifyContent: 'center' }}>
-          <Text variant="row" weight="bold" color="#C9CEFF">
+          <Text variant="row" weight="bold" color={palette.onHeroMuted}>
             Porter found
           </Text>
           <Text
             variant="hero"
-            color="#FFFFFF"
+            color={palette.onHero}
             tabular
             style={{ fontSize: 72, lineHeight: 80, letterSpacing: -3 }}
           >
             {formatCents(creditSummary.readyThisMonthCents)}
           </Text>
-          <Text variant="row" weight="bold" color="#FFFFFF" style={{ fontSize: 19 }}>
+          <Text variant="row" weight="bold" color={palette.onHero} style={{ fontSize: 19 }}>
             in credits you can use right now
           </Text>
           <Coin size={92} style={{ right: '12%', top: 10 }} rotate={8} />

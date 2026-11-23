@@ -103,7 +103,7 @@ export function PorterNoticed({
 /** Tinted insight banner (sparkle or wordmark + one sentence). */
 export function Insight({
   children,
-  tone = 'indigo',
+  tone = 'sage',
   mark = 'sparkle',
 }: {
   children: ReactNode;
