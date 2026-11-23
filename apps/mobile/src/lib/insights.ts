@@ -31,7 +31,7 @@ export function accountsInsight({
     const savings = total(cash.filter((a) => a.subtype !== 'checking'));
     const checking = total(cash.filter((a) => a.subtype === 'checking'));
     const lead = savings > checking ? 'Most of your cash is in savings. ' : '';
-    return `${lead}Checking is holding about ${formatCents(idle)} more than a month of your plan and card payments.`;
+    return `${lead}Checking is holding about ${formatCents(idle)} more than a month of spending plus your card payments.`;
   }
   if (utilizationPct !== null && utilizationPct >= HIGH_UTILIZATION_PCT) {
     return `Your cards are using ${utilizationPct}% of their limits. Under ${HIGH_UTILIZATION_PCT}% is better for your credit score.`;

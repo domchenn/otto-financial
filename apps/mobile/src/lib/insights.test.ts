@@ -17,11 +17,11 @@ const base = { budget, payments: [], utilizationPct: 7 };
 describe('accountsInsight', () => {
   it('points out idle checking, noting when savings holds most of the cash', () => {
     expect(accountsInsight({ ...base, accounts: [flush, savings] })).toBe(
-      'Most of your cash is in savings. Checking is holding about $2,000 more than a month of your plan and card payments.',
+      'Most of your cash is in savings. Checking is holding about $2,000 more than a month of spending plus your card payments.',
     );
     const smallSavings = { ...savings, current_cents: 100_000 };
     expect(accountsInsight({ ...base, accounts: [flush, smallSavings] })).toBe(
-      'Checking is holding about $2,000 more than a month of your plan and card payments.',
+      'Checking is holding about $2,000 more than a month of spending plus your card payments.',
     );
   });
 

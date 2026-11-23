@@ -34,6 +34,22 @@ describe('idleCheckingCents', () => {
     expect(idleCheckingCents([flush, savings], budget, [payment])).toBe(130_000);
   });
 
+  // Regression: with the month already over plan, idle cash was measured against the plan
+  // ($900) instead of what was really spent ($1,571), overstating what could move.
+  it('uses actual spending when the month is already over plan', () => {
+    const over = {
+      ...budget,
+      month: {
+        ...budget.month,
+        limit_cents: 90_000,
+        spent_cents: 157_100,
+        remaining_cents: -67_100,
+      },
+    };
+    // 4,000 - 1,571 spent - 610 due = 1,819 → 1,800
+    expect(idleCheckingCents([flush, savings], over, [payment])).toBe(180_000);
+  });
+
   it('needs a monthly plan and a savings account to move it to', () => {
     const noPlan = { ...budget, month: { ...budget.month, limit_cents: null } };
     expect(idleCheckingCents([flush, savings], noPlan, [])).toBeNull();
