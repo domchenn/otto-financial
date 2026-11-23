@@ -1,4 +1,4 @@
-"""The FinancialDataProvider adapter: the only way bank data enters Otto.
+"""The FinancialDataProvider adapter: the only way bank data enters Porter.
 
 Domain code depends on this protocol and these plain records, never on an aggregator SDK, so
 Plaid can be swapped for sandbox fixtures, a second aggregator, or FinanceKit uploads.

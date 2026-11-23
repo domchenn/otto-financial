@@ -18,7 +18,7 @@ from app.core.db import Base, TimestampMixin
 class CardAssignment(TimestampMixin, Base):
     """Which catalog card a linked credit account is.
 
-    `source` is "guess" when Otto matched it from the account name and "user" once picked or
+    `source` is "guess" when Porter matched it from the account name and "user" once picked or
     confirmed. A user row with no card_id means "not in the catalog", so it isn't re-guessed.
     """
 

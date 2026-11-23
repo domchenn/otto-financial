@@ -1,4 +1,4 @@
-# Otto benefits catalog: what each card offers. See docs/adr/0002-postgres-for-all-data.md.
+# Porter benefits catalog: what each card offers. See docs/adr/0002-postgres-for-all-data.md.
 #
 # Each card lists where its numbers came from and when they were checked:
 #   verified = "issuer"     read on the issuer's own card page
