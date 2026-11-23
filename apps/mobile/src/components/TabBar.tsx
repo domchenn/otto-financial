@@ -14,21 +14,90 @@ const ICONS: Record<string, Icon> = {
   benefits: TicketIcon,
 };
 
-/** The route drawn as the raised sage button in the middle of the bar. */
-export const ASK_ROUTE = 'ask';
+/** Ask sits in the middle: after this many tabs. */
+const ASK_AFTER = 2;
 
 const BAR_HEIGHT = 68;
 const ASK_SIZE = 54;
 const ASK_RING = 5;
 
+type Props = BottomTabBarProps & {
+  /** Opens the Ask sheet over the current tab; gets that tab's route name for context. */
+  onAsk: (from: string) => void;
+};
+
 /**
- * Floating bottom bar: Home · Accounts · [Ask] · Spending · Benefits. Ask is a 54pt sage
- * circle raised above the bar with a ring in the bar's color. Only the active tab is ink.
+ * Floating bottom bar: Home · Accounts · [Ask] · Spending · Benefits. Ask isn't a tab: it's a
+ * 54pt sage circle raised above the bar (ring in the bar's color) that opens a sheet over
+ * whatever is showing. Only the active tab is ink.
  */
-export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTabBarProps) {
+export function TabBar({ state, descriptors, emitter, navigateToTab, onAsk }: Props) {
   const { palette, scheme } = useTheme();
   const insets = useSafeAreaInsets();
   const barColor = scheme === 'dark' ? palette.surface : palette.ground;
+  const current = state.routes[state.index]?.name ?? 'index';
+
+  const tabs = state.routes.map((route, index) => {
+    const focused = state.index === index;
+    const title = descriptors[route.key]?.options?.title ?? route.name;
+    const I = ICONS[route.name] ?? HomeIcon;
+    const color = focused ? palette.ink : palette.muted;
+    return (
+      <Pressable
+        key={route.key}
+        accessibilityRole="tab"
+        accessibilityState={{ selected: focused }}
+        accessibilityLabel={title}
+        onPress={() => {
+          const event = emitter.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+          if (!focused && !event.defaultPrevented) {
+            void Haptics.selectionAsync();
+            navigateToTab(route.key);
+          }
+        }}
+        style={styles.tab}
+      >
+        <I color={color} size={24} />
+        <Text
+          variant="caption"
+          weight={focused ? 'bold' : 'semibold'}
+          color={color}
+          style={styles.label}
+        >
+          {title}
+        </Text>
+      </Pressable>
+    );
+  });
+
+  const ask = (
+    <Pressable
+      key="ask"
+      accessibilityRole="button"
+      accessibilityLabel="Ask Porter"
+      onPress={() => {
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        onAsk(current);
+      }}
+      style={styles.tab}
+    >
+      <View
+        style={[
+          styles.ask,
+          { backgroundColor: palette.accent, borderColor: barColor, shadowColor: palette.shadow },
+        ]}
+      >
+        <AskIcon color={palette.onAccent} size={28} />
+      </View>
+      <Text variant="caption" weight="bold" style={styles.askLabel}>
+        Ask
+      </Text>
+    </Pressable>
+  );
 
   return (
     <View
@@ -41,73 +110,7 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
           { backgroundColor: barColor, borderColor: palette.hairline, shadowColor: palette.shadow },
         ]}
       >
-        {state.routes.map((route, index) => {
-          const focused = state.index === index;
-          const title = descriptors[route.key]?.options?.title ?? route.name;
-          const onPress = () => {
-            const event = emitter.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
-            if (!focused && !event.defaultPrevented) {
-              void Haptics.selectionAsync();
-              navigateToTab(route.key);
-            }
-          };
-
-          if (route.name === ASK_ROUTE) {
-            return (
-              <Pressable
-                key={route.key}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: focused }}
-                accessibilityLabel={title}
-                onPress={onPress}
-                style={styles.tab}
-              >
-                <View
-                  style={[
-                    styles.ask,
-                    {
-                      backgroundColor: palette.accent,
-                      borderColor: barColor,
-                      shadowColor: palette.shadow,
-                    },
-                  ]}
-                >
-                  <AskIcon color={palette.onAccent} size={28} />
-                </View>
-                <Text variant="caption" weight="bold" style={styles.askLabel}>
-                  {title}
-                </Text>
-              </Pressable>
-            );
-          }
-
-          const I = ICONS[route.name] ?? HomeIcon;
-          const color = focused ? palette.ink : palette.muted;
-          return (
-            <Pressable
-              key={route.key}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: focused }}
-              accessibilityLabel={title}
-              onPress={onPress}
-              style={styles.tab}
-            >
-              <I color={color} size={24} />
-              <Text
-                variant="caption"
-                weight={focused ? 'bold' : 'semibold'}
-                color={color}
-                style={styles.label}
-              >
-                {title}
-              </Text>
-            </Pressable>
-          );
-        })}
+        {[...tabs.slice(0, ASK_AFTER), ask, ...tabs.slice(ASK_AFTER)]}
       </View>
     </View>
   );

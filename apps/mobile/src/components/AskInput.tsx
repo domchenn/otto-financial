@@ -5,7 +5,7 @@ import { ArrowUpIcon } from './icons';
 import { radius, space, type as typeScale } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-/** Floating "Ask about your money…" field. The send button turns indigo once there's text. */
+/** The Ask field: gray surface pill with an ink send button that wakes up once there's text. */
 export function AskInput({
   placeholder,
   onSubmit,
@@ -23,13 +23,13 @@ export function AskInput({
     onSubmit(value);
   };
   return (
-    <View style={[styles.wrap, { backgroundColor: palette.surface, shadowColor: palette.shadow }]}>
+    <View style={[styles.wrap, { backgroundColor: palette.surface }]}>
       <TextInput
         value={text}
         onChangeText={setText}
         placeholder={placeholder}
         placeholderTextColor={palette.muted}
-        style={[styles.input, typeScale.body, { color: palette.ink, fontSize: 18 }]}
+        style={[styles.input, typeScale.body, { color: palette.ink, fontSize: 16 }]}
         returnKeyType="send"
         onSubmitEditing={send}
         accessibilityLabel={placeholder}
@@ -48,7 +48,7 @@ export function AskInput({
           },
         ]}
       >
-        <ArrowUpIcon color={ready ? palette.actionText : palette.faint} size={18} />
+        <ArrowUpIcon color={ready ? palette.actionText : palette.faint} size={20} />
       </Pressable>
     </View>
   );
@@ -59,14 +59,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: radius.pill,
-    paddingLeft: space.xl,
-    paddingRight: 12,
-    height: 66,
-    shadowOpacity: 0.06,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 4,
+    paddingLeft: space.lg + 2,
+    paddingRight: 6,
+    height: 56,
   },
   input: { flex: 1, height: '100%' },
-  send: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  send: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
 });

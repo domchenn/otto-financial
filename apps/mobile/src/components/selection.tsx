@@ -109,15 +109,17 @@ export function Chip({
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected }}
+      hitSlop={{ top: 2, bottom: 2 }}
       onPress={() => {
         void Haptics.selectionAsync();
         onPress();
       }}
-      style={[
+      style={({ pressed }) => [
         styles.chip,
         {
-          backgroundColor: selected ? palette.action : palette.surface,
+          backgroundColor: selected ? palette.action : palette.ground,
           borderColor: selected ? palette.action : palette.hairline,
+          opacity: pressed ? 0.7 : 1,
         },
       ]}
     >
@@ -125,7 +127,7 @@ export function Chip({
         variant="row"
         weight="semibold"
         color={selected ? palette.actionText : palette.ink}
-        style={{ fontSize: 17 }}
+        style={{ fontSize: 15 }}
       >
         {label}
       </Text>
@@ -197,11 +199,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.card,
     borderWidth: 2,
   },
+  // Handoff chip: 40pt outline pill (hitSlop brings the target to 44).
   chip: {
-    paddingHorizontal: 20,
-    height: 44,
+    paddingHorizontal: 18,
+    height: 40,
     borderRadius: radius.pill,
-    borderWidth: 1.5,
+    borderWidth: 1,
     justifyContent: 'center',
   },
   tag: { paddingHorizontal: 16, height: 36, borderRadius: radius.pill, justifyContent: 'center' },
