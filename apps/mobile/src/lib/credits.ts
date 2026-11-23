@@ -1,4 +1,5 @@
 /** Card credits from /v1/benefits (PRD F4), and the wording Porter uses for them. */
+import { daysBetween, parseDate } from './finance';
 import { formatCents } from './money';
 
 export type CreditPeriod = {
@@ -87,6 +88,18 @@ export function resetsLabel(c: CreditPeriod): string {
 /** Few enough days left that the reset date should be shown in the alert color. */
 export function isUrgent(c: CreditPeriod): boolean {
   return c.remaining_cents > 0 && c.days_left >= 1 && c.days_left <= 3;
+}
+
+/** Expiring-soon threshold on Home and Benefits: the countdown turns terracotta inside it. */
+export const EXPIRING_SOON_DAYS = 14;
+
+/** Share of the period still left (1 = just started, 0 = last day), for countdown rings. */
+export function periodShareLeft(
+  c: Pick<CreditPeriod, 'start_date' | 'end_date' | 'days_left'>,
+): number {
+  const total = daysBetween(parseDate(c.start_date), parseDate(c.end_date)) + 1;
+  if (total <= 0) return 0;
+  return Math.min(1, Math.max(0, c.days_left / total));
 }
 
 export function isUsed(c: CreditPeriod): boolean {

@@ -3,6 +3,7 @@ import { describe, expect, it } from '@jest/globals';
 import { benefits, creditPeriod as credit } from '@/test/fixtures';
 
 import {
+  periodShareLeft,
   expiringSections,
   historyByMonth,
   historyLabel,
@@ -92,5 +93,19 @@ describe('historyLabel', () => {
       '$4.23 of $10 used',
     );
     expect(historyLabel(credit({ marked_used: true, used_value_cents: 1000 }))).toBe('Marked used');
+  });
+});
+
+describe('periodShareLeft', () => {
+  it('is the share of the period left, clamped to 0..1', () => {
+    // November has 30 days.
+    expect(periodShareLeft(credit({ days_left: 15 }))).toBeCloseTo(0.5);
+    expect(periodShareLeft(credit({ days_left: 0 }))).toBe(0);
+    expect(periodShareLeft(credit({ days_left: 45 }))).toBe(1);
+  });
+
+  it('works for a calendar-year credit', () => {
+    const year = credit({ start_date: '2026-01-01', end_date: '2026-12-31', days_left: 73 });
+    expect(periodShareLeft(year)).toBeCloseTo(0.2);
   });
 });
