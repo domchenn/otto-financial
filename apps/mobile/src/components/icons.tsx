@@ -39,8 +39,41 @@ export const WalletIcon = make((c) => (
   </>
 ));
 
+/** Spending tab: a pie with one slice pulled out. */
 export const SpendingIcon = make((c) => (
-  <Path d="M4 20h16M7 17v-6M12 17V6M17 17v-8" stroke={c} {...stroke} />
+  <>
+    <Path d="M11 4.5a7.5 7.5 0 1 0 8.5 8.5H11z" stroke={c} {...stroke} />
+    <Path d="M14 3.6V10h6.4A6.6 6.6 0 0 0 14 3.6z" stroke={c} {...stroke} />
+  </>
+));
+
+/** Accounts tab: a bank (pediment, columns, base). */
+export const BankIcon = make((c) => (
+  <Path
+    d="M3.5 9 12 4.5 20.5 9M5 9.5h14M6.5 12v5.5M10 12v5.5M14 12v5.5M17.5 12v5.5M4 20h16"
+    stroke={c}
+    {...stroke}
+  />
+));
+
+/** Benefits tab: a ticket with a notch on each side and a perforation. */
+export const TicketIcon = make((c) => (
+  <>
+    <Path
+      d="M4 6.5h16v3.2a2.3 2.3 0 0 0 0 4.6v3.2H4v-3.2a2.3 2.3 0 0 0 0-4.6z"
+      stroke={c}
+      {...stroke}
+    />
+    <Path d="M14.5 8v1.5M14.5 11.25v1.5M14.5 14.5V16" stroke={c} {...stroke} />
+  </>
+));
+
+/** Ask: a ring with a center dot (the handoff's mark for Porter; never a sparkle). */
+export const AskIcon = make((c) => (
+  <>
+    <Circle cx={12} cy={12} r={8} stroke={c} {...stroke} strokeWidth={2.4} />
+    <Circle cx={12} cy={12} r={3} fill={c} />
+  </>
 ));
 
 export const SparkleIcon = make((c, f) => (
