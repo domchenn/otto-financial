@@ -4,6 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Button } from './Button';
 import { OptionRow } from './selection';
 import { StatTile } from './StatTile';
+import { NetWorthBar } from './NetWorthBar';
 import { LiveLabel, PorterNoticed } from './porter';
 
 describe('Button', () => {
@@ -80,5 +81,37 @@ describe('LiveLabel', () => {
   it('reads its label as a header, with the dot hidden from VoiceOver', async () => {
     await render(<LiveLabel>Today</LiveLabel>);
     expect(screen.getByRole('header', { name: 'Today' })).toBeOnTheScreen();
+  });
+});
+
+describe('NetWorthBar', () => {
+  const base = {
+    net_cents: 1_461_000,
+    cash_cents: 1_874_100,
+    investments_cents: 0,
+    cards_cents: 413_100,
+    loans_cents: 0,
+    changes: [],
+    tracking_since: null,
+  };
+
+  it('always names cash, investing and cards, with what is owed as negative', async () => {
+    await render(<NetWorthBar netWorth={base} />);
+    const legend: [string, string][] = [
+      ['Cash', '$18,741'],
+      ['Investing', '$0'],
+      ['Cards', '−$4,131'],
+    ];
+    for (const [label, amount] of legend) {
+      expect(screen.getByText(label)).toBeOnTheScreen();
+      expect(screen.getByText(amount)).toBeOnTheScreen();
+    }
+    expect(screen.queryByText('Loans')).toBeNull();
+  });
+
+  it('adds loans only when there are some', async () => {
+    await render(<NetWorthBar netWorth={{ ...base, loans_cents: 250_000 }} />);
+    expect(screen.getByText('Loans')).toBeOnTheScreen();
+    expect(screen.getByText('−$2,500')).toBeOnTheScreen();
   });
 });
