@@ -23,8 +23,8 @@ to, and update this file when you do. Spec: `docs/Porter-handoff/PORTER_HANDOFF.
 | ADRs | `docs/adr/` | Historical records |
 | `docs/prd.html` | `docs/` | Kept as the Otto v1 PRD, marked superseded |
 
-## Needs a decision
+## Renamed with a setting
 
 | Name | Where | Note |
 |---|---|---|
-| Plaid `client_name: "Otto"` | `backend/app/modules/accounts/plaid_provider.py` | Shown to users inside Plaid Link ("Otto uses Plaid…"). The handoff lists Plaid client names as ask-first. Changing the string is a one-line code change; check whether the Plaid dashboard's app name must match. |
+| Plaid Link app name | `OTTO_PLAID_CLIENT_NAME` (default `Porter`) | What Plaid Link shows ("Porter uses Plaid…"). The setting name keeps the `OTTO_` prefix like every other setting. |
