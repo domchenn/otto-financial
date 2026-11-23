@@ -230,7 +230,8 @@ function ExpiringCredits({ benefits }: { benefits: Benefits | undefined }) {
     .sort((a, b) => a.days_left - b.days_left)
     .slice(0, EXPIRING_CARDS);
   if (credits.length === 0) return null;
-  const total = credits.reduce((sum, c) => sum + c.remaining_cents, 0);
+  // Everything left across all credits (as on Benefits), not just the cards shown here.
+  const total = benefits.remaining_cents;
   const names = new Map(benefits.cards.map((c) => [c.account_id, c.account_name]));
 
   return (

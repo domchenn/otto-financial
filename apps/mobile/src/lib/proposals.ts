@@ -52,17 +52,19 @@ function creditProposal(c: CreditPeriod): Proposal {
 }
 
 /**
- * Checking above a month of planned spending plus the card payments coming up is idle.
- * Only offered with a monthly plan (so "a month of spending" is the user's own number) and a
- * savings account to move it to. Rounded down to $100.
+ * Checking above a month of spending plus the card payments coming up is idle. A month of
+ * spending is the user's monthly plan, or this month's actual spend once it's past the plan.
+ * Only offered with a monthly plan and a savings account to move it to. Rounded down to $100.
  */
 export function idleCheckingCents(
   accounts: Account[],
   budget: Budget | undefined,
   payments: Payment[],
 ): number | null {
-  const plan = budget?.month.limit_cents;
-  if (!plan) return null;
+  const limit = budget?.month.limit_cents;
+  if (!budget || !limit) return null;
+  // A month of spending is the plan, or what's already been spent if that's more.
+  const plan = Math.max(limit, budget.month.spent_cents);
   const cash = accounts.filter((a) => a.kind === 'depository');
   const checking = cash.filter((a) => a.subtype === 'checking');
   if (checking.length === 0 || !cash.some((a) => a.subtype === 'savings')) return null;

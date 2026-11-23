@@ -196,6 +196,13 @@ describe('Home', () => {
     expect(mockPush).toHaveBeenCalledWith('/credits/p-resy');
   });
 
+  // Regression: the total added up only the cards shown, so it disagreed with Benefits.
+  it('totals every credit left, not just the cards shown', async () => {
+    mockBenefits = { ...benefits, remaining_cents: 85_600 };
+    await renderScreen(<Home />);
+    expect(screen.getByText('$856 total')).toBeOnTheScreen();
+  });
+
   it('totals the expiring credits and opens Benefits', async () => {
     await renderScreen(<Home />);
     await fireEvent.press(screen.getByRole('button', { name: '$67 total, see all benefits' }));
