@@ -10,7 +10,7 @@ import { ListRow } from '@/components/rows';
 import { Chip } from '@/components/selection';
 import { Card, Stack } from '@/components/Surface';
 import { Text } from '@/components/Text';
-import { useBenefits } from '@/lib/api';
+import { useBenefits, usePoints } from '@/lib/api';
 import {
   allCredits,
   expiringSections,
@@ -23,7 +23,8 @@ import {
   type CreditSection,
 } from '@/lib/credits';
 import { cardArt } from '@/lib/finance';
-import { formatCents } from '@/lib/money';
+import { formatCents, formatNumber } from '@/lib/money';
+import { pointsCaption } from '@/lib/points';
 import { useRefresh } from '@/lib/useRefresh';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -34,6 +35,7 @@ type Mode = 'expiring' | 'card' | 'year';
 export default function Benefits() {
   const [mode, setMode] = useState<Mode>('expiring');
   const benefits = useBenefits();
+  const points = usePoints().data;
   const refresh = useRefresh();
   const data = benefits.data;
   const credits = data ? allCredits(data) : [];
@@ -82,6 +84,18 @@ export default function Benefits() {
           </>
         )}
       </Text>
+
+      {points && points.programs.length > 0 ? (
+        <Card tone="lilac" style={{ marginTop: space.lg, paddingVertical: space.xs }}>
+          <ListRow
+            title="Points"
+            subtitle={pointsCaption(points)}
+            value={points.confirmed_count > 0 ? formatNumber(points.total_points) : undefined}
+            chevron
+            onPress={() => router.push('/points')}
+          />
+        </Card>
+      ) : null}
 
       {unplaced.map((c) => (
         <Card

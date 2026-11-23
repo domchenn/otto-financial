@@ -5,7 +5,8 @@ import CardProductPicker from '@/app/(app)/card/[id]/product';
 import CreditDetail from '@/app/(app)/credits/[id]';
 import BenefitsTab from '@/app/(app)/(tabs)/benefits';
 import type { Benefits, CardProduct } from '@/lib/credits';
-import { benefits, creditPeriod, mockResult, renderScreen } from '@/test/fixtures';
+import { benefits, creditPeriod, mockResult, points, renderScreen } from '@/test/fixtures';
+import type { Points } from '@/lib/points';
 
 const mockPush = jest.fn();
 const mockBack = jest.fn();
@@ -33,8 +34,10 @@ const products: CardProduct[] = [
     needs_anniversary: true,
   },
 ];
+let mockPoints: Points | undefined;
 jest.mock('@/lib/api', () => ({
   useBenefits: () => mockResult(mockBenefits),
+  usePoints: () => mockResult(mockPoints),
   useCardProducts: () => mockResult(products),
   useMarkCreditUsed: () => ({ mutate: mockMark, isPending: false }),
   useAssignCard: () => ({ mutate: mockAssign, isPending: false }),
@@ -43,11 +46,27 @@ jest.mock('@/lib/useRefresh', () => ({ useRefresh: () => undefined }));
 
 beforeEach(() => {
   mockBenefits = benefits;
+  mockPoints = points;
   mockParams = { id: 'p-dining' };
   for (const fn of [mockPush, mockBack, mockReplace, mockMark, mockAssign]) fn.mockClear();
 });
 
 describe('Benefits tab', () => {
+  it('keeps points one tap away, with the estimated total', async () => {
+    await renderScreen(<BenefitsTab />);
+    expect(screen.getByText('122,220')).toBeOnTheScreen();
+    expect(screen.getByText('Add 1 more balance')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByText('Points'));
+    expect(mockPush).toHaveBeenCalledWith('/points');
+  });
+
+  it('asks for a points balance before showing a number', async () => {
+    mockPoints = { ...points, total_points: 0, confirmed_count: 0 };
+    await renderScreen(<BenefitsTab />);
+    expect(screen.getByText('Add your balance')).toBeOnTheScreen();
+    expect(screen.queryByText('122,220')).toBeNull();
+  });
+
   it('groups unused credits by how soon they reset', async () => {
     await renderScreen(<BenefitsTab />);
     expect(screen.getByText('This week')).toBeOnTheScreen();
