@@ -14,7 +14,10 @@ type Props = RNTextProps & {
   weight?: keyof typeof fonts;
 };
 
-/** The only text primitive. Sentence case everywhere, no all-caps labels. */
+/**
+ * The only text primitive. Write every string in sentence case; the `label` variant shows
+ * section labels in caps ("TODAY") without changing the string VoiceOver reads.
+ */
 export function Text({
   variant = 'body',
   color,
