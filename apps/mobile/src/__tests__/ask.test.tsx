@@ -1,50 +1,98 @@
-import { describe, expect, it, jest } from '@jest/globals';
-import { fireEvent, screen } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
+import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 
-import Ask from '@/app/(app)/(tabs)/ask';
+import AskSheet from '@/app/(app)/ask';
 import { renderScreen } from '@/test/fixtures';
 
-jest.mock('@clerk/expo', () => ({ useUser: () => ({ user: { firstName: 'Dominic' } }) }));
-
 const mockPush = jest.fn();
-jest.mock('expo-router', () => ({ router: { push: (...args: unknown[]) => mockPush(...args) } }));
-jest.mock('@/lib/api', () => {
-  const f = jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures');
-  return { useSpending: () => f.mockResult(f.weekSpending) };
+const mockBack = jest.fn();
+let mockParams: { from?: string; q?: string } = {};
+jest.mock('expo-router', () => ({
+  router: {
+    push: (...args: unknown[]) => mockPush(...args),
+    back: () => mockBack(),
+  },
+  useLocalSearchParams: () => mockParams,
+}));
+jest.mock('expo-haptics', () => ({ selectionAsync: jest.fn() }));
+jest.mock('expo-blur', () => {
+  const { View } = jest.requireActual<typeof import('react-native')>('react-native');
+  return { BlurView: View };
 });
 
-describe('Ask', () => {
-  it('leads with the headline and a small wordmark, not an avatar', async () => {
-    await renderScreen(<Ask />);
-    expect(screen.getByText('Hi Dominic. What do you want to know?')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Porter')).toBeOnTheScreen();
+beforeEach(() => {
+  mockParams = {};
+  mockPush.mockClear();
+  mockBack.mockClear();
+});
+
+describe('Ask sheet', () => {
+  it('opens on a question and suggestions led by the screen it came from', async () => {
+    mockParams = { from: 'benefits' };
+    await renderScreen(<AskSheet />);
+    expect(screen.getByText('What do you want to know?')).toBeOnTheScreen();
+    expect(screen.getByText('Try asking')).toBeOnTheScreen();
+    const suggestions = screen.getAllByText(/^(What credits|Summarize|Which card|How close)/);
+    expect(suggestions.map((s) => s.props.children)).toEqual([
+      'What credits expire this month?',
+      'Summarize my week',
+      'Which card for a $60 dinner tonight?',
+      'How close am I to Japan?',
+    ]);
   });
 
-  it('suggests questions from the user’s numbers', async () => {
-    await renderScreen(<Ask />);
-    expect(screen.getByText('Your $10 dining credit resets in 3 days')).toBeOnTheScreen();
-    expect(screen.getByText('Which card for dinner tonight?')).toBeOnTheScreen();
-    expect(screen.getByText('$120 spent since Monday')).toBeOnTheScreen();
-    expect(screen.getByText(/^\$65 in credits expire /)).toBeOnTheScreen();
+  it('answers in plain text, then the plan steps and Keep going', async () => {
+    await renderScreen(<AskSheet />);
+    await fireEvent.press(screen.getByText('What credits expire this month?'));
+    // The question shows as the user's bubble, then Porter's answer under its label.
+    expect(screen.getAllByText('What credits expire this month?').length).toBeGreaterThan(0);
+    expect(screen.getByRole('header', { name: 'Porter' })).toBeOnTheScreen();
+    expect(screen.getByText(/in credits reset this month\./)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/^Step 1: Use your \$10 Dining credit\./)).toBeOnTheScreen();
+    expect(screen.getByText('Keep going')).toBeOnTheScreen();
+    expect(screen.getByText(/^Based on .* · sample data$/)).toBeOnTheScreen();
   });
 
-  it('opens the credit or asks Porter when a suggestion is tapped', async () => {
-    await renderScreen(<Ask />);
-    await fireEvent.press(screen.getByText('Your $10 dining credit resets in 3 days'));
-    expect(mockPush).toHaveBeenLastCalledWith('/credits/gold-dining');
+  it('asks the next topic from a Keep going chip', async () => {
+    mockParams = { q: 'credits' };
+    await renderScreen(<AskSheet />);
     await fireEvent.press(screen.getByText('Summarize my week'));
-    expect(mockPush).toHaveBeenLastCalledWith({ pathname: '/chat', params: { q: 'week' } });
+    expect(screen.getByText(/^Solid week:/)).toBeOnTheScreen();
+    expect(screen.getAllByRole('header', { name: 'Porter' })).toHaveLength(2);
   });
 
-  // Regression: the input trailed the keyboard. It now rides on the keyboard (sticky view),
-  // resting 12pt above it when open and above the tab bar when closed.
-  it('rides on the keyboard, 12pt above it when open', async () => {
-    await renderScreen(<Ask />);
-    let node = screen.getByLabelText('Ask about your money…').parent;
-    while (node && !node.props.offset) node = node.parent;
-    const closedGap = StyleSheet.flatten(node?.props.style)?.paddingBottom as number;
-    expect(closedGap).toBeGreaterThan(100); // clears the floating tab bar
-    expect(node?.props.offset).toEqual({ closed: 0, opened: closedGap - 12 });
+  it('closes the sheet before opening a screen from a chip', async () => {
+    mockParams = { q: 'credits' };
+    await renderScreen(<AskSheet />);
+    await fireEvent.press(screen.getByText('See all credits'));
+    await waitFor(() => expect(mockBack).toHaveBeenCalled());
+    expect(mockPush).toHaveBeenCalledWith('/benefits');
+  });
+
+  it('matches a typed canned question and is honest about anything else', async () => {
+    await renderScreen(<AskSheet />);
+    const field = screen.getByLabelText('Ask about your money, cards or trips');
+    await fireEvent.changeText(field, 'summarize my week');
+    await fireEvent.press(screen.getByRole('button', { name: 'Send' }));
+    expect(screen.getByText(/^Solid week:/)).toBeOnTheScreen();
+    await fireEvent.changeText(field, 'Should I refinance?');
+    await fireEvent.press(screen.getByRole('button', { name: 'Send' }));
+    expect(screen.getByText(/^I can only answer a few questions/)).toBeOnTheScreen();
+  });
+
+  it('closes when the dimmed background is tapped', async () => {
+    await renderScreen(<AskSheet />);
+    // The sheet is modal for VoiceOver, so the backdrop is hidden from it on purpose.
+    const backdrop = screen.getByRole('button', { name: 'Close Ask', includeHiddenElements: true });
+    await fireEvent.press(backdrop);
+    await fireEvent.press(backdrop);
+    await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1)); // once, despite two taps
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it('gives VoiceOver a Close button on the handle', async () => {
+    await renderScreen(<AskSheet />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
+    await waitFor(() => expect(mockBack).toHaveBeenCalledTimes(1));
   });
 });

@@ -6,45 +6,58 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TabBar } from './TabBar';
 import { light } from '@/theme/tokens';
 
-jest.mock('expo-haptics', () => ({ selectionAsync: jest.fn() }));
+jest.mock('expo-haptics', () => ({
+  selectionAsync: jest.fn(),
+  impactAsync: jest.fn(),
+  ImpactFeedbackStyle: { Medium: 1 },
+}));
 
 const TABS = [
   ['index', 'Home'],
   ['accounts', 'Accounts'],
-  ['ask', 'Ask'],
   ['spending', 'Spending'],
   ['benefits', 'Benefits'],
 ] as const;
 
-function props(activeIndex: number, emitted = { defaultPrevented: false }) {
+function setup(activeIndex: number) {
   const routes = TABS.map(([name]) => ({ key: name, name }));
   const navigateToTab = jest.fn();
-  const p = {
+  const onAsk = jest.fn();
+  const props = {
     state: { index: activeIndex, routes },
     descriptors: Object.fromEntries(TABS.map(([name, title]) => [name, { options: { title } }])),
-    emitter: { emit: () => emitted },
+    emitter: { emit: () => ({ defaultPrevented: false }) },
     navigateToTab,
   } as unknown as BottomTabBarProps;
-  return { p, navigateToTab };
+  return { props, navigateToTab, onAsk };
 }
 
-function renderBar(p: BottomTabBarProps) {
-  return render(
+async function renderBar(activeIndex = 0) {
+  const s = setup(activeIndex);
+  await render(
     <SafeAreaProvider
       initialMetrics={{
         frame: { x: 0, y: 0, width: 390, height: 844 },
         insets: { top: 47, left: 0, right: 0, bottom: 34 },
       }}
     >
-      <TabBar {...p} />
+      <TabBar {...s.props} onAsk={s.onAsk} />
     </SafeAreaProvider>,
   );
+  return s;
 }
 
 describe('TabBar', () => {
-  it('shows the five Porter tabs in order with Ask in the middle', async () => {
-    await renderBar(props(0).p);
+  it('shows Home, Accounts, Ask, Spending and Benefits, with Ask in the middle', async () => {
+    await renderBar();
     expect(screen.getAllByRole('tab').map((t) => t.props.accessibilityLabel)).toEqual([
+      'Home',
+      'Accounts',
+      'Spending',
+      'Benefits',
+    ]);
+    const labels = screen.getAllByText(/^(Home|Accounts|Ask|Spending|Benefits)$/);
+    expect(labels.map((l) => l.props.children)).toEqual([
       'Home',
       'Accounts',
       'Ask',
@@ -54,7 +67,7 @@ describe('TabBar', () => {
   });
 
   it('highlights only the active tab in ink', async () => {
-    await renderBar(props(1).p);
+    await renderBar(1);
     expect(screen.getByRole('tab', { name: 'Accounts' })).toBeSelected();
     expect(screen.getByRole('tab', { name: 'Home' })).not.toBeSelected();
     expect(screen.getByText('Accounts')).toHaveStyle({ color: light.ink });
@@ -62,16 +75,15 @@ describe('TabBar', () => {
   });
 
   it('navigates to a tab when tapped', async () => {
-    const { p, navigateToTab } = props(0);
-    await renderBar(p);
+    const { navigateToTab } = await renderBar();
     await fireEvent.press(screen.getByRole('tab', { name: 'Benefits' }));
     expect(navigateToTab).toHaveBeenCalledWith('benefits');
   });
 
-  it('lets a tabPress listener take over (how Ask opens its sheet)', async () => {
-    const { p, navigateToTab } = props(0, { defaultPrevented: true });
-    await renderBar(p);
-    await fireEvent.press(screen.getByRole('tab', { name: 'Ask' }));
+  it('opens Ask over the current tab instead of switching tabs', async () => {
+    const { navigateToTab, onAsk } = await renderBar(3);
+    await fireEvent.press(screen.getByRole('button', { name: 'Ask Porter' }));
+    expect(onAsk).toHaveBeenCalledWith('benefits');
     expect(navigateToTab).not.toHaveBeenCalled();
   });
 });
