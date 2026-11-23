@@ -45,7 +45,7 @@ const FOLLOW_UPS: Record<AskTopic | 'unknown', FollowUp[]> = {
     { label: 'Summarize my week', topic: 'week' },
   ],
   credits: [
-    { label: 'See all credits', href: '/credits' },
+    { label: 'See all credits', href: '/benefits' },
     { label: 'Summarize my week', topic: 'week' },
   ],
   unknown: [

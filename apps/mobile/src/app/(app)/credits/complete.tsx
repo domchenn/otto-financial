@@ -55,7 +55,7 @@ export default function CreditsComplete() {
       }
       footer={
         <Footer>
-          <Button title="See what's next" onPress={() => router.replace('/credits')} />
+          <Button title="See what's next" onPress={() => router.replace('/benefits')} />
           <TextButton title="Back to home" onPress={() => router.dismissTo('/')} />
         </Footer>
       }

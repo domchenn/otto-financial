@@ -162,7 +162,7 @@ describe('Home', () => {
     expect(screen.getByText('$17')).toBeOnTheScreen();
     expect(screen.getByText('2 expire this month')).toBeOnTheScreen();
     await fireEvent.press(screen.getByText('Credits to use'));
-    expect(mockPush).toHaveBeenCalledWith('/credits');
+    expect(mockPush).toHaveBeenCalledWith('/benefits');
   });
 
   it('tells the user when data could not load', async () => {

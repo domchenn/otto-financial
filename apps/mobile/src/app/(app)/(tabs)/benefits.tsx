@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { CardSwatch } from '@/components/badges';
 import { IconButton } from '@/components/IconButton';
 import { BellIcon } from '@/components/icons';
-import { StepScreen } from '@/components/layouts';
+import { TabScreen } from '@/components/layouts';
 import { ListRow } from '@/components/rows';
 import { Chip } from '@/components/selection';
 import { Card, Stack } from '@/components/Surface';
@@ -30,7 +30,8 @@ import { useTheme } from '@/theme/useTheme';
 
 type Mode = 'expiring' | 'card' | 'year';
 
-export default function Credits() {
+/** Benefits tab: card credits by expiry, by card, or this year's history. */
+export default function Benefits() {
   const [mode, setMode] = useState<Mode>('expiring');
   const benefits = useBenefits();
   const refresh = useRefresh();
@@ -52,19 +53,15 @@ export default function Credits() {
   const months = data && mode === 'year' ? historyByMonth(data.history, todayIso()) : [];
 
   return (
-    <StepScreen
-      refreshControl={refresh}
-      right={
+    <TabScreen refreshControl={refresh}>
+      <View style={styles.header}>
+        <Text variant="display">Benefits</Text>
         <IconButton
           icon={BellIcon}
           label="Credit reminders"
           onPress={() => router.push('/credits/reminders')}
         />
-      }
-    >
-      <Text variant="display" style={{ marginTop: space.lg }}>
-        Credits
-      </Text>
+      </View>
       <Text variant="body" muted style={{ fontSize: 17, marginTop: space.xs }}>
         {benefits.isError ? (
           "Porter couldn't load your credits. Pull down to try again."
@@ -166,7 +163,7 @@ export default function Credits() {
           </Card>
         </View>
       ))}
-    </StepScreen>
+    </TabScreen>
   );
 }
 
@@ -217,6 +214,7 @@ function Swatch({ name }: { name: string }) {
 }
 
 const styles = StyleSheet.create({
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.xl },
   groupHead: {
     flexDirection: 'row',

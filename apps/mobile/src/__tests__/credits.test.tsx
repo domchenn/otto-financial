@@ -3,7 +3,7 @@ import { fireEvent, screen } from '@testing-library/react-native';
 
 import CardProductPicker from '@/app/(app)/card/[id]/product';
 import CreditDetail from '@/app/(app)/credits/[id]';
-import Credits from '@/app/(app)/credits/index';
+import BenefitsTab from '@/app/(app)/(tabs)/benefits';
 import type { Benefits, CardProduct } from '@/lib/credits';
 import { benefits, creditPeriod, mockResult, renderScreen } from '@/test/fixtures';
 
@@ -47,9 +47,9 @@ beforeEach(() => {
   for (const fn of [mockPush, mockBack, mockReplace, mockMark, mockAssign]) fn.mockClear();
 });
 
-describe('Credits', () => {
+describe('Benefits tab', () => {
   it('groups unused credits by how soon they reset', async () => {
-    await renderScreen(<Credits />);
+    await renderScreen(<BenefitsTab />);
     expect(screen.getByText('This week')).toBeOnTheScreen();
     expect(screen.getByText('Dining credit')).toBeOnTheScreen();
     expect(screen.getByText('Later')).toBeOnTheScreen();
@@ -59,20 +59,20 @@ describe('Credits', () => {
   });
 
   it('asks which card an unknown account is', async () => {
-    await renderScreen(<Credits />);
+    await renderScreen(<BenefitsTab />);
     await fireEvent.press(screen.getByText('Which card is Plaid Credit Card •• 3333?'));
     expect(mockPush).toHaveBeenCalledWith('/card/acc-plaid/product');
   });
 
   it('shows what was used and missed this year', async () => {
-    await renderScreen(<Credits />);
+    await renderScreen(<BenefitsTab />);
     expect(
       screen.getByText('$17 used this year · $10 missed · $67 left to use now'),
     ).toBeOnTheScreen();
   });
 
   it('lists this year by month with used and missed credits', async () => {
-    await renderScreen(<Credits />);
+    await renderScreen(<BenefitsTab />);
     await fireEvent.press(screen.getByRole('button', { name: 'This year' }));
     expect(screen.getByText('October')).toBeOnTheScreen();
     expect(screen.getByText('$17 used')).toBeOnTheScreen();

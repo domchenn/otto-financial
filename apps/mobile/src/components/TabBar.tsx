@@ -3,32 +3,89 @@ import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HomeIcon, SparkleIcon, SpendingIcon, WalletIcon, type Icon } from './icons';
+import { AskIcon, BankIcon, HomeIcon, SpendingIcon, TicketIcon, type Icon } from './icons';
 import { Text } from './Text';
-import { screen, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 const ICONS: Record<string, Icon> = {
   index: HomeIcon,
-  wallet: WalletIcon,
+  accounts: BankIcon,
   spending: SpendingIcon,
-  ask: SparkleIcon,
+  benefits: TicketIcon,
 };
 
-/** Floating white pill nav bar. Only the active tab is highlighted. */
+/** The route drawn as the raised sage button in the middle of the bar. */
+export const ASK_ROUTE = 'ask';
+
+const BAR_HEIGHT = 68;
+const ASK_SIZE = 54;
+const ASK_RING = 5;
+
+/**
+ * Floating bottom bar: Home · Accounts · [Ask] · Spending · Benefits. Ask is a 54pt sage
+ * circle raised above the bar with a ring in the bar's color. Only the active tab is ink.
+ */
 export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTabBarProps) {
-  const { palette } = useTheme();
+  const { palette, scheme } = useTheme();
   const insets = useSafeAreaInsets();
+  const barColor = scheme === 'dark' ? palette.surface : palette.ground;
+
   return (
     <View
-      style={[styles.wrap, { bottom: Math.max(insets.bottom - 4, space.lg) }]}
+      style={[styles.wrap, { bottom: Math.max(insets.bottom - 8, 12) }]}
       pointerEvents="box-none"
     >
-      <View style={[styles.bar, { backgroundColor: palette.surface, shadowColor: palette.shadow }]}>
+      <View
+        style={[
+          styles.bar,
+          { backgroundColor: barColor, borderColor: palette.hairline, shadowColor: palette.shadow },
+        ]}
+      >
         {state.routes.map((route, index) => {
           const focused = state.index === index;
-          const I = ICONS[route.name] ?? HomeIcon;
           const title = descriptors[route.key]?.options?.title ?? route.name;
+          const onPress = () => {
+            const event = emitter.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+            if (!focused && !event.defaultPrevented) {
+              void Haptics.selectionAsync();
+              navigateToTab(route.key);
+            }
+          };
+
+          if (route.name === ASK_ROUTE) {
+            return (
+              <Pressable
+                key={route.key}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: focused }}
+                accessibilityLabel={title}
+                onPress={onPress}
+                style={styles.tab}
+              >
+                <View
+                  style={[
+                    styles.ask,
+                    {
+                      backgroundColor: palette.accent,
+                      borderColor: barColor,
+                      shadowColor: palette.shadow,
+                    },
+                  ]}
+                >
+                  <AskIcon color={palette.onAccent} size={28} />
+                </View>
+                <Text variant="caption" weight="bold" style={styles.askLabel}>
+                  {title}
+                </Text>
+              </Pressable>
+            );
+          }
+
+          const I = ICONS[route.name] ?? HomeIcon;
           const color = focused ? palette.ink : palette.muted;
           return (
             <Pressable
@@ -36,20 +93,10 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
               accessibilityRole="tab"
               accessibilityState={{ selected: focused }}
               accessibilityLabel={title}
-              onPress={() => {
-                const event = emitter.emit({
-                  type: 'tabPress',
-                  target: route.key,
-                  canPreventDefault: true,
-                });
-                if (!focused && !event.defaultPrevented) {
-                  void Haptics.selectionAsync();
-                  navigateToTab(route.key);
-                }
-              }}
+              onPress={onPress}
               style={styles.tab}
             >
-              <I color={color} size={26} />
+              <I color={color} size={24} />
               <Text
                 variant="caption"
                 weight={focused ? 'bold' : 'semibold'}
@@ -67,19 +114,34 @@ export function TabBar({ state, descriptors, emitter, navigateToTab }: BottomTab
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', left: screen.side - 8, right: screen.side - 8 },
+  wrap: { position: 'absolute', left: 12, right: 12 },
   bar: {
-    height: 76,
-    borderRadius: 38,
+    height: BAR_HEIGHT,
+    borderRadius: 24,
+    borderWidth: StyleSheet.hairlineWidth * 2,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingHorizontal: space.sm,
-    shadowOpacity: 0.1,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 8 },
+    paddingHorizontal: 4,
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 4, height: 64 },
-  label: { fontSize: 13 },
+  tab: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3, height: BAR_HEIGHT },
+  label: { fontSize: 12 },
+  ask: {
+    position: 'absolute',
+    top: -(ASK_SIZE / 2) - ASK_RING + 6,
+    width: ASK_SIZE + ASK_RING * 2,
+    height: ASK_SIZE + ASK_RING * 2,
+    borderRadius: (ASK_SIZE + ASK_RING * 2) / 2,
+    borderWidth: ASK_RING,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOpacity: 0.16,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 10,
+  },
+  askLabel: { fontSize: 12, marginTop: 27 },
 });

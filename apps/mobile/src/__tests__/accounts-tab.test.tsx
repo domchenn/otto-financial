@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, screen } from '@testing-library/react-native';
 
-import Wallet from '@/app/(app)/(tabs)/wallet';
+import Accounts from '@/app/(app)/(tabs)/accounts';
 import type { Account, Summary } from '@/lib/finance';
 import {
   brokerage,
@@ -39,9 +39,9 @@ beforeEach(() => {
   mockLink.mutate.mockClear();
 });
 
-describe('Wallet', () => {
+describe('Accounts tab', () => {
   it('shows the card total by its header, utilization and each card with its due date', async () => {
-    await renderScreen(<Wallet />);
+    await renderScreen(<Accounts />);
     expect(screen.queryByText('Total card balances')).toBeNull();
     expect(screen.getAllByText('−$684').length).toBeGreaterThan(0); // header (and bar legend)
     expect(screen.getByText('$684.22')).toBeOnTheScreen();
@@ -63,7 +63,7 @@ describe('Wallet', () => {
         },
       ],
     };
-    await renderScreen(<Wallet />);
+    await renderScreen(<Accounts />);
     expect(screen.getByText('Chase needs a quick sign-in.')).toBeOnTheScreen();
     expect(screen.getByText(/last updated 3 days ago/)).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Fix' }));
@@ -71,24 +71,24 @@ describe('Wallet', () => {
   });
 
   it('has no warning when every bank is fine', async () => {
-    await renderScreen(<Wallet />);
+    await renderScreen(<Accounts />);
     expect(screen.queryByText(/needs a quick sign-in/)).toBeNull();
   });
 
   it('opens Plaid Link from the plus button', async () => {
-    await renderScreen(<Wallet />);
+    await renderScreen(<Accounts />);
     await fireEvent.press(screen.getByRole('button', { name: 'Connect another account' }));
     expect(mockLink.mutate).toHaveBeenCalled();
   });
 
   it('explains the empty state', async () => {
     mockAccounts = [];
-    await renderScreen(<Wallet />);
+    await renderScreen(<Accounts />);
     expect(screen.getByText('No cards connected yet. Tap + to connect one.')).toBeOnTheScreen();
   });
 
   it('leads with net worth and lists cash and investments', async () => {
-    await renderScreen(<Wallet />);
+    await renderScreen(<Accounts />);
     expect(screen.getByText('$16,315')).toBeOnTheScreen();
     expect(screen.getByText('Up $120 this week.')).toBeOnTheScreen();
     expect(screen.getByText('Cash')).toBeOnTheScreen(); // the bar's legend
@@ -102,7 +102,7 @@ describe('Wallet', () => {
   });
 
   it('shows how much credit is left to use', async () => {
-    await renderScreen(<Wallet />);
+    await renderScreen(<Accounts />);
     expect(screen.getByText('$67 left to use')).toBeOnTheScreen();
   });
 });
