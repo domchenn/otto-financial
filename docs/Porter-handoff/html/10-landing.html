@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Porter — Landing page</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+button,input{font-family:inherit}
+@keyframes p6Pulse{0%,100%{box-shadow:0 0 0 0 rgba(47,107,79,0.45)}50%{box-shadow:0 0 0 6px rgba(47,107,79,0)}}
+@keyframes p6Grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes p6Rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes p6Ring{from{stroke-dashoffset:94.2}}
+.p6-pulse{animation:p6Pulse 2.4s ease-in-out infinite}
+.p6-grow{animation:p6Grow 0.9s cubic-bezier(0.2,0.8,0.2,1) 0.2s both;transform-origin:left}
+.p6-rise{animation:p6Rise 0.5s cubic-bezier(0.2,0.8,0.2,1) both}
+.p6-ring{animation:p6Ring 1s cubic-bezier(0.2,0.8,0.2,1) 0.3s both}
+
+</style>
+
+</head>
+<body>
+
+<div style="min-height: 100vh; background: #FFFFFF; color: #17171A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-variant-numeric: tabular-nums">
+  <header style="max-width: 1200px; margin: 0 auto; padding: 22px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+    <span style="font-size: 24px; font-weight: 800; letter-spacing: -0.9px">porter</span>
+    <nav aria-label="Site" style="display: flex; gap: 26px; flex-wrap: wrap"><a href="#" style="font-size: 15px; font-weight: 500; color: #46464C; text-decoration: none; min-height: 44px; display: flex; align-items: center">How it works</a><a href="#" style="font-size: 15px; font-weight: 500; color: #46464C; text-decoration: none; min-height: 44px; display: flex; align-items: center">Benefits</a><a href="#" style="font-size: 15px; font-weight: 500; color: #46464C; text-decoration: none; min-height: 44px; display: flex; align-items: center">Trips</a><a href="#" style="font-size: 15px; font-weight: 500; color: #46464C; text-decoration: none; min-height: 44px; display: flex; align-items: center">Pricing</a></nav>
+    <a href="#join" style="display: flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 999px; background: #17171A; color: #FFFFFF; font-size: 14px; font-weight: 700; text-decoration: none">Get early access</a>
+  </header>
+
+  <section style="max-width: 1200px; margin: 0 auto; padding: 48px 32px 72px; display: flex; flex-wrap: wrap; align-items: center; gap: 56px">
+    <div style="flex: 1 1 460px; display: flex; flex-direction: column; gap: 22px">
+      <span style="align-self: flex-start; display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #2F6B4F; background: #E3F0E7; border-radius: 999px; padding: 7px 12px"><span class="p6-pulse" style="width: 7px; height: 7px; border-radius: 50%; background: #2F6B4F"></span>An AI money companion for premium cardholders</span>
+      <h1 style="margin: 0; font-size: clamp(2.6rem, 5vw, 4.2rem); line-height: 1.02; font-weight: 800; letter-spacing: -2.4px">Every benefit used.<br>Every dollar understood.</h1>
+      <p style="margin: 0; font-size: 1.2rem; line-height: 1.55; color: #46464C; max-width: 520px">Porter watches your cards and accounts, catches credits before they expire, tells you which card to use, and turns your points into trips. You just approve.</p>
+      <form id="join" style="display: flex; gap: 10px; flex-wrap: wrap; max-width: 520px">
+        <label for="lpEmail" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Email</label>
+        <input id="lpEmail" type="email" placeholder="you@email.com" style="flex: 1 1 240px; min-height: 52px; border-radius: 16px; border: 1px solid #ECECEA; padding: 0 16px; font-size: 16px; font-family: inherit">
+        <button type="button" style="min-height: 52px; padding: 0 22px; border-radius: 16px; border: none; background: #2F6B4F; color: #FFFFFF; font-size: 16px; font-weight: 700; font-family: inherit">Join the waitlist</button>
+      </form>
+      <span style="font-size: 13px; color: #6B6B70">iPhone and web · [LAUNCH DATE]</span>
+    </div>
+    <div style="flex: 1 1 340px; display: flex; justify-content: center"><div aria-hidden="true" style="width: 312px; height: 675px; border-radius: 48px; background: #17171A; padding: 10px; box-sizing: border-box; box-shadow: 0 40px 80px rgba(20,30,25,0.22); flex-shrink: 0">
+  <div style="width: 292px; height: 655px; border-radius: 39px; overflow: hidden; position: relative; background: #FFFFFF">
+    <div style="width: 390px; height: 844px; transform: scale(0.7487); transform-origin: top left">
+<div style="position: relative; width: 390px; height: 844px; box-sizing: border-box; padding: 20px 20px 0px; display: flex; flex-direction: column; gap: 16px; background: #FFFFFF; color: #17171A; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-variant-numeric: tabular-nums; overflow: hidden">
+  <div style="display: flex; align-items: center; justify-content: space-between; min-height: 44px">
+    <div style="display: flex; align-items: baseline; gap: 10px"><span style="font-size: 20px; font-weight: 800; letter-spacing: -0.7px">porter</span><span style="font-size: 13px; color: #6B6B70">Fri, Nov 20</span></div>
+    <span style="width: 44px; height: 44px; border-radius: 50%; background: #F5F5F3; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700">D</span>
+  </div><section aria-label="Today's summary" style="height: 122px; box-sizing: border-box; background: #F5F5F3; border-radius: 22px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0">
+    <div style="display: flex; justify-content: space-between; align-items: center; height: 16px">
+      <span style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #2F6B4F; letter-spacing: 0.4px"><span class="p6-pulse" style="width: 7px; height: 7px; border-radius: 50%; background: #2F6B4F"></span>TODAY</span>
+      <span style="font-size: 12px; color: #6B6B70">11:47 pm</span>
+    </div>
+    <p style="margin: 0; font-size: 16px; line-height: 1.4; font-weight: 500; letter-spacing: -0.2px; height: 68px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical">A quiet Friday: $31 across three charges. November is running $536 over plan, mostly two Amazon orders.</p>
+  </section><a href="#P8Accounts.dc.html" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; text-decoration: none; color: #17171A"><div style="display: flex; flex-direction: column; gap: 3px; "><span style="font-size: 12px; color: #6B6B70">Net worth</span><span style="font-size: 19px; font-weight: 700; letter-spacing: -0.6px">$14,610</span><span style="font-size: 11px; color: #6B6B70; font-weight: 600">5 accounts</span></div><div style="display: flex; flex-direction: column; gap: 3px; border-left: 1px solid #ECECEA; padding-left: 14px;"><span style="font-size: 12px; color: #6B6B70">Spent · Nov</span><span style="font-size: 19px; font-weight: 700; letter-spacing: -0.6px">$1,436</span><span style="font-size: 11px; color: #A2502F; font-weight: 600">$536 over plan</span></div><div style="display: flex; flex-direction: column; gap: 3px; border-left: 1px solid #ECECEA; padding-left: 14px;"><span style="font-size: 12px; color: #6B6B70">Due Sun</span><span style="font-size: 19px; font-weight: 700; letter-spacing: -0.6px">$1,632</span><span style="font-size: 11px; color: #2F6B4F; font-weight: 600">Covered ✓</span></div></a><div style="display: flex; flex-direction: column">
+    <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px"><span style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #2F6B4F; letter-spacing: 0.3px"><span class="p6-pulse" style="width: 7px; height: 7px; border-radius: 50%; background: #2F6B4F"></span>PORTER’S ON IT</span><span style="font-size: 12px; color: #6B6B70">2 to approve</span></div>
+    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid #ECECEA">
+      <span style="width: 36px; height: 36px; border-radius: 11px; background: #E3F0E7; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"></path><path d="M3 11v-1a4 4 0 0 1 4-4h14"></path><path d="M7 22l-4-4 4-4"></path><path d="M21 13v1a4 4 0 0 1-4 4H3"></path></svg></span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700; line-height: 1.35">Move $1,200 of idle checking into savings</span><span style="font-size: 12px; color: #6B6B70">You keep more in checking than a month of spending · +$48/yr</span></div>
+        <div style="display: flex; gap: 6px"><button style="min-height: 34px; padding: 0 12px; border: none; border-radius: 10px; background: #17171A; color: #FFFFFF; font-size: 12px; font-weight: 700">Approve</button><button style="min-height: 34px; padding: 0 12px; border: 1px solid #ECECEA; border-radius: 10px; background: #FFFFFF; color: #17171A; font-size: 12px; font-weight: 600">Not now</button></div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-top: 1px solid #ECECEA">
+      <span style="width: 36px; height: 36px; border-radius: 11px; background: #FAF1D6; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8a3 3 0 0 0 6 0V3"></path><path d="M10 14v7"></path><path d="M17 3c-1.5 2-2 4-2 7h3v11"></path></svg></span>
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 8px">
+        <div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700; line-height: 1.35">Dinner tonight? Use Gold, not ··7053</span><span style="font-size: 12px; color: #6B6B70">4x vs 3x, and your $22 dining credit is still unused</span></div>
+        <div style="display: flex; gap: 6px"><button style="min-height: 34px; padding: 0 12px; border: none; border-radius: 10px; background: #17171A; color: #FFFFFF; font-size: 12px; font-weight: 700">Set as default</button></div>
+      </div>
+    </div>
+  </div><div style="display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-size: 15px; font-weight: 700">Use before they expire</span><a href="#P8Benefits.dc.html" style="font-size: 13px; font-weight: 600; color: #2F6B4F; text-decoration: none">$1,051 total</a></div>
+    <div style="display: flex; gap: 10px; margin-right: -20px; overflow: hidden"><div class="p6-rise" style="width: 228px; flex-shrink: 0; box-sizing: border-box; background: #FFFFFF; border: 1px solid #ECECEA; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="width: 34px; height: 22px; border-radius: 4px; background: linear-gradient(135deg, #F1F1F4, #BFC1C6 45%, #F7F7F8 60%, #A9ABB1); box-shadow: 0 2px 5px rgba(0,0,0,0.12)"></span>
+          <span style="font-size: 12px; color: #6B6B70">Platinum</span>
+        </div>
+        <div style="position: relative; width: 40px; height: 40px; flex-shrink: 0">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#ECECEA" stroke-width="3"></circle><circle class="p6-ring" cx="18" cy="18" r="15" fill="none" stroke="#A2502F" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 94.2" transform="rotate(-90 18 18)"></circle></svg>
+        <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #A2502F">10d</span>
+      </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 22px; font-weight: 700; letter-spacing: -0.6px">$15</span><span style="font-size: 14px; font-weight: 600">Uber Cash</span><span style="font-size: 12px; color: #A2502F; font-weight: 600">Expires in 10 days</span></div>
+      <button style="min-height: 40px; border: none; border-radius: 12px; background: #F5F5F3; color: #17171A; font-size: 13px; font-weight: 600">Use on a ride</button>
+    </div><div class="p6-rise" style="width: 228px; flex-shrink: 0; box-sizing: border-box; background: #FFFFFF; border: 1px solid #ECECEA; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="width: 34px; height: 22px; border-radius: 4px; background: linear-gradient(135deg, #F4DE9E, #CDA453 45%, #F7E6B4 60%, #BB8F3E); box-shadow: 0 2px 5px rgba(0,0,0,0.12)"></span>
+          <span style="font-size: 12px; color: #6B6B70">Gold</span>
+        </div>
+        <div style="position: relative; width: 40px; height: 40px; flex-shrink: 0">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#ECECEA" stroke-width="3"></circle><circle class="p6-ring" cx="18" cy="18" r="15" fill="none" stroke="#A2502F" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 94.2" transform="rotate(-90 18 18)"></circle></svg>
+        <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #A2502F">10d</span>
+      </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 22px; font-weight: 700; letter-spacing: -0.6px">$22</span><span style="font-size: 14px; font-weight: 600">Dining credit</span><span style="font-size: 12px; color: #A2502F; font-weight: 600">Expires in 10 days</span></div>
+      <button style="min-height: 40px; border: none; border-radius: 12px; background: #F5F5F3; color: #17171A; font-size: 13px; font-weight: 600">Any restaurant</button>
+    </div><div class="p6-rise" style="width: 228px; flex-shrink: 0; box-sizing: border-box; background: #FFFFFF; border: 1px solid #ECECEA; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="width: 34px; height: 22px; border-radius: 4px; background: linear-gradient(135deg, #F1F1F4, #BFC1C6 45%, #F7F7F8 60%, #A9ABB1); box-shadow: 0 2px 5px rgba(0,0,0,0.12)"></span>
+          <span style="font-size: 12px; color: #6B6B70">Platinum</span>
+        </div>
+        <div style="position: relative; width: 40px; height: 40px; flex-shrink: 0">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#ECECEA" stroke-width="3"></circle><circle class="p6-ring" cx="18" cy="18" r="15" fill="none" stroke="#2F6B4F" stroke-width="3" stroke-linecap="round" stroke-dasharray="80.1 94.2" transform="rotate(-90 18 18)"></circle></svg>
+        <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #2F6B4F">Jun</span>
+      </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 22px; font-weight: 700; letter-spacing: -0.6px">$200</span><span style="font-size: 14px; font-weight: 600">Hotel credit</span><span style="font-size: 12px; color: #2F6B4F; font-weight: 600">Through Jun 30</span></div>
+      <button style="min-height: 40px; border: none; border-radius: 12px; background: #F5F5F3; color: #17171A; font-size: 13px; font-weight: 600">Book a stay</button>
+    </div></div>
+  </div><nav aria-label="Main" style="position: absolute; left: 12px; right: 12px; bottom: 14px; height: 68px; border-radius: 24px; background: #FFFFFF; box-shadow: 0 8px 28px rgba(0,0,0,0.08), 0 0 0 1px #F0F0EE; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: center; z-index: 5"><a href="#P8Home.dc.html" style="min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 10.5px; font-weight: 700; color: #17171A; text-decoration: none"><svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"></path></svg>Home</a><a href="#P8Accounts.dc.html" style="min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 10.5px; font-weight: 500; color: #6B6B70; text-decoration: none"><svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6"></path><path d="M5.5 10v8M10 10v8M14 10v8M18.5 10v8"></path><path d="M3 20.5h18"></path></svg>Accounts</a><a href="#P8Ask.dc.html" aria-label="Ask Porter" style="display: flex; flex-direction: column; align-items: center; gap: 3px; text-decoration: none; font-size: 10.5px; font-weight: 700; color: #17171A; margin-top: -26px"><span style="width: 54px; height: 54px; border-radius: 50%; background: #2F6B4F; color: #FFFFFF; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 18px rgba(0,0,0,0.18), 0 0 0 5px #FFFFFF"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="2.6" fill="currentColor"></circle></svg></span>Ask</a><a href="#P8Spending.dc.html" style="min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 10.5px; font-weight: 500; color: #6B6B70; text-decoration: none"><svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 3.5V12h8.5"></path></svg>Spending</a><a href="#P8Benefits.dc.html" style="min-height: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 10.5px; font-weight: 500; color: #6B6B70; text-decoration: none"><svg aria-hidden="true" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9V6.5A1.5 1.5 0 0 1 4.5 5h15A1.5 1.5 0 0 1 21 6.5V9a3 3 0 0 0 0 6v2.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5V15a3 3 0 0 0 0-6z"></path><path d="M14 5v14" stroke-dasharray="2 2.5"></path></svg>Benefits</a></nav>
+</div>
+</div>
+  </div>
+</div></div>
+  </section>
+
+  <section style="background: #FAFAF8; padding: 72px 32px">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px">
+      <h2 style="margin: 0; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 800; letter-spacing: -1.2px; max-width: 720px">Your cards already pay for a lot. Porter makes sure you collect.</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 16px">
+        <div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 14px; background: #F5F5F3; border-radius: 28px; padding: 26px"><div style="height: 120px; display: flex; align-items: center; justify-content: center"><div style="width: 100%; background: #FFFFFF; border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 6px"><span style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #2F6B4F; letter-spacing: 0.3px"><span class="p6-pulse" style="width: 7px; height: 7px; border-radius: 50%; background: #2F6B4F"></span>TODAY</span><span style="font-size: 14px; font-weight: 600; line-height: 1.4">A quiet Friday: $31 across three charges.</span></div></div><h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.4px">A daily brief, written for you</h3><p style="margin: 0; font-size: 1rem; line-height: 1.55; color: #46464C">One short summary of what happened and what matters, in a slot that never jumps around.</p></div>
+        <div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 14px; background: #F5F5F3; border-radius: 28px; padding: 26px"><div style="height: 120px; display: flex; align-items: center; justify-content: center"><div style="display: flex; gap: 10px"><div class="p6-rise" style="width: 150px; flex-shrink: 0; box-sizing: border-box; background: #FFFFFF; border: 1px solid #ECECEA; border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 6px; transform: scale(0.82)">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start">
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="width: 34px; height: 22px; border-radius: 4px; background: linear-gradient(135deg, #F1F1F4, #BFC1C6 45%, #F7F7F8 60%, #A9ABB1); box-shadow: 0 2px 5px rgba(0,0,0,0.12)"></span>
+          <span style="font-size: 12px; color: #6B6B70">Platinum</span>
+        </div>
+        <div style="position: relative; width: 40px; height: 40px; flex-shrink: 0">
+        <svg aria-hidden="true" width="40" height="40" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="#ECECEA" stroke-width="3"></circle><circle class="p6-ring" cx="18" cy="18" r="15" fill="none" stroke="#A2502F" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 94.2" transform="rotate(-90 18 18)"></circle></svg>
+        <span style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: #A2502F">10d</span>
+      </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 22px; font-weight: 700; letter-spacing: -0.6px">$15</span><span style="font-size: 14px; font-weight: 600">Uber Cash</span><span style="font-size: 12px; color: #A2502F; font-weight: 600">Expires in 10 days</span></div>
+      <button style="min-height: 40px; border: none; border-radius: 12px; background: #F5F5F3; color: #17171A; font-size: 13px; font-weight: 600">Use it</button>
+    </div></div></div><h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.4px">Never miss a credit</h3><p style="margin: 0; font-size: 1rem; line-height: 1.55; color: #46464C">Uber Cash, dining, hotel, airline fees. Porter counts down every one and tells you where to use it.</p></div>
+        <div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 14px; background: #F5F5F3; border-radius: 28px; padding: 26px"><div style="height: 120px; display: flex; align-items: center; justify-content: center"><div style="display: flex; align-items: center; gap: 12px; background: #FFFFFF; border-radius: 18px; padding: 14px"><span style="width: 52px; height: 34px; border-radius: 6px; background: linear-gradient(135deg, #F4DE9E, #CDA453 45%, #F7E6B4 60%, #BB8F3E)"></span><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 800">Use Gold here</span><span style="font-size: 12px; color: #6B6B70">4x on dinner · +59 pts</span></div></div></div><h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.4px">The right card, every time</h3><p style="margin: 0; font-size: 1rem; line-height: 1.55; color: #46464C">Porter knows your cards’ categories and nudges you before you pay, not after.</p></div>
+        <div style="flex: 1 1 240px; display: flex; flex-direction: column; gap: 14px; background: #F5F5F3; border-radius: 28px; padding: 26px"><div style="height: 120px; display: flex; align-items: center; justify-content: center"><div style="display: flex; align-items: center; gap: 12px; background: #FFFFFF; border-radius: 18px; padding: 14px"><svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 13.5L3 11l1.5-1.5 8 1 4-4.5a2 2 0 0 1 3 3l-4.5 4 1 8L14.5 22l-2.5-7.5"></path></svg><div style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 800">BOS → Tokyo, business</span><span style="font-size: 12px; color: #6B6B70">88k points + $95</span></div></div></div><h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; letter-spacing: -0.4px">Points into trips</h3><p style="margin: 0; font-size: 1rem; line-height: 1.55; color: #46464C">Ask where your points can take you. Porter finds award seats you can actually book.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width: 1200px; margin: 0 auto; padding: 80px 32px; display: flex; flex-wrap: wrap; gap: 56px; align-items: center">
+    <div style="flex: 1 1 380px; display: flex; flex-direction: column; gap: 16px">
+      <h2 style="margin: 0; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 800; letter-spacing: -1.2px">Ask anything. Get a plan.</h2>
+      <p style="margin: 0; font-size: 1.1rem; line-height: 1.6; color: #46464C">Porter answers with your real numbers, then lays out the steps. Approve one, or keep going.</p>
+    </div>
+    <div style="flex: 1 1 420px; background: #F5F5F3; border-radius: 28px; padding: 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="align-self: flex-end; background: #17171A; color: #FFFFFF; border-radius: 18px 18px 6px 18px; padding: 10px 14px; font-size: 15px">Can I afford Tokyo in March?</div>
+      <span style="display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #2F6B4F; letter-spacing: 0.3px"><span class="p6-pulse" style="width: 7px; height: 7px; border-radius: 50%; background: #2F6B4F"></span>PORTER</span>
+      <p style="margin: 0; font-size: 19px; line-height: 1.35; font-weight: 700">Yes. Put flights on points and you’d need about <span style="color: #2F6B4F">$1,200</span> in cash.</p>
+      <div style="background: #FFFFFF; border-radius: 18px; padding: 2px 14px"><div style="display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-top: 1px solid #ECECEA"><span style="width: 26px; height: 26px; border-radius: 50%; border: 2px solid #ECECEA; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #6B6B70; flex-shrink: 0">1</span><div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Book flights with 120k Chase points</span><span style="font-size: 12px; color: #6B6B70; line-height: 1.4">Covers about $1,800</span></div><span style="width: 32px; height: 21px; border-radius: 4px; background: linear-gradient(135deg, #4A5A78, #36445E 55%, #5B6B8A); flex-shrink: 0"></span></div><div style="display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-top: 1px solid #ECECEA"><span style="width: 26px; height: 26px; border-radius: 50%; background: #2F6B4F; color: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg></span><div style="flex-grow: 1; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Use your $200 hotel credit</span><span style="font-size: 12px; color: #6B6B70; line-height: 1.4">Platinum</span></div><span style="width: 32px; height: 21px; border-radius: 4px; background: linear-gradient(135deg, #F1F1F4, #BFC1C6 45%, #F7F7F8 60%, #A9ABB1); flex-shrink: 0"></span></div></div>
+    </div>
+  </section>
+
+  <section style="background: #FAFAF8; padding: 72px 32px">
+    <div style="max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 18px; text-align: center">
+      <h2 style="margin: 0; font-size: clamp(1.8rem, 3vw, 2.6rem); font-weight: 800; letter-spacing: -1.2px">One plan. Everything included.</h2>
+      <div style="width: 100%; max-width: 420px; background: #FFFFFF; border-radius: 28px; padding: 28px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 0 0 1px #ECECEA; text-align: left">
+        <span style="font-size: 2.2rem; font-weight: 800; letter-spacing: -1px">[PRICE]<span style="font-size: 1rem; color: #6B6B70; font-weight: 600"> / month</span></span>
+        <span style="display: flex; gap: 10px; align-items: center; font-size: 15px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F6B4F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Daily AI brief</span><span style="display: flex; gap: 10px; align-items: center; font-size: 15px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F6B4F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Benefit tracking across all your cards</span><span style="display: flex; gap: 10px; align-items: center; font-size: 15px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F6B4F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Best-card nudges</span><span style="display: flex; gap: 10px; align-items: center; font-size: 15px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F6B4F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Ask Porter, unlimited</span><span style="display: flex; gap: 10px; align-items: center; font-size: 15px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F6B4F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Points-to-trips search</span><span style="display: flex; gap: 10px; align-items: center; font-size: 15px"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2F6B4F" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>Monthly review and recap</span>
+        <a href="#join" style="display: flex; align-items: center; justify-content: center; min-height: 50px; border-radius: 16px; background: #17171A; color: #FFFFFF; font-weight: 700; text-decoration: none">Get early access</a>
+      </div>
+    </div>
+  </section>
+
+  <footer style="max-width: 1200px; margin: 0 auto; padding: 36px 32px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 14px; color: #6B6B70">
+    <span style="font-weight: 800; color: #17171A; font-size: 18px; letter-spacing: -0.6px">porter</span>
+    <span>Privacy · Terms · Security · Contact</span>
+  </footer>
+</div>
+
+</body>
+</html>
