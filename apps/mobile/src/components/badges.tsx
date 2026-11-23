@@ -122,7 +122,7 @@ export function CardSwatch({
 
 export function Avatar({ letter, size = 56 }: { letter: string; size?: number }) {
   const { palette } = useTheme();
-  const t = palette.tones.indigo;
+  const t = palette.tones.sage;
   return (
     <View
       style={[

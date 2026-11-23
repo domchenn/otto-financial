@@ -56,7 +56,7 @@ export default function Analysing() {
             cx={RING / 2}
             cy={RING / 2}
             r={r}
-            stroke={palette.tones.indigo.bg}
+            stroke={palette.tones.sage.bg}
             strokeWidth={STROKE}
             fill="none"
           />

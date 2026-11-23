@@ -1,30 +1,44 @@
 /**
- * Porter design tokens. See docs/prd.html §05 ("Porter design language").
- * Light is the default; every light token has exactly one dark partner.
+ * Porter design tokens. See docs/Porter-handoff/PORTER_HANDOFF.md §4 ("Design system").
+ * Light is the default; every light token has exactly one dark partner. The handoff only
+ * specifies light, so dark is derived: same roles, lifted for contrast on a dark ground.
  * Screens use these tokens only: never hard-code a color in a screen.
  */
 
-/** A pastel role: background, the dark shade used for text on it, and a solid accent. */
+/** A tint role: background, the dark shade used for text on it, and a solid accent. */
 export type Tone = { bg: string; text: string; accent: string; track: string };
 
-export type ToneName = 'mint' | 'lilac' | 'butter' | 'sky' | 'alert' | 'indigo';
+/**
+ * Each tint always means the same thing (handoff §4): mint = groceries, budget, positive;
+ * butter = dining, credits; sky = transport, travel, payments; blush = shopping;
+ * lilac = other, investing, points; alert = overspend and expiring; sage = Porter's accent.
+ */
+export type ToneName = 'mint' | 'lilac' | 'butter' | 'sky' | 'blush' | 'alert' | 'sage';
 
 export type Palette = {
+  /** Screen background. */
   ground: string;
+  /** Cards, inputs and the summary slot sit on this gray. */
   surface: string;
+  /** One step darker than surface: tiles and inputs inside a card. */
   raised: string;
   hairline: string;
   ink: string;
   muted: string;
   faint: string;
-  /** Primary action fill (buttons). White text sits on it. */
+  /** Primary action fill (ink buttons). actionText sits on it. */
   action: string;
   actionText: string;
   actionDisabled: string;
   actionDisabledText: string;
-  /** Indigo used for text, links and icons (lighter in dark mode so it stays readable). */
+  /** Sage: the Ask button, positive states and the live dot. */
+  accent: string;
+  /** Text and icons on the accent. */
+  onAccent: string;
+  /** Sage used for text and links (lighter in dark mode so it stays readable). */
   link: string;
   moneyIn: string;
+  /** Terracotta: overspend and expiring only. */
   alert: string;
   /** Apple sign-in button: black in light mode, white in dark (Apple's rules). */
   apple: string;
@@ -32,6 +46,9 @@ export type Palette = {
   /** Full-bleed hero behind Template A illustrations. */
   hero: string;
   heroDeep: string;
+  /** Text on the hero, and its softer partner for labels and decoration. */
+  onHero: string;
+  onHeroMuted: string;
   tones: Record<ToneName, Tone>;
   illustration: {
     coin: string;
@@ -47,31 +64,36 @@ export type Palette = {
 };
 
 export const light: Palette = {
-  ground: '#F6F5F2',
-  surface: '#FFFFFF',
-  raised: '#F1F0EC',
-  hairline: '#E4E2DC',
-  ink: '#17181C',
-  muted: '#6B6D75',
-  faint: '#A3A4AB',
-  action: '#3D4FD6',
+  ground: '#FFFFFF',
+  surface: '#F5F5F3',
+  raised: '#ECECEA',
+  hairline: '#ECECEA',
+  ink: '#17171A',
+  muted: '#6B6B70',
+  faint: '#A3A3A8',
+  action: '#17171A',
   actionText: '#FFFFFF',
-  actionDisabled: '#C9CEF7',
+  actionDisabled: '#D4D4D2',
   actionDisabledText: '#FFFFFF',
-  link: '#3D4FD6',
-  moneyIn: '#2F8A57',
-  alert: '#C2410C',
-  apple: '#17181C',
+  accent: '#2F6B4F',
+  onAccent: '#FFFFFF',
+  link: '#2F6B4F',
+  moneyIn: '#2F6B4F',
+  alert: '#A2502F',
+  apple: '#17171A',
   appleText: '#FFFFFF',
-  hero: '#3D4FD6',
-  heroDeep: '#2A3699',
+  hero: '#2F6B4F',
+  heroDeep: '#24553E',
+  onHero: '#FFFFFF',
+  onHeroMuted: '#CFE3D7',
   tones: {
-    mint: { bg: '#E3F2E9', text: '#1F5136', accent: '#2F8A57', track: '#CDE3D6' },
-    lilac: { bg: '#ECE8FB', text: '#3B2F7A', accent: '#6E56CF', track: '#D9D2F3' },
-    butter: { bg: '#FBF1D6', text: '#6B4A0B', accent: '#D29B1F', track: '#EDDDB3' },
-    sky: { bg: '#E3ECFA', text: '#1E3A66', accent: '#3565B5', track: '#CCDAF0' },
-    alert: { bg: '#FDE8DC', text: '#9A3412', accent: '#C2410C', track: '#F6CDB6' },
-    indigo: { bg: '#E4E7FB', text: '#2A3699', accent: '#3D4FD6', track: '#CDD3F5' },
+    mint: { bg: '#E3F0E7', text: '#1F4D37', accent: '#2F6B4F', track: '#CBE0D2' },
+    butter: { bg: '#FAF1D6', text: '#6B4A0B', accent: '#B8861A', track: '#EDDDB3' },
+    sky: { bg: '#E6ECF8', text: '#1F3A5F', accent: '#3D5F92', track: '#CDD8EE' },
+    blush: { bg: '#F6E6DF', text: '#7A3A22', accent: '#A2502F', track: '#EBCFC3' },
+    lilac: { bg: '#EEEAF7', text: '#3F3470', accent: '#6A5BA8', track: '#DCD5EE' },
+    alert: { bg: '#F6E6DF', text: '#8A4127', accent: '#A2502F', track: '#EBCFC3' },
+    sage: { bg: '#E3F0E7', text: '#1F4D37', accent: '#2F6B4F', track: '#CBE0D2' },
   },
   illustration: {
     coin: '#F5C04F',
@@ -83,35 +105,40 @@ export const light: Palette = {
     mint: '#8FD9AE',
     sparkle: '#FFFFFF',
   },
-  shadow: '#17181C',
+  shadow: '#17171A',
 };
 
 export const dark: Palette = {
-  ground: '#121318',
-  surface: '#1C1D23',
-  raised: '#2A2B33',
-  hairline: '#34353E',
-  ink: '#F2F1EE',
-  muted: '#9C9DA6',
-  faint: '#6B6D75',
-  action: '#5161E8',
-  actionText: '#FFFFFF',
-  actionDisabled: '#2E3466',
-  actionDisabledText: '#8890C4',
-  link: '#9CA8FF',
-  moneyIn: '#4FC384',
-  alert: '#FF9F73',
-  apple: '#F2F1EE',
-  appleText: '#17181C',
-  hero: '#252E78',
-  heroDeep: '#1B2259',
+  ground: '#121214',
+  surface: '#1D1D20',
+  raised: '#28282C',
+  hairline: '#2E2E33',
+  ink: '#F2F2EF',
+  muted: '#9D9DA3',
+  faint: '#6B6B70',
+  action: '#F2F2EF',
+  actionText: '#17171A',
+  actionDisabled: '#3A3A3F',
+  actionDisabledText: '#8A8A90',
+  accent: '#38805E',
+  onAccent: '#FFFFFF',
+  link: '#7FC4A0',
+  moneyIn: '#7FC4A0',
+  alert: '#E8936D',
+  apple: '#F2F2EF',
+  appleText: '#17171A',
+  hero: '#24553E',
+  heroDeep: '#1A3F2E',
+  onHero: '#FFFFFF',
+  onHeroMuted: '#A9CBB8',
   tones: {
-    mint: { bg: '#16302A', text: '#7FDCA5', accent: '#4FC384', track: '#1F4238' },
-    lilac: { bg: '#2A2550', text: '#C3B8FF', accent: '#8B78F0', track: '#3A346A' },
-    butter: { bg: '#3A2F14', text: '#F5C451', accent: '#E5B03F', track: '#4E3F1C' },
-    sky: { bg: '#1B2B45', text: '#9CC2FA', accent: '#6E9DE8', track: '#263A5C' },
-    alert: { bg: '#3D2016', text: '#FF9F73', accent: '#FF9F73', track: '#55301F' },
-    indigo: { bg: '#252A4D', text: '#9CA8FF', accent: '#7F8CFF', track: '#323866' },
+    mint: { bg: '#18302A', text: '#8FD0AE', accent: '#7FC4A0', track: '#224237' },
+    butter: { bg: '#382F16', text: '#F0CC6E', accent: '#E0B048', track: '#4C401E' },
+    sky: { bg: '#1B2A42', text: '#A6C0EC', accent: '#7FA0D8', track: '#273A58' },
+    blush: { bg: '#3A231B', text: '#F0AC8E', accent: '#E8936D', track: '#4F3024' },
+    lilac: { bg: '#29253F', text: '#C6BCF0', accent: '#9F90DE', track: '#383257' },
+    alert: { bg: '#3A231B', text: '#F0AC8E', accent: '#E8936D', track: '#4F3024' },
+    sage: { bg: '#18302A', text: '#8FD0AE', accent: '#7FC4A0', track: '#224237' },
   },
   illustration: {
     coin: '#F5C04F',
@@ -133,24 +160,44 @@ export const fonts = {
   extrabold: 'PlusJakartaSans_800ExtraBold',
 } as const;
 
-/** Type scale from the design board: size / weight, tight tracking on large sizes. */
+/** Type scale from the handoff: size / weight, tight tracking on large sizes. */
 export const type = {
   hero: { fontFamily: fonts.extrabold, fontSize: 44, lineHeight: 48, letterSpacing: -1.8 },
   display: { fontFamily: fonts.extrabold, fontSize: 36, lineHeight: 40, letterSpacing: -1.4 },
-  title: { fontFamily: fonts.extrabold, fontSize: 30, lineHeight: 35, letterSpacing: -1.1 },
+  /** Screen titles. */
+  title: { fontFamily: fonts.extrabold, fontSize: 28, lineHeight: 33, letterSpacing: -0.9 },
   heading: { fontFamily: fonts.bold, fontSize: 22, lineHeight: 28, letterSpacing: -0.4 },
+  /** Porter's answer sentence in Ask. */
+  answer: { fontFamily: fonts.semibold, fontSize: 20, lineHeight: 27, letterSpacing: -0.4 },
   row: { fontFamily: fonts.semibold, fontSize: 16, lineHeight: 21, letterSpacing: -0.1 },
   body: { fontFamily: fonts.medium, fontSize: 15, lineHeight: 21, letterSpacing: 0 },
   caption: { fontFamily: fonts.semibold, fontSize: 13, lineHeight: 17, letterSpacing: 0 },
+  /** Section labels shown in caps ("TODAY"). Write the string in sentence case. */
+  label: {
+    fontFamily: fonts.bold,
+    fontSize: 12,
+    lineHeight: 16,
+    letterSpacing: 0.4,
+    textTransform: 'uppercase',
+  },
+  small: { fontFamily: fonts.medium, fontSize: 12, lineHeight: 16, letterSpacing: 0 },
 } as const;
 
 export type TypeVariant = keyof typeof type;
 
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;
 
-export const radius = { icon: 12, input: 16, card: 20, sheet: 32, pill: 999 } as const;
+export const radius = {
+  icon: 12,
+  button: 14,
+  input: 16,
+  tile: 18,
+  card: 22,
+  sheet: 30,
+  pill: 999,
+} as const;
 
-/** Screen padding: 24 sides, 60 top, 40 bottom (top/bottom include the safe area). */
-export const screen = { side: 24, top: 60, bottom: 40 } as const;
+/** Screen padding: 20 sides, 60 top, 40 bottom (top/bottom include the safe area). */
+export const screen = { side: 20, top: 60, bottom: 40 } as const;
 
 export const size = { touch: 44, button: 54, smallButton: 40, iconButton: 44 } as const;

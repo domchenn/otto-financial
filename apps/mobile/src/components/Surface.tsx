@@ -6,7 +6,7 @@ import { useTheme } from '@/theme/useTheme';
 
 type Props = {
   children: ReactNode;
-  /** A pastel role instead of a white card. Each pastel always means the same thing. */
+  /** A tint instead of the gray surface. Each tint always means the same thing. */
   tone?: ToneName;
   padded?: boolean;
   /** Only floating things (nav bar, sheets, notification previews) get a shadow. */
@@ -16,7 +16,7 @@ type Props = {
   style?: StyleProp<ViewStyle>;
 };
 
-/** White card on the off-white ground (or a pastel tile). Depth without shadows. */
+/** Gray surface card on the white ground (or a tinted tile). Depth without shadows. */
 export function Card({
   children,
   tone,

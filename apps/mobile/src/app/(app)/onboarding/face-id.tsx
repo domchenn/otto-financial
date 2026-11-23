@@ -22,7 +22,7 @@ export default function FaceIdPrompt() {
       }
     >
       <View style={styles.center}>
-        <View style={[styles.tile, { backgroundColor: palette.tones.indigo.bg }]}>
+        <View style={[styles.tile, { backgroundColor: palette.tones.sage.bg }]}>
           <FaceIdIcon color={palette.link} size={100} />
         </View>
         <Text variant="display" center style={{ marginTop: space.xxl }}>

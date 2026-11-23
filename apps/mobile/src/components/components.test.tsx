@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Button } from './Button';
 import { OptionRow } from './selection';
 import { StatTile } from './StatTile';
-import { PorterNoticed } from './porter';
+import { LiveLabel, PorterNoticed } from './porter';
 
 describe('Button', () => {
   it('calls onPress when tapped', async () => {
@@ -73,5 +73,12 @@ describe('tiles', () => {
     expect(screen.getByText('AX')).toHaveStyle({ color: light.ink });
     await render(<LabelTile label="CR" tone="butter" />);
     expect(screen.getByText('CR')).toHaveStyle({ color: light.tones.butter.text });
+  });
+});
+
+describe('LiveLabel', () => {
+  it('reads its label as a header, with the dot hidden from VoiceOver', async () => {
+    await render(<LiveLabel>Today</LiveLabel>);
+    expect(screen.getByRole('header', { name: 'Today' })).toBeOnTheScreen();
   });
 });

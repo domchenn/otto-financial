@@ -77,7 +77,7 @@ export function BiometricGate({ children }: { children: ReactNode }) {
         ]}
       >
         <View style={styles.lockContent}>
-          <View style={[styles.tile, { backgroundColor: palette.tones.indigo.bg }]}>
+          <View style={[styles.tile, { backgroundColor: palette.tones.sage.bg }]}>
             <FaceIdIcon color={palette.link} size={76} />
           </View>
           <Text variant="display" center style={{ marginTop: space.xxl }}>

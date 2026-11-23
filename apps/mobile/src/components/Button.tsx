@@ -19,7 +19,7 @@ type Props = {
   title: string;
   onPress: () => void;
   variant?: ButtonVariant;
-  /** Small pill used inside cards ("Show me where", "Later"). */
+  /** Compact button used inside rows and cards ("Approve", "Not now"). */
   small?: boolean;
   icon?: Icon;
   iconColor?: string;
@@ -29,8 +29,9 @@ type Props = {
 };
 
 /**
- * Indigo means "do this": one primary per screen. Black/white is reserved for Sign in with
- * Apple. Solid fills only, never a gradient.
+ * Ink means "do this": one primary per screen (or per approval row). Outline is the quiet
+ * alternative ("Not now"); secondary is the gray surface fill ("Use on a ride").
+ * Solid fills only, never a gradient.
  */
 export function Button({
   title,
@@ -101,7 +102,7 @@ export function Button({
   );
 }
 
-/** Text link: indigo, no fill. */
+/** Text link: sage, no fill. */
 export function TextButton({
   title,
   onPress,
@@ -133,7 +134,7 @@ export function TextButton({
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: radius.pill,
+    borderRadius: radius.button,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',

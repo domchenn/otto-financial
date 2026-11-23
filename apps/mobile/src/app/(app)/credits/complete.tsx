@@ -31,10 +31,10 @@ export default function CreditsComplete() {
         <Stage height={320}>
           <Coin size={96} style={{ left: '12%', top: 50 }} rotate={-8} />
           <Coin size={80} style={{ right: '15%', top: 40 }} rotate={10} />
-          <Sparkle size={26} color="#D5DBFF" style={{ left: '58%', top: 10 }} />
+          <Sparkle size={26} color={palette.onHeroMuted} style={{ left: '58%', top: 10 }} />
           <Sparkle size={36} style={{ left: '18%', top: 190 }} />
           <Dot size={16} color={palette.illustration.pink} style={{ left: '10%', top: 170 }} />
-          <Dot size={16} color="#E8EAFF" style={{ right: '10%', top: 140 }} />
+          <Dot size={16} color={palette.onHeroMuted} style={{ right: '10%', top: 140 }} />
           <Dot size={14} color={palette.illustration.coin} style={{ left: '46%', top: 280 }} />
           <View
             style={[
