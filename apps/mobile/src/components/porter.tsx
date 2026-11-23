@@ -1,8 +1,7 @@
-import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { AccessibilityInfo, Animated, StyleSheet, View } from 'react-native';
 
 import { Button } from './Button';
-import { SparkleIcon } from './icons';
 import { Card } from './Surface';
 import { Text } from './Text';
 import { fonts, radius, space, type ToneName } from '@/theme/tokens';
@@ -27,22 +26,87 @@ export function Wordmark({ size = 22, color }: { size?: number; color?: string }
   );
 }
 
-/** Indigo circle (or rounded square) holding the white wordmark. */
+/** The app-icon mark: a white lowercase p on sage, as a circle or rounded square. */
 export function PorterAvatar({ size = 40, square }: { size?: number; square?: boolean }) {
   const { palette } = useTheme();
   return (
     <View
+      accessibilityLabel="Porter"
       style={[
         styles.center,
         {
           width: size,
           height: size,
           borderRadius: square ? size * 0.24 : size / 2,
-          backgroundColor: palette.action,
+          backgroundColor: palette.accent,
         },
       ]}
     >
-      <Wordmark size={size * 0.34} color={palette.actionText} />
+      <Text
+        style={{
+          fontFamily: fonts.extrabold,
+          fontSize: size * 0.56,
+          lineHeight: size * 0.7,
+          color: palette.onAccent,
+        }}
+      >
+        p
+      </Text>
+    </View>
+  );
+}
+
+/**
+ * The sage dot that marks live AI content (the handoff uses it instead of a sparkle).
+ * It pulses gently unless the user has Reduce Motion on.
+ */
+export function LiveDot({ size = 8, pulse = true }: { size?: number; pulse?: boolean }) {
+  const { palette } = useTheme();
+  const [opacity] = useState(() => new Animated.Value(1));
+
+  useEffect(() => {
+    if (!pulse) return;
+    let loop: Animated.CompositeAnimation | undefined;
+    let cancelled = false;
+    void AccessibilityInfo.isReduceMotionEnabled().then((reduced) => {
+      if (reduced || cancelled) return;
+      loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(opacity, { toValue: 0.35, duration: 900, useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 1, duration: 900, useNativeDriver: true }),
+        ]),
+      );
+      loop.start();
+    });
+    return () => {
+      cancelled = true;
+      loop?.stop();
+    };
+  }, [opacity, pulse]);
+
+  return (
+    <Animated.View
+      importantForAccessibility="no"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: palette.accent,
+        opacity,
+      }}
+    />
+  );
+}
+
+/** "● TODAY" / "● PORTER": the live dot and a sage caps label. Pass sentence case. */
+export function LiveLabel({ children, pulse }: { children: string; pulse?: boolean }) {
+  const { palette } = useTheme();
+  return (
+    <View style={styles.liveLabel}>
+      <LiveDot pulse={pulse} />
+      <Text variant="label" color={palette.link} accessibilityRole="header">
+        {children}
+      </Text>
     </View>
   );
 }
@@ -66,7 +130,7 @@ export function PorterBubble({ children }: { children: ReactNode }) {
   );
 }
 
-/** Proactive nudge card: "Porter noticed" + a sentence + small actions. */
+/** Proactive nudge card: "● PORTER NOTICED" + a sentence + small actions. */
 export function PorterNoticed({
   children,
   primary,
@@ -76,15 +140,9 @@ export function PorterNoticed({
   primary?: { title: string; onPress: () => void };
   secondary?: { title: string; onPress: () => void };
 }) {
-  const { palette } = useTheme();
   return (
     <Card>
-      <View style={styles.noticedHead}>
-        <SparkleIcon color={palette.link} size={18} />
-        <Text variant="row" weight="bold" color={palette.link}>
-          Porter noticed
-        </Text>
-      </View>
+      <LiveLabel pulse={false}>Porter noticed</LiveLabel>
       <Text variant="body" style={styles.noticedBody}>
         {children}
       </Text>
@@ -92,7 +150,7 @@ export function PorterNoticed({
         <View style={styles.actions}>
           {primary ? <Button small title={primary.title} onPress={primary.onPress} /> : null}
           {secondary ? (
-            <Button small variant="secondary" title={secondary.title} onPress={secondary.onPress} />
+            <Button small variant="outline" title={secondary.title} onPress={secondary.onPress} />
           ) : null}
         </View>
       ) : null}
@@ -100,21 +158,25 @@ export function PorterNoticed({
   );
 }
 
-/** Tinted insight banner (sparkle or wordmark + one sentence). */
+/** Tinted insight banner (live dot or wordmark + one sentence). */
 export function Insight({
   children,
   tone = 'sage',
-  mark = 'sparkle',
+  mark = 'dot',
 }: {
   children: ReactNode;
   tone?: ToneName;
-  mark?: 'sparkle' | 'wordmark' | 'none';
+  mark?: 'dot' | 'wordmark' | 'none';
 }) {
   const { palette } = useTheme();
   const t = palette.tones[tone];
   return (
     <Card tone={tone} style={styles.insight}>
-      {mark === 'sparkle' ? <SparkleIcon color={t.text} size={18} /> : null}
+      {mark === 'dot' ? (
+        <View style={styles.insightDot}>
+          <LiveDot pulse={false} />
+        </View>
+      ) : null}
       {mark === 'wordmark' ? <Wordmark size={18} color={t.text} /> : null}
       <Text variant="body" color={t.text} style={styles.insightText}>
         {children}
@@ -125,6 +187,7 @@ export function Insight({
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },
+  liveLabel: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   bubbleRow: { flexDirection: 'row', alignItems: 'flex-end', gap: space.md },
   bubble: {
     flex: 1,
@@ -134,8 +197,7 @@ const styles = StyleSheet.create({
     paddingVertical: space.lg,
   },
   bubbleText: { fontSize: 17, lineHeight: 25 },
-  noticedHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
-  noticedBody: { fontSize: 18, lineHeight: 26, marginTop: space.md },
+  noticedBody: { fontSize: 17, lineHeight: 24, marginTop: space.md },
   actions: { flexDirection: 'row', gap: space.md, marginTop: space.lg },
   insight: {
     flexDirection: 'row',
@@ -143,5 +205,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     paddingVertical: space.lg,
   },
+  insightDot: { paddingTop: 8 },
   insightText: { flex: 1, fontSize: 17, lineHeight: 25 },
 });
