@@ -1,5 +1,5 @@
 /**
- * Sample data for the Otto screens until the real accounts, credits and spend pipeline land
+ * Sample data for the Porter screens until the real accounts, credits and spend pipeline land
  * (M1–M3). Every amount is integer cents. Replace reads from this module with API queries
  * screen by screen; nothing here is persisted.
  */

@@ -137,7 +137,7 @@ describe('Home', () => {
 
   it('nudges about the most urgent credit and opens it', async () => {
     await renderScreen(<Home />);
-    expect(screen.getByText('Otto noticed')).toBeOnTheScreen();
+    expect(screen.getByText('Porter noticed')).toBeOnTheScreen();
     expect(
       screen.getByText('Your $10 Gold Card dining credit resets in 3 days.'),
     ).toBeOnTheScreen();
@@ -145,16 +145,16 @@ describe('Home', () => {
     expect(mockPush).toHaveBeenCalledWith('/credits/p-dining');
   });
 
-  it('dismisses the Otto nudge with Later', async () => {
+  it('dismisses the Porter nudge with Later', async () => {
     await renderScreen(<Home />);
     await fireEvent.press(screen.getByRole('button', { name: 'Later' }));
-    expect(screen.queryByText('Otto noticed')).toBeNull();
+    expect(screen.queryByText('Porter noticed')).toBeNull();
   });
 
   it('has no nudge when no credit needs attention', async () => {
     mockBenefits = { ...benefits, needs_attention: [] };
     await renderScreen(<Home />);
-    expect(screen.queryByText('Otto noticed')).toBeNull();
+    expect(screen.queryByText('Porter noticed')).toBeNull();
   });
 
   it('shows credits that reset this month', async () => {

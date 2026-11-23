@@ -38,7 +38,10 @@ const OPTIONS: {
     label: '7d',
     title: 'A weekly recap',
     subtitle: 'Every Sunday: what you spent and earned',
-    preview: ['Your week with Otto', 'You spent $188, earned 640 points and used $15 in credits.'],
+    preview: [
+      'Your week with Porter',
+      'You spent $188, earned 640 points and used $15 in credits.',
+    ],
   },
 ];
 
@@ -49,7 +52,7 @@ export default function CheckIn() {
   return (
     <StepScreen
       step={{ index: 4, total: 5 }}
-      heading="How often should Otto check in?"
+      heading="How often should Porter check in?"
       subheading="You can change this anytime in settings."
       footer={
         <Footer>

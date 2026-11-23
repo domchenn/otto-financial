@@ -14,7 +14,7 @@ import { AskInput } from '@/components/AskInput';
 import { CardSwatch } from '@/components/badges';
 import { CheckIcon } from '@/components/icons';
 import { StepHeader } from '@/components/layouts';
-import { Insight, OttoAvatar, Wordmark } from '@/components/otto';
+import { Insight, PorterAvatar, Wordmark } from '@/components/porter';
 import { ProgressBar } from '@/components/ProgressBar';
 import { ListRow } from '@/components/rows';
 import { Chip } from '@/components/selection';
@@ -28,7 +28,7 @@ import { useTheme } from '@/theme/useTheme';
 
 type Message =
   | { id: number; role: 'user'; text: string }
-  | { id: number; role: 'otto'; topic: AskTopic | 'unknown' };
+  | { id: number; role: 'porter'; topic: AskTopic | 'unknown' };
 type FollowUp = { label: string; topic?: AskTopic; href?: string };
 
 const FOLLOW_UPS: Record<AskTopic | 'unknown', FollowUp[]> = {
@@ -65,13 +65,13 @@ export default function Chat() {
     if (isAskTopic(params.q)) {
       return [
         { id: 0, role: 'user', text: ASK_QUESTIONS[params.q] },
-        { id: 1, role: 'otto', topic: params.q },
+        { id: 1, role: 'porter', topic: params.q },
       ];
     }
     if (params.text) {
       return [
         { id: 0, role: 'user', text: params.text },
-        { id: 1, role: 'otto', topic: 'unknown' },
+        { id: 1, role: 'porter', topic: 'unknown' },
       ];
     }
     return [];
@@ -80,11 +80,11 @@ export default function Chat() {
   const ask = (text: string, topic: AskTopic | 'unknown') => {
     const id = nextId.current;
     nextId.current += 2;
-    setMessages((m) => [...m, { id, role: 'user', text }, { id: id + 1, role: 'otto', topic }]);
+    setMessages((m) => [...m, { id, role: 'user', text }, { id: id + 1, role: 'porter', topic }]);
   };
 
   const last = messages.at(-1);
-  const followUps = last?.role === 'otto' ? FOLLOW_UPS[last.topic] : FOLLOW_UPS.unknown;
+  const followUps = last?.role === 'porter' ? FOLLOW_UPS[last.topic] : FOLLOW_UPS.unknown;
 
   return (
     <KeyboardAvoidingView
@@ -119,10 +119,10 @@ export default function Chat() {
             </View>
           ) : (
             <View key={m.id} style={{ gap: space.md }}>
-              <View style={styles.ottoHead}>
-                <OttoAvatar size={32} />
+              <View style={styles.porterHead}>
+                <PorterAvatar size={32} />
                 <Text variant="row" weight="semibold" muted>
-                  Otto
+                  Porter
                 </Text>
               </View>
               <Reply topic={m.topic} />
@@ -186,8 +186,8 @@ function Reply({ topic }: { topic: AskTopic | 'unknown' }) {
     default:
       return (
         <Para>
-          I can only answer a few questions for now, using sample data. The full Ask Otto arrives in
-          M6. Try one of the suggestions below.
+          I can only answer a few questions for now, using sample data. The full Ask Porter arrives
+          in M6. Try one of the suggestions below.
         </Para>
       );
   }
@@ -446,7 +446,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     borderBottomRightRadius: 6,
   },
-  ottoHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  porterHead: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
   answerCard: { paddingVertical: space.sm },
   compareRow: {
     flexDirection: 'row',

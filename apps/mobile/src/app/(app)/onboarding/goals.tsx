@@ -67,7 +67,7 @@ export default function Goals() {
   return (
     <StepScreen
       step={{ index: 0, total: 5 }}
-      heading="What should Otto help you with most?"
+      heading="What should Porter help you with most?"
       subheading="Pick all that apply. This decides what you see first."
       footer={
         <Footer>

@@ -24,7 +24,7 @@ export default function ConnectedAccounts() {
   const confirmDisconnect = (inst: Connection) =>
     Alert.alert(
       `Disconnect ${inst.institution_name ?? 'this bank'}?`,
-      "This deletes that bank's data from Otto.",
+      "This deletes that bank's data from Porter.",
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -59,7 +59,7 @@ export default function ConnectedAccounts() {
         ) : null}
         {connections.isError ? (
           <Text variant="body" color={palette.alert}>
-            Otto couldn&apos;t load your banks. Pull down to try again.
+            Porter couldn&apos;t load your banks. Pull down to try again.
           </Text>
         ) : null}
         {(connections.data ?? []).map((inst, i) => {
@@ -123,7 +123,7 @@ export default function ConnectedAccounts() {
       <View style={styles.note}>
         <LockIcon color={palette.muted} size={16} />
         <Text variant="body" muted style={{ flex: 1 }}>
-          Read-only access through Plaid. Disconnecting deletes that bank&apos;s data from Otto.
+          Read-only access through Plaid. Disconnecting deletes that bank&apos;s data from Porter.
         </Text>
       </View>
     </StepScreen>

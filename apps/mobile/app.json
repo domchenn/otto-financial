@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Otto",
+    "name": "Porter",
     "slug": "otto",
     "scheme": "otto",
     "version": "0.1.0",
@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.dominicchen.otto",
       "appleTeamId": "9A2AG74MJN",
       "infoPlist": {
-        "NSFaceIDUsageDescription": "Otto uses Face ID to keep your balances private."
+        "NSFaceIDUsageDescription": "Porter uses Face ID to keep your balances private."
       }
     },
     "android": {
@@ -36,7 +36,7 @@
       [
         "expo-local-authentication",
         {
-          "faceIDPermission": "Otto uses Face ID to keep your balances private."
+          "faceIDPermission": "Porter uses Face ID to keep your balances private."
         }
       ]
     ],

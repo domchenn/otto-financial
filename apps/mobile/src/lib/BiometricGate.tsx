@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { FaceIdIcon } from '@/components/icons';
-import { Wordmark } from '@/components/otto';
+import { Wordmark } from '@/components/porter';
 import { Text } from '@/components/Text';
 import { screen, space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
@@ -15,7 +15,7 @@ const RELOCK_AFTER_MS = 5 * 60 * 1000;
 async function promptUnlock(): Promise<'unlocked' | 'failed' | 'cancelled'> {
   // Without enrolled biometrics (e.g. the simulator) iOS falls back to the device passcode.
   const result = await LocalAuthentication.authenticateAsync({
-    promptMessage: 'Unlock Otto',
+    promptMessage: 'Unlock Porter',
     cancelLabel: 'Cancel',
   });
   if (result.success) return 'unlocked';
@@ -81,7 +81,7 @@ export function BiometricGate({ children }: { children: ReactNode }) {
             <FaceIdIcon color={palette.link} size={76} />
           </View>
           <Text variant="display" center style={{ marginTop: space.xxl }}>
-            Otto is locked
+            Porter is locked
           </Text>
           <Text
             variant="body"

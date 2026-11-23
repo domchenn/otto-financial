@@ -47,7 +47,7 @@ export default function Reveal() {
       art={
         <View style={{ flex: 1, paddingHorizontal: screen.side, justifyContent: 'center' }}>
           <Text variant="row" weight="bold" color="#C9CEFF">
-            Otto found
+            Porter found
           </Text>
           <Text
             variant="hero"

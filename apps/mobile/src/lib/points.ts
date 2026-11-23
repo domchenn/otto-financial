@@ -1,4 +1,4 @@
-/** Points balances (PRD F3): what the user confirmed plus Otto's estimate since then. */
+/** Points balances (PRD F3): what the user confirmed plus Porter's estimate since then. */
 
 export type ProgramCard = {
   account_id: string;

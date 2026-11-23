@@ -1,5 +1,5 @@
 /**
- * Thin promise wrapper over Plaid Link (react-native-plaid-link-sdk v13). Otto only ever
+ * Thin promise wrapper over Plaid Link (react-native-plaid-link-sdk v13). Porter only ever
  * receives a public token; bank credentials stay inside Plaid's own UI.
  *
  * Creating a session is slow (the SDK loads Plaid's whole flow before it resolves); opening

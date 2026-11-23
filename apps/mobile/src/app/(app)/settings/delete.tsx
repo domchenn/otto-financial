@@ -17,10 +17,10 @@ export default function DeleteAccount() {
   const [understood, setUnderstood] = useState(false);
   const points = [
     {
-      text: 'Your connected banks are disconnected and their data is deleted from Otto.',
+      text: 'Your connected banks are disconnected and their data is deleted from Porter.',
       danger: true,
     },
-    { text: 'Your budgets, goals, reminders and Ask Otto history are erased.', danger: true },
+    { text: 'Your budgets, goals, reminders and Ask Porter history are erased.', danger: true },
     { text: "Your cards and bank accounts themselves aren't affected.", danger: false },
   ];
 
@@ -47,7 +47,7 @@ export default function DeleteAccount() {
         <IconTile icon={TrashIcon} tone="alert" size={64} />
       </View>
       <Text variant="display" style={{ marginTop: space.lg }}>
-        Delete your Otto account?
+        Delete your Porter account?
       </Text>
       <Text variant="body" muted style={{ fontSize: 17, marginTop: space.sm }}>
         This can&apos;t be undone. Here&apos;s what happens:

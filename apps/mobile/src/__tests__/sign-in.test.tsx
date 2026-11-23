@@ -35,21 +35,21 @@ describe('Sign in', () => {
     await renderScreen(<SignIn />);
     await fireEvent.press(screen.getByRole('button', { name }));
     expect(mockStartSSOFlow).toHaveBeenCalledWith({ strategy });
-    expect(screen.queryByText(/isn't linked to Otto/)).toBeNull();
+    expect(screen.queryByText(/isn't linked to Porter/)).toBeNull();
   });
 
-  it('explains when the account is not the Otto account', async () => {
+  it('explains when the account is not the Porter account', async () => {
     mockSSO = async () => ({ createdSessionId: null, authSessionResult: { type: 'success' } });
     await renderScreen(<SignIn />);
     await fireEvent.press(screen.getByRole('button', { name: 'Continue with Google' }));
-    expect(screen.getByText(/isn't linked to Otto/)).toBeOnTheScreen();
+    expect(screen.getByText(/isn't linked to Porter/)).toBeOnTheScreen();
   });
 
   it('stays quiet when the browser sheet is closed', async () => {
     mockSSO = async () => ({ createdSessionId: null, authSessionResult: { type: 'cancel' } });
     await renderScreen(<SignIn />);
     await fireEvent.press(screen.getByRole('button', { name: 'Continue with Apple' }));
-    expect(screen.queryByText(/isn't linked to Otto/)).toBeNull();
+    expect(screen.queryByText(/isn't linked to Porter/)).toBeNull();
     expect(screen.queryByText(/Something went wrong/)).toBeNull();
   });
 

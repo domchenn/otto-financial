@@ -1,4 +1,4 @@
-/** Card credits from /v1/benefits (PRD F4), and the wording Otto uses for them. */
+/** Card credits from /v1/benefits (PRD F4), and the wording Porter uses for them. */
 import { formatCents } from './money';
 
 export type CreditPeriod = {
@@ -112,7 +112,7 @@ function lowerFirst(text: string): string {
   return text.charAt(0).toLowerCase() + text.slice(1);
 }
 
-/** The "Otto noticed" line for the most urgent credit. */
+/** The "Porter noticed" line for the most urgent credit. */
 export function noticeSentence(c: CreditPeriod): string {
   const amount = formatCents(c.remaining_cents, { cents: 'auto' });
   const what = `${amount} ${c.card_name} ${lowerFirst(c.name)}`;

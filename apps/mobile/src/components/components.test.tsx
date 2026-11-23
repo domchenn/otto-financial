@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Button } from './Button';
 import { OptionRow } from './selection';
 import { StatTile } from './StatTile';
-import { OttoNoticed } from './otto';
+import { PorterNoticed } from './porter';
 
 describe('Button', () => {
   it('calls onPress when tapped', async () => {
@@ -46,19 +46,19 @@ describe('StatTile', () => {
   });
 });
 
-describe('OttoNoticed', () => {
+describe('PorterNoticed', () => {
   it('renders the nudge with both actions', async () => {
     const show = jest.fn();
     const later = jest.fn();
     await render(
-      <OttoNoticed
+      <PorterNoticed
         primary={{ title: 'Show me where', onPress: show }}
         secondary={{ title: 'Later', onPress: later }}
       >
         Your dining credit resets in 3 days.
-      </OttoNoticed>,
+      </PorterNoticed>,
     );
-    expect(screen.getByText('Otto noticed')).toBeOnTheScreen();
+    expect(screen.getByText('Porter noticed')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Later' }));
     expect(later).toHaveBeenCalled();
     expect(show).not.toHaveBeenCalled();

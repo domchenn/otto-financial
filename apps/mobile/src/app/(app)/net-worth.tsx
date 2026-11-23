@@ -62,7 +62,7 @@ export default function NetWorthScreen() {
       ) : null}
       {netWorth.isError || accounts.isError ? (
         <Text variant="body" color={palette.alert} style={styles.sentence}>
-          Otto couldn&apos;t load your accounts. Pull down to try again.
+          Porter couldn&apos;t load your accounts. Pull down to try again.
         </Text>
       ) : null}
 

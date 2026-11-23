@@ -1,5 +1,5 @@
 /**
- * Otto design tokens. See docs/prd.html §05 ("Otto design language").
+ * Porter design tokens. See docs/prd.html §05 ("Porter design language").
  * Light is the default; every light token has exactly one dark partner.
  * Screens use these tokens only: never hard-code a color in a screen.
  */

@@ -67,7 +67,7 @@ export default function Credits() {
       </Text>
       <Text variant="body" muted style={{ fontSize: 17, marginTop: space.xs }}>
         {benefits.isError ? (
-          "Otto couldn't load your credits. Pull down to try again."
+          "Porter couldn't load your credits. Pull down to try again."
         ) : (
           <>
             <Text variant="body" weight="extrabold" style={{ fontSize: 17 }} tabular>
@@ -100,7 +100,7 @@ export default function Credits() {
           </Text>
           <Text variant="body" muted>
             {c.card_id === null
-              ? 'Pick it so Otto can track its credits.'
+              ? 'Pick it so Porter can track its credits.'
               : 'Some of its credits reset on the month you opened it.'}
           </Text>
         </Card>
@@ -121,7 +121,7 @@ export default function Credits() {
           {mode === 'year'
             ? 'Nothing used or missed yet this year.'
             : credits.length === 0
-              ? 'No credits to track yet. Tell Otto which cards you have.'
+              ? 'No credits to track yet. Tell Porter which cards you have.'
               : 'Every credit is used for now.'}
         </Text>
       ) : null}

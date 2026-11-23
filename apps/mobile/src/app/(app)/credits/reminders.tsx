@@ -17,7 +17,7 @@ export default function CreditReminders() {
   return (
     <StepScreen
       heading="Credit reminders"
-      subheading="Choose when Otto nudges you before a credit resets."
+      subheading="Choose when Porter nudges you before a credit resets."
       footer={
         <Footer>
           <Button title="Done" onPress={() => router.back()} />

@@ -23,7 +23,7 @@ export default function Bonus() {
       keyboard
       step={{ index: 2, total: 5 }}
       heading="Working toward a sign-up bonus?"
-      subheading={'Like "spend $4,000 in 3 months, get 60k points." Otto will track it for you.'}
+      subheading={'Like "spend $4,000 in 3 months, get 60k points." Porter will track it for you.'}
       footer={
         <Footer>
           <Button title="Continue" onPress={() => router.push('/onboarding/budget')} />
@@ -50,7 +50,7 @@ export default function Bonus() {
       {answer !== 'no' ? (
         <Card style={{ marginTop: space.xl, gap: space.lg }}>
           <Text variant="body" muted>
-            Otto will track your progress once this card is connected.
+            Porter will track your progress once this card is connected.
           </Text>
           <Field label="Which card?" value={card} onChangeText={setCard} />
           <View style={styles.row}>

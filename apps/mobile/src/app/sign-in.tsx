@@ -42,7 +42,9 @@ export default function SignIn() {
       const { createdSessionId, authSessionResult } = await startSSOFlow({ strategy });
       // Closing the browser sheet is a choice, not an error.
       if (!createdSessionId && authSessionResult?.type === 'success') {
-        setError("That account isn't linked to Otto. Sign in with the email on your Otto account.");
+        setError(
+          "That account isn't linked to Porter. Sign in with the email on your Porter account.",
+        );
       }
     } catch (e) {
       setError(friendly(e));
@@ -80,7 +82,7 @@ export default function SignIn() {
       const { error: finalizeError } = await signIn.finalize();
       if (finalizeError) setError(friendly(finalizeError));
     } else {
-      setError('This account needs another verification step that Otto doesn’t support yet.');
+      setError('This account needs another verification step that Porter doesn’t support yet.');
     }
   }
 
@@ -122,7 +124,7 @@ export default function SignIn() {
             autoFocus
             onSubmitEditing={() => void sendCode()}
             error={error}
-            hint="Use the email on your Otto account."
+            hint="Use the email on your Porter account."
           />
         </View>
         <View style={styles.orRow}>

@@ -221,7 +221,7 @@ const goldResy = creditPeriod({
   days_left: 34,
 });
 
-/** Gold Card guessed from its name with three credits, plus a card Otto couldn't place. */
+/** Gold Card guessed from its name with three credits, plus a card Porter couldn't place. */
 export const benefits: Benefits = {
   remaining_cents: 6700,
   expiring_this_month_cents: 1700,

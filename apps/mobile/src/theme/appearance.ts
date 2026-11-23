@@ -4,7 +4,7 @@ import { Appearance } from 'react-native';
 
 /**
  * The user's theme choice. "system" follows the iPhone's setting; "light" and "dark" override
- * it for Otto only (via Appearance.setColorScheme, which useColorScheme/useTheme follow).
+ * it for Porter only (via Appearance.setColorScheme, which useColorScheme/useTheme follow).
  */
 export type AppearancePreference = 'system' | 'light' | 'dark';
 

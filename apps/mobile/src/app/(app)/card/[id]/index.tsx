@@ -179,7 +179,7 @@ function CardCredits({ card }: { card: BenefitCard }) {
         {!known ? (
           <ListRow
             title="Which card is this?"
-            subtitle="Pick it so Otto can track its credits"
+            subtitle="Pick it so Porter can track its credits"
             chevron
             onPress={pick}
           />
@@ -204,7 +204,7 @@ function CardCredits({ card }: { card: BenefitCard }) {
         ))}
         {known && card.credits.length === 0 && !card.needs_anniversary_month ? (
           <Text variant="body" muted style={{ paddingVertical: space.md }}>
-            No credits Otto can track on this card yet.
+            No credits Porter can track on this card yet.
           </Text>
         ) : null}
       </Stack>

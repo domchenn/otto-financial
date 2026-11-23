@@ -7,14 +7,14 @@ import { Button, TextButton } from '@/components/Button';
 import { CloseIcon, EyeIcon, LockIcon, type Icon } from '@/components/icons';
 import { Coin } from '@/components/Illustration';
 import { Footer, MomentScreen } from '@/components/layouts';
-import { Wordmark } from '@/components/otto';
+import { Wordmark } from '@/components/porter';
 import { Text } from '@/components/Text';
 import { usePrepareLink } from '@/lib/api';
 import { space } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
 const PROMISES: { icon: Icon; text: string }[] = [
-  { icon: EyeIcon, text: 'Read-only. Otto can never move your money.' },
+  { icon: EyeIcon, text: 'Read-only. Porter can never move your money.' },
   { icon: LockIcon, text: 'Secured by Plaid. We never see your bank password.' },
   { icon: CloseIcon, text: 'Disconnect any account, anytime.' },
 ];
@@ -103,7 +103,7 @@ export default function Connect() {
     >
       <Text variant="display">Connect your cards</Text>
       <Text variant="body" muted style={{ fontSize: 17, lineHeight: 25, marginTop: space.sm }}>
-        Otto reads your balances and purchases to find credits, points and better card choices.
+        Porter reads your balances and purchases to find credits, points and better card choices.
       </Text>
       <View style={{ gap: space.lg, marginTop: space.xl }}>
         {PROMISES.map((p) => (

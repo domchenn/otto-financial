@@ -9,17 +9,17 @@ export function linkErrorMessage(error: unknown): string {
       case 401:
         return 'Your sign-in expired. Sign out and back in, then try again.';
       case 403:
-        return "This account isn't allowed on Otto's server. Sign in with your Otto account.";
+        return "This account isn't allowed on Porter's server. Sign in with your Porter account.";
       case 502:
         return "Plaid didn't accept the request. Try again in a moment.";
       case 503:
-        return "Otto's server isn't set up for Plaid yet. Add the Plaid keys and restart it.";
+        return "Porter's server isn't set up for Plaid yet. Add the Plaid keys and restart it.";
       default:
-        return `Otto's server had a problem (${error.status}). Try again in a moment.`;
+        return `Porter's server had a problem (${error.status}). Try again in a moment.`;
     }
   }
   if (error instanceof TypeError) {
-    return "Otto can't reach its server. Check that it's running and your phone is on the same network.";
+    return "Porter can't reach its server. Check that it's running and your phone is on the same network.";
   }
   return 'Something went wrong opening Plaid. Try again in a moment.';
 }

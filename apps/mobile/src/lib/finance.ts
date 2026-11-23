@@ -257,7 +257,7 @@ const PERIOD_PHRASE: Record<NetWorthPeriod, string> = {
   '1M': 'this month',
   '3M': 'in the last 3 months',
   '1Y': 'this year',
-  All: 'since Otto started tracking',
+  All: 'since Porter started tracking',
 };
 
 /** "Up $120 this week", or why there's no comparison yet. */
@@ -266,8 +266,8 @@ export function netWorthChangeSentence(netWorth: NetWorth, period: NetWorthPerio
   const phrase = PERIOD_PHRASE[period];
   if (!change || change.change_cents === null) {
     return netWorth.tracking_since
-      ? `Otto started tracking ${formatShortDate(netWorth.tracking_since)}. Changes appear as days go by.`
-      : 'Connect an account and Otto starts tracking your net worth.';
+      ? `Porter started tracking ${formatShortDate(netWorth.tracking_since)}. Changes appear as days go by.`
+      : 'Connect an account and Porter starts tracking your net worth.';
   }
   if (change.change_cents === 0) return `No change ${phrase}.`;
   const amount = formatCents(Math.abs(change.change_cents));

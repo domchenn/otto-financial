@@ -1,5 +1,5 @@
 /**
- * Canned Ask Otto topics. The real assistant arrives in M6; until then the Ask tab answers
+ * Canned Ask Porter topics. The real assistant arrives in M6; until then the Ask tab answers
  * these from sample data and explains that free-form questions aren't supported yet.
  */
 export type AskTopic = 'dinner' | 'week' | 'japan' | 'credits';

@@ -18,7 +18,7 @@ describe('Ask', () => {
   it('leads with the headline and a small wordmark, not an avatar', async () => {
     await renderScreen(<Ask />);
     expect(screen.getByText('Hi Dominic. What do you want to know?')).toBeOnTheScreen();
-    expect(screen.getByLabelText('Otto')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Porter')).toBeOnTheScreen();
   });
 
   it('suggests questions from the user’s numbers', async () => {
@@ -29,7 +29,7 @@ describe('Ask', () => {
     expect(screen.getByText(/^\$65 in credits expire /)).toBeOnTheScreen();
   });
 
-  it('opens the credit or asks Otto when a suggestion is tapped', async () => {
+  it('opens the credit or asks Porter when a suggestion is tapped', async () => {
     await renderScreen(<Ask />);
     await fireEvent.press(screen.getByText('Your $10 dining credit resets in 3 days'));
     expect(mockPush).toHaveBeenLastCalledWith('/credits/gold-dining');
