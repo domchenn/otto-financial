@@ -5,6 +5,7 @@ import { Button } from './Button';
 import { OptionRow } from './selection';
 import { StatTile } from './StatTile';
 import { NetWorthBar } from './NetWorthBar';
+import { PlanStep } from './PlanStep';
 import { LiveLabel, PorterNoticed } from './porter';
 
 describe('Button', () => {
@@ -113,5 +114,23 @@ describe('NetWorthBar', () => {
     await render(<NetWorthBar netWorth={{ ...base, loans_cents: 250_000 }} />);
     expect(screen.getByText('Loans')).toBeOnTheScreen();
     expect(screen.getByText('−$2,500')).toBeOnTheScreen();
+  });
+});
+
+describe('PlanStep', () => {
+  it('reads its number, title and detail as one sentence', async () => {
+    await render(
+      <PlanStep index={1} title="Book flights" detail="Covers about $1,800" done={false} />,
+    );
+    expect(screen.getByLabelText('Step 1: Book flights. Covers about $1,800')).toBeOnTheScreen();
+    expect(screen.getByText('1')).toBeOnTheScreen();
+  });
+
+  it('shows a check instead of the number once done', async () => {
+    await render(<PlanStep index={2} title="Use your hotel credit" detail="Platinum" done />);
+    expect(
+      screen.getByLabelText('Step 2, done: Use your hotel credit. Platinum'),
+    ).toBeOnTheScreen();
+    expect(screen.queryByText('2')).toBeNull();
   });
 });
