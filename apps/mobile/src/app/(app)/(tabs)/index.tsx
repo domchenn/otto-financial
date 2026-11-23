@@ -1,309 +1,280 @@
 import { useUser } from '@clerk/expo';
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Avatar, Monogram } from '@/components/badges';
-import { IconButton } from '@/components/IconButton';
-import { BellIcon } from '@/components/icons';
+import { ActionRow } from '@/components/ActionRow';
+import { BENEFIT_CARD_WIDTH, BenefitCard } from '@/components/BenefitCard';
+import { PlusIcon, SwapIcon, TicketIcon, type Icon } from '@/components/icons';
 import { TabScreen } from '@/components/layouts';
-import { PorterNoticed } from '@/components/porter';
-import { ProgressBar } from '@/components/ProgressBar';
-import { ListRow, SectionHeader } from '@/components/rows';
-import { StatTile, TileGrid } from '@/components/StatTile';
-import { Card, Stack } from '@/components/Surface';
+import { LiveLabel, Wordmark } from '@/components/porter';
+import { StatRow, type Stat } from '@/components/StatRow';
+import { SummarySlot } from '@/components/SummarySlot';
 import { Text } from '@/components/Text';
-import { TextButton } from '@/components/Button';
-import {
-  useBenefits,
-  useBudget,
-  useNetWorth,
-  usePoints,
-  useSummary,
-  useTransactions,
-} from '@/lib/api';
-import { leadPeriod, periodBudget, spentShare, type Budget, type BudgetPeriod } from '@/lib/budget';
-import { noticeSentence } from '@/lib/credits';
-import {
-  amountLabel,
-  categoryName,
-  dueLabel,
-  merchantName,
-  netWorthChangeSentence,
-} from '@/lib/finance';
-import { formatCents, formatNumber } from '@/lib/money';
-import { pointsCaption } from '@/lib/points';
+import { useAccounts, useBenefits, useBudget, useSummary } from '@/lib/api';
+import { templateBrief, type DailyBrief } from '@/lib/brief';
+import type { Budget } from '@/lib/budget';
+import { allCredits, periodShareLeft, type Benefits } from '@/lib/credits';
+import { cardArt, daysBetween, formatShortDate, parseDate, type Payment } from '@/lib/finance';
+import { formatCents } from '@/lib/money';
+import { deriveProposals, visibleProposals, type ProposalKind } from '@/lib/proposals';
 import { useRefresh } from '@/lib/useRefresh';
-import { space } from '@/theme/tokens';
+import { screen, size, space, type ToneName } from '@/theme/tokens';
 import { useTheme } from '@/theme/useTheme';
 
-function greeting(date = new Date()): string {
-  const hour = date.getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
-}
-
-/**
- * The greeting shrinks (to 75%) to stay on one line beside the bell. About 28 characters fit
- * that way on a phone; a longer line gets a second line instead of being cut off.
- */
-const ONE_LINE_GREETING_CHARS = 28;
-
-function greetingLines(text: string): 1 | 2 {
-  return text.length <= ONE_LINE_GREETING_CHARS ? 1 : 2;
-}
-
 const dateLabel = new Intl.DateTimeFormat('en-US', {
-  weekday: 'long',
+  weekday: 'short',
   month: 'short',
   day: 'numeric',
 });
+const shortMonth = (d: Date) => d.toLocaleDateString('en-US', { month: 'short' });
+const shortWeekday = (iso: string) =>
+  parseDate(iso).toLocaleDateString('en-US', { weekday: 'short' });
 
+const PROPOSAL_LOOK: Record<ProposalKind, { icon: Icon; tone: ToneName }> = {
+  sweep_cash: { icon: SwapIcon, tone: 'mint' },
+  use_credit: { icon: TicketIcon, tone: 'butter' },
+  default_card: { icon: TicketIcon, tone: 'butter' },
+  cancel_sub: { icon: TicketIcon, tone: 'blush' },
+  enroll_benefit: { icon: TicketIcon, tone: 'lilac' },
+};
+
+/** Credits on the "Use before they expire" row, and the gap between them. */
+const EXPIRING_CARDS = 6;
+const CARD_GAP = 10;
+
+const LOAD_ERROR = "Porter couldn't reach your data. Pull down to try again.";
+
+/** Home (handoff §3): the brief, three numbers, what Porter is on, and credits to use. */
 export default function Home() {
   const { palette } = useTheme();
   const { user } = useUser();
-  const firstName = user?.firstName ?? 'there';
-  const greetingText = `${greeting()}, ${firstName}`;
-  const [nudgeDismissed, setNudgeDismissed] = useState(false);
-  const summary = useSummary();
-  const recent = useTransactions({ limit: 3 });
   const refresh = useRefresh();
-  const netWorth = useNetWorth().data;
-  const credits = useBenefits().data;
-  const points = usePoints().data;
-  const nudge = credits?.needs_attention[0];
+  const summary = useSummary();
   const budgetQuery = useBudget();
+  const benefitsQuery = useBenefits();
+  const accounts = useAccounts().data ?? [];
+  const [dismissed, setDismissed] = useState<ReadonlySet<string>>(new Set());
+
   // Never show stale or made-up numbers next to an error: no data means "—".
   const s = summary.isError ? undefined : summary.data;
   const budget = budgetQuery.isError ? undefined : budgetQuery.data;
+  const benefits = benefitsQuery.data;
   const failed = summary.isError || budgetQuery.isError;
-  const lead = leadPeriod(budget);
-  const tilePeriod: BudgetPeriod = lead ?? 'week';
-  const tile = budget ? periodBudget(budget, tilePeriod) : undefined;
-  const next = s?.upcoming_payments[0];
+  const loading = !failed && (summary.isPending || budgetQuery.isPending);
   const connected = summary.data?.has_connections ?? true;
+  const payments = s?.upcoming_payments ?? [];
+
+  const brief: DailyBrief | undefined = failed
+    ? { summary: LOAD_ERROR }
+    : loading
+      ? undefined
+      : templateBrief({ budget, expiring: benefits?.needs_attention, payments });
+
+  const proposals = visibleProposals(
+    deriveProposals({ accounts, budget, payments, expiring: benefits?.needs_attention }),
+    dismissed,
+  );
 
   return (
     <TabScreen refreshControl={refresh}>
       <View style={styles.header}>
+        <View style={styles.brand}>
+          <Wordmark size={20} />
+          <Text variant="caption" muted weight="medium">
+            {dateLabel.format(new Date())}
+          </Text>
+        </View>
         <Pressable
-          style={styles.who}
           onPress={() => router.push('/settings')}
           accessibilityRole="button"
           accessibilityLabel="Settings"
+          style={[styles.avatar, { backgroundColor: palette.surface }]}
         >
-          <Avatar letter={firstName.charAt(0).toUpperCase()} />
-          <View style={styles.greeting}>
-            <Text variant="body" muted numberOfLines={1}>
-              {dateLabel.format(new Date())}
-            </Text>
-            <Text
-              variant="row"
-              weight="bold"
-              style={{ fontSize: 20 }}
-              numberOfLines={greetingLines(greetingText)}
-              adjustsFontSizeToFit
-              minimumFontScale={0.75}
-            >
-              {greetingText}
-            </Text>
-          </View>
+          <Text variant="row" weight="bold" style={{ fontSize: 15 }}>
+            {(user?.firstName ?? '·').charAt(0).toUpperCase()}
+          </Text>
         </Pressable>
-        <IconButton
-          icon={BellIcon}
-          label="Notifications"
-          badge
-          onPress={() => router.push('/settings/notifications')}
+      </View>
+
+      <View style={styles.section}>
+        <SummarySlot
+          brief={brief}
+          loading={loading}
+          updatedAt={!failed && summary.dataUpdatedAt ? new Date(summary.dataUpdatedAt) : undefined}
+          onReadAll={
+            brief?.detail
+              ? () => Alert.alert('Today', `${brief.summary}\n\n${brief.detail}`)
+              : undefined
+          }
         />
       </View>
 
-      <Hero budget={budget} failed={failed} />
-
-      {!connected ? (
-        <View style={{ marginTop: space.xl }}>
-          <PorterNoticed
-            primary={{ title: 'Connect cards', onPress: () => router.push('/onboarding/connect') }}
-          >
-            Connect your cards and Porter will fill this in with your real balances and purchases.
-          </PorterNoticed>
-        </View>
-      ) : nudge && !nudgeDismissed ? (
-        <View style={{ marginTop: space.xl }}>
-          <PorterNoticed
-            primary={{
-              title: 'Show me how',
-              onPress: () => router.push(`/credits/${nudge.period_id}`),
-            }}
-            secondary={{ title: 'Later', onPress: () => setNudgeDismissed(true) }}
-          >
-            {noticeSentence(nudge)}
-          </PorterNoticed>
-        </View>
-      ) : null}
-
-      <View style={{ marginTop: space.xl }}>
-        <TileGrid>
-          <StatTile
-            tone="mint"
-            label={tilePeriod === 'week' ? 'This week' : 'This month'}
-            value={tile ? formatCents(tile.spent_cents) : '—'}
-            suffix={tile?.limit_cents ? `of ${formatCents(tile.limit_cents)}` : undefined}
-            onPress={() => router.push('/spending')}
-          >
-            {tile?.limit_cents ? (
-              <View style={{ marginTop: space.md }}>
-                <ProgressBar
-                  value={spentShare(tile)}
-                  color={palette.tones.mint.accent}
-                  track={palette.tones.mint.track}
-                />
-              </View>
-            ) : null}
-          </StatTile>
-          <StatTile
-            tone="lilac"
-            label="Points"
-            value={points && points.confirmed_count > 0 ? formatNumber(points.total_points) : '—'}
-            caption={points ? pointsCaption(points) : ' '}
-            onPress={() => router.push('/points')}
-          />
-          <StatTile
-            tone="butter"
-            label="Credits to use"
-            value={credits ? formatCents(credits.expiring_this_month_cents) : '—'}
-            caption={
-              credits
-                ? credits.expiring_this_month_count === 0
-                  ? 'All used this month'
-                  : `${credits.expiring_this_month_count} expire this month`
-                : ' '
-            }
-            onPress={() => router.push('/benefits')}
-          />
-          <StatTile
-            tone="sky"
-            label="Next payment"
-            value={next ? formatCents(next.amount_cents) : '—'}
-            caption={
-              next ? `${next.name} · ${dueLabel(next.due_date).text}` : s ? 'Nothing due' : ' '
-            }
-            onPress={() =>
-              next ? router.push(`/card/${next.account_id}`) : router.push('/accounts')
-            }
-          />
-        </TileGrid>
+      <View style={styles.section}>
+        <StatRow
+          stats={[
+            {
+              label: 'Net worth',
+              value: s ? formatCents(s.net_worth.net_cents) : '—',
+              sub: accounts.length ? accountsLabel(accounts.length) : undefined,
+              onPress: () => router.push('/accounts'),
+            },
+            { ...spentStat(budget), onPress: () => router.push('/spending') },
+            dueStat(s ? payments[0] : undefined, Boolean(s)),
+          ]}
+        />
       </View>
 
-      {netWorth && connected ? (
-        <Card style={{ marginTop: space.lg, paddingVertical: space.xs }}>
-          <ListRow
-            title="Net worth"
-            subtitle={netWorthChangeSentence(netWorth, '1W')}
-            value={formatCents(netWorth.net_cents)}
-            chevron
-            onPress={() => router.push('/net-worth')}
-          />
-        </Card>
-      ) : null}
-
-      <Card style={{ marginTop: space.xl, paddingTop: space.xs }}>
-        <SectionHeader
-          title="Recent"
-          action="See all"
-          onAction={() => router.push('/transactions')}
-        />
-        <Stack>
-          {(recent.data ?? []).map((t) => (
-            <ListRow
-              key={t.id}
-              leading={<Monogram label={merchantName(t).charAt(0)} size={48} />}
-              title={merchantName(t)}
-              subtitle={`${t.account_name} · ${t.pending ? 'Pending' : categoryName(t.category)}`}
-              value={amountLabel(t.amount_cents)}
-              valueColor={t.amount_cents < 0 ? palette.moneyIn : undefined}
-              onPress={() => router.push(`/transaction/${t.id}`)}
-            />
-          ))}
-          {recent.data?.length === 0 ? (
-            <Text variant="body" muted style={{ paddingVertical: space.md }}>
-              No purchases yet.
+      <View style={styles.section}>
+        <View style={styles.sectionHead}>
+          <LiveLabel>Porter&apos;s on it</LiveLabel>
+          {proposals.length ? (
+            <Text variant="small" muted>
+              {proposals.length} to review
             </Text>
           ) : null}
-        </Stack>
-      </Card>
+        </View>
+        {!connected ? (
+          <ActionRow
+            icon={PlusIcon}
+            tone="sage"
+            title="Connect your cards"
+            reason="Porter fills this in with your real balances, purchases and credits."
+            primary={{ title: 'Connect cards', onPress: () => router.push('/onboarding/connect') }}
+          />
+        ) : proposals.length ? (
+          proposals.map((p) => {
+            const look = PROPOSAL_LOOK[p.kind];
+            return (
+              <ActionRow
+                key={p.id}
+                icon={look.icon}
+                tone={look.tone}
+                title={p.title}
+                reason={p.impact ? `${p.reason} · ${p.impact}` : p.reason}
+                primary={{ title: p.primary, onPress: () => router.push(p.href as Href) }}
+                secondary={
+                  p.secondary
+                    ? {
+                        title: p.secondary,
+                        onPress: () => setDismissed((d) => new Set(d).add(p.id)),
+                      }
+                    : undefined
+                }
+              />
+            );
+          })
+        ) : (
+          <View style={[styles.quiet, { borderTopColor: palette.hairline }]}>
+            <Text variant="body" muted>
+              Nothing needs you right now.
+            </Text>
+          </View>
+        )}
+      </View>
+
+      <ExpiringCredits benefits={benefits} />
     </TabScreen>
   );
 }
 
-const SINCE: Record<BudgetPeriod, string> = { week: 'since Monday', month: 'since the 1st' };
+function accountsLabel(n: number): string {
+  return n === 1 ? '1 account' : `${n} accounts`;
+}
 
-/** "You have $X left to spend this week." and the line under it, for every budget state. */
-function Hero({ budget, failed }: { budget: Budget | undefined; failed: boolean }) {
+/** "Spent · Nov": this month against the plan. */
+function spentStat(budget: Budget | undefined): Stat {
+  const label = `Spent · ${shortMonth(new Date())}`;
+  if (!budget) return { label, value: '—' };
+  const { spent_cents, limit_cents, remaining_cents } = budget.month;
+  const value = formatCents(spent_cents);
+  if (limit_cents === null || remaining_cents === null) {
+    return { label, value, sub: 'No plan set' };
+  }
+  if (remaining_cents < 0) {
+    return { label, value, sub: `${formatCents(-remaining_cents)} over plan`, subTone: 'warn' };
+  }
+  return { label, value, sub: `${formatCents(remaining_cents)} left` };
+}
+
+/** "Due Sun": the next card payment and whether checking covers it. */
+function dueStat(next: Payment | undefined, loaded: boolean): Stat {
+  if (!next) return { label: 'Next due', value: '—', sub: loaded ? 'Nothing due' : undefined };
+  const days = daysBetween(new Date(), parseDate(next.due_date));
+  const label =
+    days === 0
+      ? 'Due today'
+      : days > 0 && days <= 6
+        ? `Due ${shortWeekday(next.due_date)}`
+        : `Due ${formatShortDate(next.due_date)}`;
+  const covered: Pick<Stat, 'sub' | 'subTone'> =
+    next.covered === true
+      ? { sub: 'Covered ✓', subTone: 'accent' }
+      : next.covered === false
+        ? { sub: 'Not covered', subTone: 'warn' }
+        : { sub: next.name };
+  return {
+    label,
+    value: formatCents(next.amount_cents),
+    ...covered,
+    onPress: () => router.push(`/card/${next.account_id}`),
+  };
+}
+
+/** "Use before they expire": credits with money left, soonest first, with the next peeking. */
+function ExpiringCredits({ benefits }: { benefits: Benefits | undefined }) {
   const { palette } = useTheme();
-  const amount = (cents: number | null) => (
-    <Text variant="display" color={palette.link} tabular>
-      {cents === null ? '—' : formatCents(cents)}
-    </Text>
-  );
+  if (!benefits) return null;
+  const credits = allCredits(benefits)
+    .filter((c) => c.remaining_cents > 0)
+    .sort((a, b) => a.days_left - b.days_left)
+    .slice(0, EXPIRING_CARDS);
+  if (credits.length === 0) return null;
+  const total = credits.reduce((sum, c) => sum + c.remaining_cents, 0);
+  const names = new Map(benefits.cards.map((c) => [c.account_id, c.account_name]));
 
-  if (failed || !budget) {
-    return (
-      <>
-        <Text variant="display" style={styles.hero}>
-          You have {amount(null)} left to spend this week.
-        </Text>
-        <Text variant="body" muted style={styles.heroSub}>
-          {failed ? "Porter couldn't reach your data. Pull down to try again." : ' '}
-        </Text>
-      </>
-    );
-  }
-
-  const lead = leadPeriod(budget);
-  if (lead === null) {
-    // Not set up yet, or "just show me what I spend".
-    return (
-      <>
-        <Text variant="display" style={styles.hero}>
-          You&apos;ve spent {amount(budget.week.spent_cents)} this week.
-        </Text>
-        {budget.configured ? (
-          <Text variant="body" muted style={styles.heroSub}>
-            No limit set. {formatCents(budget.month.spent_cents)} so far this month.
-          </Text>
-        ) : (
-          <View style={styles.heroAction}>
-            <TextButton
-              title="Set a budget to see what's left"
-              onPress={() => router.push('/settings/budget')}
-            />
-          </View>
-        )}
-      </>
-    );
-  }
-
-  const p = periodBudget(budget, lead);
-  const left = p.remaining_cents ?? 0;
-  const spent = `You've spent ${formatCents(p.spent_cents)} ${SINCE[lead]}.`;
   return (
-    <>
-      <Text variant="display" style={styles.hero}>
-        {left < 0 ? (
-          <>
-            You&apos;re {amount(-left)} over budget this {lead}.
-          </>
-        ) : (
-          <>
-            You have {amount(left)} left to spend this {lead}.
-          </>
-        )}
-      </Text>
-      <Text variant="body" muted style={styles.heroSub}>
-        {spent}
-      </Text>
-    </>
+    <View style={styles.section}>
+      <View style={styles.sectionHead}>
+        <Text variant="row" weight="bold" style={{ fontSize: 16 }}>
+          Use before they expire
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`${formatCents(total)} total, see all benefits`}
+          onPress={() => router.push('/benefits')}
+          hitSlop={12}
+        >
+          <Text variant="caption" color={palette.link}>
+            {formatCents(total)} total
+          </Text>
+        </Pressable>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={BENEFIT_CARD_WIDTH + CARD_GAP}
+        decelerationRate="fast"
+        style={styles.bleed}
+        contentContainerStyle={styles.cards}
+      >
+        {credits.map((c) => (
+          <BenefitCard
+            key={c.period_id}
+            art={cardArt({ name: c.card_name, official_name: names.get(c.account_id) ?? null })}
+            cardName={c.card_name}
+            amountCents={c.remaining_cents}
+            name={c.name}
+            daysLeft={c.days_left}
+            share={periodShareLeft(c)}
+            action={{
+              title: 'How to use it',
+              onPress: () => router.push(`/credits/${c.period_id}`),
+            }}
+          />
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
@@ -312,12 +283,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: space.md,
+    minHeight: size.touch,
   },
-  who: { flexDirection: 'row', alignItems: 'center', gap: space.md, flex: 1 },
-  // Takes the space left of the bell; the greeting shrinks to fit it.
-  greeting: { flex: 1 },
-  hero: { marginTop: space.xxl, fontSize: 40, lineHeight: 46 },
-  heroSub: { marginTop: space.sm, fontSize: 17 },
-  heroAction: { marginTop: space.sm, alignItems: 'flex-start' },
+  brand: { flexDirection: 'row', alignItems: 'baseline', gap: 10 },
+  avatar: {
+    width: size.touch,
+    height: size.touch,
+    borderRadius: size.touch / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  section: { marginTop: space.lg + 2 },
+  sectionHead: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: space.sm,
+  },
+  quiet: { borderTopWidth: 1, paddingVertical: space.md },
+  bleed: { marginHorizontal: -screen.side },
+  cards: { paddingHorizontal: screen.side, gap: CARD_GAP },
 });

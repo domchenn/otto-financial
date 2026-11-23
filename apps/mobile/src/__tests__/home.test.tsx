@@ -1,175 +1,137 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { fireEvent, screen } from '@testing-library/react-native';
-import { StyleSheet } from 'react-native';
+import { Alert } from 'react-native';
 
 import Home from '@/app/(app)/(tabs)/index';
 import type { Benefits } from '@/lib/credits';
 import type { Budget } from '@/lib/budget';
-import type { Summary, Transaction } from '@/lib/finance';
-import type { Points } from '@/lib/points';
+import type { Account, Summary } from '@/lib/finance';
 import {
   benefits,
   budget,
-  periodBudget,
-  points,
-  refund,
+  checking,
+  gold,
   renderScreen,
   mockResult,
   summary,
-  sweetgreen,
 } from '@/test/fixtures';
+import { light } from '@/theme/tokens';
 
-let mockFirstName = 'Dominic';
-jest.mock('@clerk/expo', () => ({ useUser: () => ({ user: { firstName: mockFirstName } }) }));
+jest.mock('@clerk/expo', () => ({ useUser: () => ({ user: { firstName: 'Dominic' } }) }));
 
 const mockPush = jest.fn();
 jest.mock('expo-router', () => ({ router: { push: (...args: unknown[]) => mockPush(...args) } }));
+jest.mock('expo-haptics', () => ({ impactAsync: jest.fn(), ImpactFeedbackStyle: { Light: 0 } }));
 
 let mockSummary: Summary | undefined;
 let mockSummaryError = false;
-let mockTransactions: Transaction[] | undefined;
 let mockBenefits: Benefits | undefined;
 let mockBudget: Budget | undefined;
 let mockBudgetError = false;
-let mockPoints: Points | undefined;
+let mockAccounts: Account[] | undefined;
 jest.mock('@/lib/api', () => ({
   useSummary: () => mockResult(mockSummary, { isError: mockSummaryError }),
-  useTransactions: () => mockResult(mockTransactions),
   useBenefits: () => mockResult(mockBenefits),
   useBudget: () => mockResult(mockBudget, { isError: mockBudgetError }),
-  usePoints: () => mockResult(mockPoints),
-  useNetWorth: () =>
-    mockResult(jest.requireActual<typeof import('@/test/fixtures')>('@/test/fixtures').netWorth),
+  useAccounts: () => mockResult(mockAccounts),
 }));
 jest.mock('@/lib/useRefresh', () => ({ useRefresh: () => undefined }));
 
+const savings: Account = {
+  ...checking,
+  id: 'acc-savings',
+  name: 'High-yield savings',
+  subtype: 'savings',
+  current_cents: 1_000_000,
+};
+
 beforeEach(() => {
-  mockFirstName = 'Dominic';
   mockSummary = summary;
   mockSummaryError = false;
-  mockTransactions = [sweetgreen, refund];
   mockBenefits = benefits;
   mockBudget = budget;
   mockBudgetError = false;
-  mockPoints = points;
+  mockAccounts = [gold, checking];
   mockPush.mockClear();
 });
 
 describe('Home', () => {
-  it('leads with what is left of the weekly budget', async () => {
+  it('shows the wordmark and opens Settings from the avatar', async () => {
     await renderScreen(<Home />);
-    // $500 a week, $120 spent.
-    expect(screen.getByText('$380')).toBeOnTheScreen();
-    expect(screen.getByText(/left to spend this week/)).toBeOnTheScreen();
-    expect(screen.getByText("You've spent $120 since Monday.")).toBeOnTheScreen();
-    expect(screen.getByText('of $500')).toBeOnTheScreen();
-    expect(screen.getByText(/Dominic/)).toBeOnTheScreen();
+    expect(screen.getByLabelText('Porter')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Settings' }));
+    expect(mockPush).toHaveBeenCalledWith('/settings');
   });
 
-  it('says plainly when spending is over budget', async () => {
-    mockBudget = {
-      ...budget,
-      week: periodBudget({ spent_cents: 62000, remaining_cents: -12000 }),
-    };
+  it('leads with the daily brief built from real numbers', async () => {
     await renderScreen(<Home />);
-    expect(screen.getByText('$120')).toBeOnTheScreen();
-    expect(screen.getByText(/over budget this week/)).toBeOnTheScreen();
-    expect(screen.queryByText(/left to spend/)).toBeNull();
-  });
-
-  it('leads with the month for a monthly budget', async () => {
-    mockBudget = { ...budget, style: 'monthly' };
-    await renderScreen(<Home />);
-    expect(screen.getByText('$1,360')).toBeOnTheScreen();
-    expect(screen.getByText(/left to spend this month/)).toBeOnTheScreen();
-    expect(screen.getByText("You've spent $640 since the 1st.")).toBeOnTheScreen();
-    expect(screen.getByText('This month')).toBeOnTheScreen();
-  });
-
-  it('asks to set a budget instead of inventing one', async () => {
-    const empty = periodBudget({ limit_cents: null, remaining_cents: null });
-    mockBudget = { ...budget, configured: false, style: null, week: empty, month: empty };
-    await renderScreen(<Home />);
-    expect(screen.getByText(/spent/)).toBeOnTheScreen();
-    expect(screen.queryByText('of $500')).toBeNull();
-    await fireEvent.press(screen.getByRole('button', { name: "Set a budget to see what's left" }));
-    expect(mockPush).toHaveBeenCalledWith('/settings/budget');
-  });
-
-  it('just shows spend with no limit', async () => {
-    const empty = periodBudget({ limit_cents: null, remaining_cents: null });
-    mockBudget = {
-      ...budget,
-      style: 'none',
-      week: empty,
-      month: { ...empty, spent_cents: 64000 },
-    };
-    await renderScreen(<Home />);
-    expect(screen.getByText(/You've spent/)).toBeOnTheScreen();
-    expect(screen.getByText('No limit set. $640 so far this month.')).toBeOnTheScreen();
-  });
-
-  it('shows the next payment and opens that card', async () => {
-    await renderScreen(<Home />);
-    expect(screen.getByText('$610')).toBeOnTheScreen();
-    expect(screen.getByText('Gold Card · Due in 3 days')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByText('Next payment'));
-    expect(mockPush).toHaveBeenCalledWith('/card/acc-gold');
-  });
-
-  it('lists recent purchases and refunds', async () => {
-    await renderScreen(<Home />);
-    expect(screen.getByText('Sweetgreen')).toBeOnTheScreen();
-    expect(screen.getByText('$16.45')).toBeOnTheScreen();
-    expect(screen.getByText('+$5.00')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByText('Sweetgreen'));
-    expect(mockPush).toHaveBeenCalledWith('/transaction/txn-1');
-  });
-
-  it('asks to connect cards before any bank is linked', async () => {
-    mockSummary = { ...summary, has_connections: false, upcoming_payments: [] };
-    mockTransactions = [];
-    await renderScreen(<Home />);
-    expect(screen.getByText('No purchases yet.')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Connect cards' }));
-    expect(mockPush).toHaveBeenCalledWith('/onboarding/connect');
-  });
-
-  it('nudges about the most urgent credit and opens it', async () => {
-    await renderScreen(<Home />);
-    expect(screen.getByText('Porter noticed')).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: 'Today' })).toBeOnTheScreen();
+    // $2,000 monthly plan with $640 spent; $10 dining credit with 3 days left; $610 due.
     expect(
-      screen.getByText('Your $10 Gold Card dining credit resets in 3 days.'),
+      screen.getByText(
+        /^\$1,360 left in \w+'s plan\. Your \$10 Dining credit expires in 3 days\. \$610 due on Gold Card/,
+      ),
     ).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Show me how' }));
-    expect(mockPush).toHaveBeenCalledWith('/credits/p-dining');
   });
 
-  it('dismisses the Porter nudge with Later', async () => {
+  it('shows a skeleton while the brief loads', async () => {
+    mockSummary = undefined;
     await renderScreen(<Home />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Later' }));
-    expect(screen.queryByText('Porter noticed')).toBeNull();
+    expect(screen.getByLabelText("Loading today's summary")).toBeOnTheScreen();
   });
 
-  it('has no nudge when no credit needs attention', async () => {
-    mockBenefits = { ...benefits, needs_attention: [] };
-    await renderScreen(<Home />);
-    expect(screen.queryByText('Porter noticed')).toBeNull();
-  });
-
-  it('shows credits that reset this month', async () => {
-    await renderScreen(<Home />);
-    expect(screen.getByText('$17')).toBeOnTheScreen();
-    expect(screen.getByText('2 expire this month')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByText('Credits to use'));
-    expect(mockPush).toHaveBeenCalledWith('/benefits');
-  });
-
-  it('tells the user when data could not load', async () => {
+  it('says so in the brief when data could not load', async () => {
     mockSummary = undefined;
     mockSummaryError = true;
     await renderScreen(<Home />);
     expect(screen.getByText(/couldn't reach your data/)).toBeOnTheScreen();
+  });
+
+  it('opens the full brief with Read all when it runs long', async () => {
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+    mockSummary = {
+      ...summary,
+      upcoming_payments: [
+        { ...summary.upcoming_payments[0]!, name: 'Platinum Card from American Express' },
+      ],
+    };
+    mockBenefits = {
+      ...benefits,
+      needs_attention: [
+        { ...benefits.needs_attention[0]!, name: 'Fine Hotels and Resorts property credit' },
+      ],
+    };
+    await renderScreen(<Home />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Read all' }));
+    expect(alert).toHaveBeenCalledWith('Today', expect.stringContaining('Platinum Card'));
+    alert.mockRestore();
+  });
+
+  it('shows net worth, the month against the plan and the next payment', async () => {
+    await renderScreen(<Home />);
+    expect(screen.getByText('$4,315')).toBeOnTheScreen();
+    expect(screen.getByText('2 accounts')).toBeOnTheScreen();
+    expect(screen.getByText('$640')).toBeOnTheScreen();
+    expect(screen.getByText('$1,360 left')).toBeOnTheScreen();
+    expect(screen.getByText('$610')).toBeOnTheScreen();
+    expect(screen.getByText('Covered ✓')).toHaveStyle({ color: light.link });
+  });
+
+  it('flags a month over plan in terracotta', async () => {
+    mockBudget = {
+      ...budget,
+      month: { ...budget.month, spent_cents: 253_600, remaining_cents: -53_600 },
+    };
+    await renderScreen(<Home />);
+    expect(screen.getByText('$536 over plan')).toHaveStyle({ color: light.alert });
+  });
+
+  it('opens Accounts from net worth and the card from its payment', async () => {
+    await renderScreen(<Home />);
+    await fireEvent.press(screen.getByRole('button', { name: /^Net worth/ }));
+    expect(mockPush).toHaveBeenCalledWith('/accounts');
+    await fireEvent.press(screen.getByRole('button', { name: /^Due .*\$610/ }));
+    expect(mockPush).toHaveBeenCalledWith('/card/acc-gold');
   });
 
   // Regression: a failed refresh left old or placeholder numbers next to the error message.
@@ -177,50 +139,66 @@ describe('Home', () => {
     mockBudgetError = true;
     await renderScreen(<Home />);
     expect(screen.getByText(/couldn't reach your data/)).toBeOnTheScreen();
-    expect(screen.getAllByText('—').length).toBeGreaterThanOrEqual(2); // headline and This week
-    expect(screen.queryByText('$380')).toBeNull();
-    expect(screen.queryByText('$120')).toBeNull();
+    expect(screen.getByRole('button', { name: /^Spent · \w+, —$/ })).toBeOnTheScreen();
+    expect(screen.queryByText('$640')).toBeNull();
   });
 
-  it('shows net worth and opens its screen', async () => {
+  it('lists what Porter is on, up to two, and opens the credit', async () => {
     await renderScreen(<Home />);
-    expect(screen.getByText('Up $120 this week.')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByText('Net worth'));
-    expect(mockPush).toHaveBeenCalledWith('/net-worth');
+    expect(screen.getByRole('header', { name: "Porter's on it" })).toBeOnTheScreen();
+    expect(screen.getByText('2 to review')).toBeOnTheScreen();
+    expect(screen.getByText('Use your $10 Dining credit')).toBeOnTheScreen();
+    expect(screen.getByText("Use your $7 Dunkin' credit")).toBeOnTheScreen();
+    await fireEvent.press(screen.getAllByRole('button', { name: 'Show me how' })[0]!);
+    expect(mockPush).toHaveBeenCalledWith('/credits/p-dining');
   });
 
-  it('shrinks a longer greeting to fit beside the bell instead of cutting it off', async () => {
-    mockFirstName = 'Maximiliana';
+  it('puts an item off with Not now', async () => {
     await renderScreen(<Home />);
-    const greeting = screen.getByText(/Maximiliana/);
-    expect(greeting.props).toMatchObject({
-      numberOfLines: 1,
-      adjustsFontSizeToFit: true,
-      minimumFontScale: 0.75,
-    });
-    // The block holding the date and greeting takes the space left of the bell.
-    expect(StyleSheet.flatten(greeting.parent?.props.style)).toMatchObject({ flex: 1 });
-    expect(screen.getByRole('button', { name: 'Notifications' })).toBeOnTheScreen();
+    await fireEvent.press(screen.getAllByRole('button', { name: 'Not now' })[0]!);
+    expect(screen.queryByText('Use your $10 Dining credit')).toBeNull();
+    expect(screen.getByText('1 to review')).toBeOnTheScreen();
   });
 
-  it('lets a very long name use a second line rather than truncating it', async () => {
-    mockFirstName = 'Maximiliana-Alexandra';
+  it('suggests moving idle checking into savings first', async () => {
+    // $4,000 in checking, a $2,000 monthly plan and $610 due: $1,390 idle, rounded to $1,300.
+    mockAccounts = [gold, { ...checking, current_cents: 400_000 }, savings];
     await renderScreen(<Home />);
-    expect(screen.getByText(/Maximiliana-Alexandra/).props.numberOfLines).toBe(2);
+    expect(screen.getByText('Move $1,300 of idle checking into savings')).toBeOnTheScreen();
+    expect(screen.queryByText("Use your $7 Dunkin' credit")).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Show me' }));
+    expect(mockPush).toHaveBeenCalledWith('/accounts');
   });
 
-  it('shows the estimated points total and opens Points', async () => {
+  it('is calm when nothing needs the user', async () => {
+    mockBenefits = { ...benefits, needs_attention: [] };
     await renderScreen(<Home />);
-    expect(screen.getByText('122,220')).toBeOnTheScreen();
-    expect(screen.getByText('Add 1 more balance')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByText('122,220'));
-    expect(mockPush).toHaveBeenCalledWith('/points');
+    expect(screen.getByText('Nothing needs you right now.')).toBeOnTheScreen();
   });
 
-  it('asks for a points balance before showing a number', async () => {
-    mockPoints = { ...points, total_points: 0, confirmed_count: 0 };
+  it('asks to connect cards before any bank is linked', async () => {
+    mockSummary = { ...summary, has_connections: false, upcoming_payments: [] };
     await renderScreen(<Home />);
-    expect(screen.getByText('Add your balance')).toBeOnTheScreen();
-    expect(screen.queryByText('122,220')).toBeNull();
+    await fireEvent.press(screen.getByRole('button', { name: 'Connect cards' }));
+    expect(mockPush).toHaveBeenCalledWith('/onboarding/connect');
+  });
+
+  it('shows credits to use before they expire, soonest first', async () => {
+    await renderScreen(<Home />);
+    expect(screen.getByText('Use before they expire')).toBeOnTheScreen();
+    const cards = screen.getAllByLabelText(/on Gold Card\. Expires/);
+    expect(cards.map((c) => c.props.accessibilityLabel)).toEqual([
+      'Dining credit, $10 on Gold Card. Expires in 3 days.',
+      "Dunkin' credit, $7 on Gold Card. Expires in 3 days.",
+      'Resy credit, $50 on Gold Card. Expires in 34 days.',
+    ]);
+    await fireEvent.press(screen.getByRole('button', { name: 'How to use it: Resy credit' }));
+    expect(mockPush).toHaveBeenCalledWith('/credits/p-resy');
+  });
+
+  it('totals the expiring credits and opens Benefits', async () => {
+    await renderScreen(<Home />);
+    await fireEvent.press(screen.getByRole('button', { name: '$67 total, see all benefits' }));
+    expect(mockPush).toHaveBeenCalledWith('/benefits');
   });
 });

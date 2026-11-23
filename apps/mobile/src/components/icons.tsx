@@ -47,6 +47,11 @@ export const SpendingIcon = make((c) => (
   </>
 ));
 
+/** Moving money between accounts: two opposing arrows. */
+export const SwapIcon = make((c) => (
+  <Path d="M5 9h13l-3.5-3.5M19 15H6l3.5 3.5" stroke={c} {...stroke} />
+));
+
 /** Accounts tab: a bank (pediment, columns, base). */
 export const BankIcon = make((c) => (
   <Path
